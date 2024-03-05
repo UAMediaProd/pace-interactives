@@ -1,38 +1,40 @@
 <template>
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 items-center w-full px-3 py-6">
-    <div v-for="(card, index) in cardData" class="group h-80 w-[245px] mx-auto">
-      <div class="relative w-full h-full rounded-xl shadow-lg transition-all duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
-        <div class="absolute inset-0">
-          <img class="h-full w-full rounded-xl shadow-lg object-cover" :src="`https://mediaproduction.adelaide.edu.au/pace-interactives/images/${card.cover}`" alt="">
-        </div>
-        <div class="absolute inset-0 h-full w-full rounded-xl bg-black/70 px12 text-center text-slate-200 [transform:rotateY(180deg)] [backface-visibility:hidden]">
-          <div class="flex flex-col justify-end items-center h-full p-4">
-            <div class="grow flex flex-col justify-center px-4">
-              <div class="font-bold text-xl leading-6 mb-4">{{ card.title }}</div>
-              <ul class="list-disc text-left px-4 text-sm mx-auto">
-                <li v-for="point in card.points">{{ point }}</li>
-              </ul>
+  <div class="w-full">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 items-center w-full px-3 py-6">
+      <div v-for="(card, index) in cardData" class="group h-80 w-[245px] mx-auto">
+        <div class="relative w-full h-full rounded-xl shadow-lg transition-all duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
+          <div class="absolute inset-0">
+            <img class="h-full w-full rounded-xl shadow-lg object-cover" :src="`https://mediaproduction.adelaide.edu.au/pace-interactives/images/${card.cover}`" alt="">
+          </div>
+          <div class="absolute inset-0 h-full w-full rounded-xl bg-black/70 px12 text-center text-slate-200 [transform:rotateY(180deg)] [backface-visibility:hidden]">
+            <div class="flex flex-col justify-end items-center h-full p-4">
+              <div class="grow flex flex-col justify-center px-4">
+                <div class="font-bold text-xl leading-6 mb-4">{{ card.title }}</div>
+                <ul class="list-disc text-left px-4 text-sm mx-auto">
+                  <li v-for="point in card.points">{{ point }}</li>
+                </ul>
+              </div>
+              <button class="bg-primary opacity-80 hover:opacity-100 text-white px-5 py-2 rounded-full my-3 h-fit" @click="showModal = index">Learn More</button>
             </div>
-            <button class="bg-primary opacity-80 hover:opacity-100 text-white px-5 py-2 rounded-full my-3 h-fit" @click="showModal = index">Learn More</button>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div v-if="showModal !== null" class="fixed top-0 left-0 z-20 flex justify-center items-center w-full h-full backdrop-blur-sm">
-    <div class="flex max-h-[90%] md:max-h-[300px] w-11/12 max-w-2xl flex-col rounded-lg bg-white px-8 py-4 shadow-md drop-shadow-md">
-      <div class="flex justify-between mb-2">
-        <div class="text-2xl font-bold my-auto">{{ cardData[showModal].title }}</div>
-        <div class="flex justify-center items-center w-8 h-8 rounded-full bg-primary-tint text-gray-400 hover:bg-gray-300 hover:text-gray-700 cursor-pointer" @click="closeModal">
-          <i class="far fa-times text-lg"/>
+    <div v-if="showModal !== null" class="fixed top-0 left-0 z-20 flex justify-center items-center w-full h-full backdrop-blur-sm overflow-hidden">
+      <div class="flex max-h-[90%] md:max-h-[300px] w-11/12 max-w-2xl flex-col rounded-lg bg-white px-8 py-4 shadow-md drop-shadow-md">
+        <div class="flex justify-between mb-2">
+          <div class="text-2xl font-bold my-auto">{{ cardData[showModal].title }}</div>
+          <div class="flex justify-center items-center w-8 h-8 rounded-full bg-primary-tint text-gray-400 hover:bg-gray-300 hover:text-gray-700 cursor-pointer" @click="closeModal">
+            <i class="far fa-times text-lg"/>
+          </div>
         </div>
-      </div>
-      <div class="overflow-y-scroll">
-        <div v-if="cardData[showModal].description" class="leading-5 mb-2">{{ cardData[showModal].description}}</div>
-        <ul class="list-disc text-left px-4 mx-auto">
-          <li v-for="point in cardData[showModal].list" class="leading-5 mb-1.5">{{ point }}</li>
-        </ul>
+        <div class="overflow-y-scroll">
+          <div v-if="cardData[showModal].description" class="leading-5 mb-2">{{ cardData[showModal].description}}</div>
+          <ul class="list-disc text-left px-4 mx-auto">
+            <li v-for="point in cardData[showModal].list" class="leading-5 mb-1.5">{{ point }}</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
