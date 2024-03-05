@@ -1,9 +1,9 @@
 <template>
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 items-center w-full p-3">
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 items-center w-full px-3 py-6">
     <div v-for="(card, index) in cardData" class="group h-80 w-[245px] mx-auto">
-      <div class="relative w-full h-full rounded-xl shadow-xl transition-all duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
+      <div class="relative w-full h-full rounded-xl shadow-lg transition-all duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
         <div class="absolute inset-0">
-          <img class="h-full w-full rounded-xl shadow-xl object-cover" :src="`https://mediaproduction.adelaide.edu.au/pace-interactives/images/${card.cover}`" alt="">
+          <img class="h-full w-full rounded-xl shadow-lg object-cover" :src="`https://mediaproduction.adelaide.edu.au/pace-interactives/images/${card.cover}`" alt="">
         </div>
         <div class="absolute inset-0 h-full w-full rounded-xl bg-black/70 px12 text-center text-slate-200 [transform:rotateY(180deg)] [backface-visibility:hidden]">
           <div class="flex flex-col justify-end items-center h-full p-4">
@@ -21,7 +21,7 @@
   </div>
 
   <div v-if="showModal !== null" class="fixed top-0 left-0 z-20 flex justify-center items-center w-screen h-screen bg-black/50 backdrop-blur-sm">
-    <div class="flex max-h-[90vh] w-11/12 max-w-2xl flex-col overflow-y-scroll rounded bg-white px-8 py-4 shadow-xl">
+    <div class="flex max-h-[90vh] w-11/12 max-w-2xl flex-col overflow-y-scroll rounded bg-white px-8 py-4 shadow-lg">
       <div class="flex justify-between mb-2">
         <h2 class="text-xl font-bold">{{ cardData[showModal].title }}</h2>
         <div class="flex justify-center items-center w-8 h-8 rounded-full bg-primary-tint text-gray-400 hover:bg-gray-300 hover:text-gray-700 cursor-pointer" @click="closeModal">
