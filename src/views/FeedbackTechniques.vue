@@ -3,7 +3,7 @@
     <div v-for="(card, index) in cardData" class="group h-80 w-[245px] mx-auto">
       <div class="relative w-full h-full rounded-xl shadow-xl transition-all duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
         <div class="absolute inset-0">
-          <img class="h-full w-full rounded-xl shadow-xl object-cover" :src="card.cover" alt="">
+          <img class="h-full w-full rounded-xl shadow-xl object-cover" :src="`https://mediaproduction.adelaide.edu.au/pace-interactives/images/${card.cover}`" alt="">
         </div>
         <div class="absolute inset-0 h-full w-full rounded-xl bg-black/70 px12 text-center text-slate-200 [transform:rotateY(180deg)] [backface-visibility:hidden]">
           <div class="flex flex-col justify-end items-center h-full p-4">
@@ -48,7 +48,7 @@ const cardData = [
       'Holding Regular Meetings: Conduct regular check-ins to offer support and share feedback.',
       'Open Approach: Start the conversation with openness, like, "I have some feedback about ...... Is this a good time to discuss that?"'
     ],
-    cover: 'https://universityofadelaide.box.com/shared/static/mp178hw8uyep0l1he21i2nj4ghwg2p7x.png'
+    cover: 'give_feedback.png'
   },
   {
     title: 'Coaching Mindset',
@@ -58,7 +58,7 @@ const cardData = [
       'Two-Way Dialogue: Allow space for direct reports to respond, showing that you value their perspective and input.',
       'Supportive Conclusion: End with an offer of support, asking, "How can I support you better in the future?"'
     ],
-    cover: 'https://universityofadelaide.box.com/shared/static/r35ncz8iqo7etuesq6n3km5uo2dte78c.png'
+    cover: 'coaching_mindset.png'
   },
   {
     title: 'Receiving Feedback from Direct Reports',
@@ -72,7 +72,7 @@ const cardData = [
       'Implement and Follow-up: Act on the feedback and discuss the steps taken to prove your dedication to positive change.',
       'Upward feedback: Encourage direct reports to also provide you with feedback. When using this, research stresses the importance of timing and context. Approaching feedback as a two-way street, where leaders are not just the givers but also the recipients of feedback, is vital for creating a culture of continuous improvement and mutual respect​​. It helps us to build strong relationships with our teams also and show them that we trust their perspective and opinions.'
     ],
-    cover: 'https://universityofadelaide.box.com/shared/static/qwlqpdnp7sux2r5dubhfzhixu19gksig.png'
+    cover: 'receive_feedback.png'
   },
 ]
 
