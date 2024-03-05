@@ -21,7 +21,7 @@
   </div>
 
   <div v-if="showModal !== null" class="fixed top-0 left-0 z-20 flex justify-center items-center w-screen h-screen backdrop-blur-sm">
-    <div class="flex max-h-[90vh] w-11/12 max-w-2xl flex-col overflow-y-scroll rounded-lg bg-white px-8 py-4 shadow-md drop-shadow-md">
+    <div class="flex max-h-[90vh] md:max-h-[350px] w-11/12 max-w-2xl flex-col overflow-y-scroll rounded-lg bg-white px-8 py-4 shadow-md drop-shadow-md">
       <div class="flex justify-between mb-2">
         <div class="text-2xl font-bold my-auto">{{ cardData[showModal].title }}</div>
         <div class="flex justify-center items-center w-8 h-8 rounded-full bg-primary-tint text-gray-400 hover:bg-gray-300 hover:text-gray-700 cursor-pointer" @click="closeModal">
