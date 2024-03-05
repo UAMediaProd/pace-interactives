@@ -21,17 +21,19 @@
   </div>
 
   <div v-if="showModal !== null" class="fixed top-0 left-0 z-20 flex justify-center items-center w-screen h-screen backdrop-blur-sm">
-    <div class="flex max-h-[90%] md:max-h-[300px] w-11/12 max-w-2xl flex-col overflow-y-scroll rounded-lg bg-white px-8 py-4 shadow-md drop-shadow-md">
+    <div class="flex max-h-[90%] md:max-h-[300px] w-11/12 max-w-2xl flex-col rounded-lg bg-white px-8 py-4 shadow-md drop-shadow-md">
       <div class="flex justify-between mb-2">
         <div class="text-2xl font-bold my-auto">{{ cardData[showModal].title }}</div>
         <div class="flex justify-center items-center w-8 h-8 rounded-full bg-primary-tint text-gray-400 hover:bg-gray-300 hover:text-gray-700 cursor-pointer" @click="closeModal">
           <i class="far fa-times text-lg"/>
         </div>
       </div>
-      <div v-if="cardData[showModal].description" class="leading-5 mb-2">{{ cardData[showModal].description}}</div>
-      <ul class="list-disc text-left px-4 mx-auto">
-        <li v-for="point in cardData[showModal].list" class="leading-5 mb-1.5">{{ point }}</li>
-      </ul>
+      <div class="overflow-y-scroll">
+        <div v-if="cardData[showModal].description" class="leading-5 mb-2">{{ cardData[showModal].description}}</div>
+        <ul class="list-disc text-left px-4 mx-auto">
+          <li v-for="point in cardData[showModal].list" class="leading-5 mb-1.5">{{ point }}</li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
