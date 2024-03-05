@@ -20,7 +20,7 @@
     </div>
   </div>
 
-  <div v-if="showModal !== null" class="fixed top-0 left-0 z-20 flex justify-center items-center w-screen h-screen backdrop-blur-sm">
+  <div v-if="showModal !== null" class="fixed top-0 left-0 z-20 flex justify-center items-center w-full h-full backdrop-blur-sm">
     <div class="flex max-h-[90%] md:max-h-[300px] w-11/12 max-w-2xl flex-col rounded-lg bg-white px-8 py-4 shadow-md drop-shadow-md">
       <div class="flex justify-between mb-2">
         <div class="text-2xl font-bold my-auto">{{ cardData[showModal].title }}</div>
