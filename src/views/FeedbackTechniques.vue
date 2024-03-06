@@ -49,9 +49,9 @@ const cardData = [
     description: ['Hold regular meetings to offer support and share feedback with your direct reports.', 'Get the most out of your feedback conversations by:'],
     points: ['Starting the conversation with openness', 'Creating a two-way dialogue', 'Ending the conversation with an offer of support'],
     list: [
-      'Starting the conversation with openness. You could say, "I have some feedback about ...... Is this a good time to discuss that?"',
+      'Starting the conversation with openness. You could say, \'I have some feedback about ...... Is this a good time to discuss that?\'',
       'Creating a two-way dialogue. Allow space for direct reports to respond to show that you value their perspective and input.',
-      'Ending the conversation with an offer of support. You could say, "How can I support you better in the future?"'
+      'Ending the conversation with an offer of support. You could say, \'How can I support you better in the future?\''
     ],
     cover: 'give_feedback.png'
   },
@@ -64,7 +64,7 @@ const cardData = [
   },
   {
     title: 'Receiving feedback',
-    description: ['You should encourage your direct reports to provide you with feedback. Approaching feedback as a two-way street, where leaders are not just the givers but also the recipients of feedback, is vital for creating a culture of continuous improvement and mutual respect​​. It helps us to build strong relationships with our teams and show them that we trust their perspectives and opinions. Here are some tips for effectively supporting your direct reports to give you feedback.'],
+    description: ['You should encourage your direct reports to provide you with feedback. Approaching feedback as a two-way street, where leaders are not just the givers but also the recipients of feedback, is vital for creating a culture of continuous improvement and mutual respect. It helps us to build strong relationships with our teams and show them that we trust their perspectives and opinions. Here are some tips for effectively supporting your direct reports to give you feedback.'],
     points: ['Create Safety', 'Encourage feedback', 'Listen', 'Communicate openly', 'Act on the feedback received and discuss the steps to take'],
     list: [
       'Create safety. Ensure a psychologically safe space for team members to express themselves freely.',
