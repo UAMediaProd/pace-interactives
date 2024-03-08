@@ -11,6 +11,11 @@ const routes = [
     name: 'Feedback Techniques',
     component: () => import('../views/FeedbackTechniques.vue')
   },
+  {
+    path: '/smart-goals',
+    name: 'SMART Goals',
+    component: () => import('../views/SmartGoals.vue')
+  },
 ]
 
 const router = createRouter({
