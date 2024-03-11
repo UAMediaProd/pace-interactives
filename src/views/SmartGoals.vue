@@ -51,7 +51,7 @@ const goals = [
       'Who?',
       'What?',
       'Where?',
-      'Whe?',
+      'When?',
       'Why?'
     ]
   },
