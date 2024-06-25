@@ -20,10 +20,7 @@
           <div class="flex justify-center w-full h-full relative">
             <div class="w-full pl-2 mx-auto my-auto">
               <div class="w-fit max-w-[705px] mx-auto">
-                <div class="font-bold leading-6">{{ goal.question }}</div>
-                <ul class="list-disc text-left flex flex-wrap pl-4 text-sm mx-auto leading-5">
-                  <li v-for="(point, index) in goal.list" :class="index < goal.list.length - 1 ? 'mr-6' : ''">{{ point }}</li>
-                </ul>
+                <div class="font-bold italic leading-6 mr-2">"{{ goal.flip }}"</div>
               </div>
             </div>
 
@@ -43,64 +40,42 @@ const goals = [
   {
     title: 'Specific',
     init: 'S',
-    explanation: 'Goals should be clear and specific, answering the questions of who, what, where, when and why. This helps to provide a clear purpose.',
+    explanation: 'What needs to be accomplished? Who is involved and is responsible for it?',
     color: '#fa6769',
     icon: 'fa-bullseye-arrow',
-    question: 'What outcome do I want to achieve? Consider:',
-    list: [
-      'Who?',
-      'What?',
-      'Where?',
-      'When?',
-      'Why?'
-    ]
+    flip: 'Design and launch a peer mentorship program connecting 100 first-year students with 25 trained mentors from the same faculty.',
   },
   {
     title: 'Measurable',
     init: 'M',
-    explanation: 'Goals should include criteria that allow for progress measurement. This helps to track and assess whether a goal has been met.',
+    explanation: 'Includes quantifiable indicators of progress. Specifies how success will be evaluated.',
     color: '#f8961e',
     icon: 'fa-analytics',
-    question: 'How will I know if I\'ve achieved my goal? Consider:',
-    list: [
-      'How much?',
-      'What will progress look like?',
-      'How will quality be measured?',
-    ]
+    flip: 'Track the number of mentor-mentee pairings formed and measure program effectiveness through monthly participation rates and end-of-semester feedback.',
   },
   {
     title: 'Achievable',
     init: 'A',
-    explanation: 'Goals should be realistic and attainable. It\'s good to aim high, but the goal should not be so challenging that it becomes impossible to achieve.',
+    explanation: 'Goals should be realistic and attainable. It\'s good to aim high, but the goal should not be so challenging that it becomes impossible to achieve. Ask yourself \"Do we have the knowledge, skills and resources to achieve our goal?\"',
     color: '#90be6d',
     icon: 'fa-trophy-alt',
-    question: 'How will I assess if my goal is achievable? Consider:',
-    list: [
-      'Do I have the knowledge, skills, and resources to achieve my goal? If not, what am I missing? How can I address these deficits?',
-      'Have other people been able to achieve this goal before? What can I learn or adapt from their experience to assist me?',
-    ]
+    flip: 'Select and train 25 high-achieving students as mentors, providing them with clear guidelines and resources. Work with academic advisors to identify and invite 100 first-year students who would benefit most from the program.',
   },
   {
     title: 'Relevant',
     init: 'R',
-    explanation: 'Goals should be aligned with broader objectives relevant to the bigger picture, whether that is at an individual, team, or institution level.',
+    explanation: 'Goals should be aligned with broader objectives relevant to the bigger picture, whether that is at an individual, team, or institutional level.',
     color: '#4cc9f0',
     icon: 'fa-draw-circle',
-    question: 'How will I assess the relevance of my goal? Consider:',
-    list: ['How does this goal align with my other personal objectives or the objectives of my team or institution?']
+    flip: 'The peer mentorship program directly supports the faculty’s goal of improving first-year student retention by providing personalised guidance, fostering a sense of community, and helping new students navigate academic challenges.',
   },
   {
     title: 'Time-bound',
     init: 'T',
-    explanation: 'Goals should have a specific timeframe for completion to encourage effective time management.',
+    explanation: 'Goals should have a specific timeframe for completion to encourage effective time management. Ask yourself \"When will we start?\" \"When will we assess the project?\" \"When will we finish?\"',
     color: '#a279b5',
     icon: 'fa-calendar-alt',
-    question: 'When will I achieve my goal? Consider:',
-    list: [
-      'When will I begin?',
-      'When will I assess my progress?',
-      'When will I finish?',
-    ]
+    flip: 'Complete mentor recruitment and training by June 15th, finalise mentee selection by July 1st, and launch the program during the first week of the second semester. Conduct mid-semester check-ins and a full program evaluation by December 15th.',
   }
 ]
 
