@@ -17,6 +17,11 @@ const routes = [
     component: () => import('../views/SmartGoals.vue')
   },
   {
+    path: '/role-modelling',
+    name: 'Role Modelling',
+    component: () => import('../views/RoleModelling.vue')
+  },
+  {
     path: '/test',
     name: 'test',
     component: () => import('../views/test.vue')

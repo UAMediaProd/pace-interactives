@@ -20,6 +20,10 @@
             <i class="fas fa-circle text-[6px] my-auto align-middle mr-3" />
             <RouterLink to="/smart-goals" class="home-router-link">SMART Goals</RouterLink>
           </li>
+          <li class="home-list-item">
+            <i class="fas fa-circle text-[6px] my-auto align-middle mr-3" />
+            <RouterLink to="/role-modelling" class="home-router-link">Role Modelling</RouterLink>
+          </li>
         </ul>
       </div>
     </div>
