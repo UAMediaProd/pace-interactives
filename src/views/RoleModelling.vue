@@ -67,7 +67,7 @@ const goals = [
     explanation: 'Reflect on your leadership practice',
     color: '#a279b5',
     icon: 'fa-lightbulb-on',
-    flip: 'Being a great role model isn\'t easy. It requires self-awareness, regular reflection, and a lot of practise. ask yourself questions like, \"did I demonstrate openness to others\' ideas?\" and \"did I embrace feedback as a way to improve, or did I take it personally?\" will help you to identify strengths and areas for improvement.',
+    flip: 'Being a great role model isn\'t easy. It requires self-awareness, regular reflection, and a lot of practise. Ask yourself questions like, \"did I demonstrate openness to others\' ideas?\" and \"did I embrace feedback as a way to improve, or did I take it personally?\" will help you to identify strengths and areas for improvement.',
   }
 ]
 
