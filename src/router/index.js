@@ -22,6 +22,11 @@ const routes = [
     component: () => import('../views/RoleModelling.vue')
   },
   {
+    path: '/walds-planes',
+    name: 'Walds Planes',
+    component: () => import('../views/WaldsPlanes.vue')
+  },
+  {
     path: '/test',
     name: 'test',
     component: () => import('../views/test.vue')
