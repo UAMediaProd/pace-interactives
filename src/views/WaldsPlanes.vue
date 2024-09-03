@@ -18,12 +18,13 @@
       <button @click="getResults" class="border bg-gray-100">Send planes</button>
     </div>
     <div class="w-2/3 p-2">
-      <div>You're adding {{ sumInputs }} extra kilograms of armour to each plane.</div>
+      <div>You're adding {{ extraArmour }} extra kilograms of armour to each plane.</div>
       <div>Out of {{ squadronSize }} planes, {{ numReturned }} have returned.</div>
       <div>You have observed {{ numHits }} bullet marks in total on the returned planes.</div>
 
       <div>That's an average of {{ numReturned ? hitsPerPlane : 'n/a' }} per plane.</div>
 
+      <div v-for="(loc, index) in modes[currentMode].locations">{{ loc }}: {{ hitProportion[index] }}%</div>
 
     </div>
   </div>
@@ -49,24 +50,20 @@ const modes = {
     locations: ['tail', 'rudder', 'elevator', 'rearFusalage', 'midsection', 'fuelTank', 'engines', 'wings', 'winglet', 'aileron', 'flaps', 'cockpit']
   }
 }
-const inputMax = {
-  Beginner: 10,
-  Intermediate: 5,
-  Advanced: 3
-}
+
 const planeLocations = [
   { name: 'tail', display: "Tail", modes: ["Beginner", "Intermediate", 'Advanced'] },
-  { name: 'rudder', display: "Rudder", modes: ['Advanced'] },
-  { name: 'elevator', display: "Elevator", modes: ['Advanced'] },
+  { name: 'cockpit', display: "Cockpit", modes: ["Beginner", "Intermediate", 'Advanced'] },
   { name: 'rearFusalage', display: "Rear Fusalage", modes: ["Intermediate", 'Advanced'] },
-  { name: 'midsection', display: "Midsection", modes: ['Advanced'] },
   { name: 'fuelTank', display: "Fuel Tank", modes: ["Intermediate", 'Advanced'] },
   { name: 'engines', display: "Engines", modes: ["Intermediate", 'Advanced'] },
   { name: 'wings', display: "Wings", modes: ["Intermediate", 'Advanced'] },
+  { name: 'rudder', display: "Rudder", modes: ['Advanced'] },
+  { name: 'elevator', display: "Elevator", modes: ['Advanced'] },
+  { name: 'midsection', display: "Midsection", modes: ['Advanced'] },
   { name: 'winglet', display: "Winglet", modes: ['Advanced'] },
   { name: 'aileron', display: "Aileron", modes: ['Advanced'] },
   { name: 'flaps', display: "Flaps", modes: ['Advanced'] },
-  { name: 'cockpit', display: "Cockpit", modes: ["Beginner", "Intermediate", 'Advanced'] },
 ]
 const squadronSize = 100
 const baseHits = 1.14
@@ -88,6 +85,7 @@ const inputs = ref({
   cockpit: 0
 })
 const results = ref([])
+const extraArmour = ref(0)
 
 const sd = computed(() => {
   return modes[currentMode.value].inputMax / 8
@@ -102,7 +100,7 @@ const vulnerability = computed(() => {
 })
 
 const armour = computed(() => {
-  return modes[currentMode.value].locations.map((l, i) => parseFloat(inputs.value[l]) + vulnerability.value[0] * modes[currentMode.value].inputMax / 4)
+  return modes[currentMode.value].locations.map(l => parseFloat(inputs.value[l]) + vulnerability.value[0] * modes[currentMode.value].inputMax / 4)
 })
 
 const hitsLambda = computed(() => {
@@ -129,6 +127,14 @@ const hitsPerPlane = computed(() => {
   return Math.round(numHits.value / numReturned.value * 10) / 10
 })
 
+const hitProportion = computed(() => {
+  const totalHits = results.value.reduce((acc, val) => acc.concat(val.flat()), []).reduce((acc, val) => acc + val, 0)
+  return modes[currentMode.value].locations.map((l, i) => {
+    let hits = results.value.flat().reduce((acc, val) => acc + val[i], 0)
+    return Math.round(hits / totalHits * 10000) / 100
+  }).sort((a, b) => a - b)
+})
+
 function mission () {
   let planes = []
   for (let i = 0; i < squadronSize; i++) {
@@ -140,7 +146,6 @@ function mission () {
     }
     planes.push(eachPlane)
   }
-  console.log(planes)
 
   const altProbKill = probKill.value.map(p => 1 - p)
 
@@ -185,11 +190,11 @@ function sample (array, n) {
 }
 
 function getResults () {
+  extraArmour.value = sumInputs.value
   let missions = []
   for (let i = 0; i < squadronSize; i++) {
     missions.push(mission())
   }
-  // console.log(missions)
   results.value = missions
 }
 
@@ -201,6 +206,7 @@ watch(currentMode, () => {
   for (const key in inputs.value) {
     inputs.value[key] = 0
   }
+  getResults()
 })
 </script>
 
