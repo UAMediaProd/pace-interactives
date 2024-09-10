@@ -23,7 +23,7 @@ const routes = [
   },
   {
     path: '/walds-planes',
-    name: 'Walds Planes',
+    name: 'Making War Planes Safer',
     component: () => import('../views/WaldsPlanes.vue')
   },
   {

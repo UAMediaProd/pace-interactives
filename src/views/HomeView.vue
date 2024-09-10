@@ -24,6 +24,10 @@
             <i class="fas fa-circle text-[6px] my-auto align-middle mr-3" />
             <RouterLink to="/role-modelling" class="home-router-link">Role Modelling</RouterLink>
           </li>
+          <li class="home-list-item">
+            <i class="fas fa-circle text-[6px] my-auto align-middle mr-3" />
+            <RouterLink to="/walds-planes" class="home-router-link">Wald's Planes - Making War Planes Safer</RouterLink>
+          </li>
         </ul>
       </div>
     </div>
