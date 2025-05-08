@@ -1,7 +1,7 @@
 <template>
 <div class="max-w-[1100px] mx-auto">
 
-<div class="flex w-full items-center mb-4">
+<div class="flex w-full mx-auto items-center mb-4 gap-4">
     <div class="w-1/2">
         <svg id="Layer_2" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 550 850" width="100%">
 
@@ -93,7 +93,7 @@
 </g>
 </svg>
     </div>
-    <div class="w-full p-4">
+    <div class="w-1/2 p-4">
         <!-- Definitions to go here -->
          <div class="shadow-md bg-white rounded-lg p-4 min-h-[100px]">
             <h3 v-if="selectedTitle" class="text-xl font-bold mb-2">{{ selectedTitle }}</h3>
