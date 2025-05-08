@@ -2,7 +2,7 @@
 <div class="max-w-[1100px] mx-auto">
 
 <div class="flex w-full items-center mb-4">
-    <div class="w-2/3">
+    <div class="w-1/2">
         <svg id="Layer_2" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 550 850" width="100%">
 
 <g>
