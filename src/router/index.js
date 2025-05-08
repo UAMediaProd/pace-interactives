@@ -27,6 +27,11 @@ const routes = [
     component: () => import('../views/WaldsPlanes.vue')
   },
   {
+    path: '/system-model',
+    name: 'System Model',
+    component: () => import('../views/SystemModel.vue')
+  },
+  {
     path: '/test',
     name: 'test',
     component: () => import('../views/test.vue')
