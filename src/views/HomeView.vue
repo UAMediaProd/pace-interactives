@@ -28,6 +28,10 @@
             <i class="fas fa-circle text-[6px] my-auto align-middle mr-3" />
             <RouterLink to="/walds-planes" class="home-router-link">Wald's Planes - Making War Planes Safer</RouterLink>
           </li>
+          <li class="home-list-item">
+            <i class="fas fa-circle text-[6px] my-auto align-middle mr-3" />
+            <RouterLink to="/isr-coverage" class="home-router-link">ISR Coverage</RouterLink>
+          </li>
         </ul>
       </div>
     </div>
