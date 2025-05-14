@@ -32,6 +32,10 @@
             <i class="fas fa-circle text-[6px] my-auto align-middle mr-3" />
             <RouterLink to="/isr-coverage" class="home-router-link">ISR Coverage</RouterLink>
           </li>
+          <li class="home-list-item">
+            <i class="fas fa-circle text-[6px] my-auto align-middle mr-3" />
+            <RouterLink to="/verification-steps" class="home-router-link">Verification Steps</RouterLink>
+          </li>
         </ul>
       </div>
     </div>

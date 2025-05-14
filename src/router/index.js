@@ -41,6 +41,11 @@ const routes = [
     name: 'ISR Coverage',
     component: () => import('../views/isrCoverage.vue')
   },
+  {
+    path: '/verification-steps',
+    name: 'Verification Steps',
+    component: () => import('../views/VerificationSteps.vue')
+  },
 ]
 
 const router = createRouter({
