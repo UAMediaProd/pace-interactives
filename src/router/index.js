@@ -46,6 +46,11 @@ const routes = [
     name: 'Verification Steps',
     component: () => import('../views/VerificationSteps.vue')
   },
+  {
+    path: '/clos',
+    name: 'CLOs',
+    component: () => import('../views/CLOs.vue')
+  },
 ]
 
 const router = createRouter({
