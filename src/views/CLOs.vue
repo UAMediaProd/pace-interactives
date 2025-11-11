@@ -120,36 +120,53 @@
       </div>
     </section>
 
-    <!-- Section 2A: Scaled Percentages -->
-    <section class="mb-8 bg-white rounded-lg shadow p-6">
-      <h2 class="section-heading mb-4">2A. Scaled Percentages (Auto-calculated)</h2>
-      <p class="text-sm text-gray-600 mb-4">
-        Raw values converted to percentages for each CLO across all assessments.
-      </p>
-      <div class="overflow-x-auto">
-        <table class="w-full border-collapse">
-          <thead>
-            <tr class="bg-gray-100">
-              <th class="border p-2 text-left">CLO</th>
-              <th v-for="assessment in assessments" :key="assessment.id" class="border p-2 text-center">
-                {{ assessment.name || 'Assessment ' + assessment.id }}
-              </th>
-              <th class="border p-2 text-center bg-gray-200">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(clo, index) in clos" :key="clo.id">
-              <td class="border p-2 font-semibold">CLO {{ index + 1 }}</td>
-              <td v-for="assessment in assessments" :key="assessment.id" class="border p-2 text-right bg-blue-50">
-                {{ getScaledPercentage(clo.id, assessment.id).toFixed(1) }}%
-              </td>
-              <td class="border p-2 text-right font-semibold bg-gray-50" :class="getCLOScaledTotal(clo.id) === 100 ? 'text-success' : 'text-warning'">
-                {{ getCLOScaledTotal(clo.id) }}%
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <!-- Section 2A: Scaled Percentages (Collapsible) -->
+    <section class="justify-center align-center text-center" style="box-shadow: none;">
+        <button class="btn-secondary flex items-center gap-2 mx-auto" @click="toggleSection2A">
+          <span>{{ showSection2A ? 'Hide' : 'Show' }} Section 2A - Calculated Details</span>
+          <svg 
+            class="w-5 h-5 transition-transform duration-200" 
+            :class="{ 'rotate-180': showSection2A }"
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+      
+      <transition name="accordion">
+        <div v-if="showSection2A" class="mb-8 bg-white rounded-lg shadow p-6">
+          <p class="text-sm text-gray-600 mb-4">
+            Raw values converted to percentages for each CLO across all assessments.
+          </p>
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse">
+              <thead>
+                <tr class="bg-gray-100">
+                  <th class="border p-2 text-left">CLO</th>
+                  <th v-for="assessment in assessments" :key="assessment.id" class="border p-2 text-center">
+                    {{ assessment.name || 'Assessment ' + assessment.id }}
+                  </th>
+                  <th class="border p-2 text-center bg-gray-200">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(clo, index) in clos" :key="clo.id">
+                  <td class="border p-2 font-semibold">CLO {{ index + 1 }}</td>
+                  <td v-for="assessment in assessments" :key="assessment.id" class="border p-2 text-right bg-blue-50">
+                    {{ getScaledPercentage(clo.id, assessment.id).toFixed(1) }}%
+                  </td>
+                  <td class="border p-2 text-right font-semibold bg-gray-50" :class="getCLOScaledTotal(clo.id) === 100 ? 'text-success' : 'text-warning'">
+                    {{ getCLOScaledTotal(clo.id) }}%
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </transition>
     </section>
 
     <!-- Section 3: Overall Course Contribution -->
@@ -235,6 +252,9 @@
 import { ref, computed, reactive } from 'vue'
 
 const wrapperClass = "mx-auto mt-4 p-4 max-w-[1200px]"
+
+// UI state
+const showSection2A = ref(false)
 
 // Data structures
 const clos = ref([
@@ -381,6 +401,10 @@ const getHeatmapStyle = (value, allValues) => {
 }
 
 // Actions
+const toggleSection2A = () => {
+  showSection2A.value = !showSection2A.value
+}
+
 const addCLO = () => {
   clos.value.push({
     id: nextCLOId++,
@@ -477,6 +501,42 @@ const removeAssessment = (assessmentId) => {
 .btn-primary:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Secondary Button for accordion toggle */
+.btn-secondary {
+  background-color: transparent;
+  color: #140F50;
+  padding: 0.5rem 1rem;
+  border: 2px solid #140F50;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #140F50;
+  color: white;
+}
+
+/* Accordion animation */
+.accordion-enter-active,
+.accordion-leave-active {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.accordion-enter-from,
+.accordion-leave-to {
+  opacity: 0;
+  max-height: 0;
+}
+
+.accordion-enter-to,
+.accordion-leave-from {
+  opacity: 1;
+  max-height: 2000px;
 }
 
 /* Success and Warning colors from AU theme */
