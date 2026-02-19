@@ -51,6 +51,11 @@ const routes = [
     name: 'CLOs',
     component: () => import('../views/CLOs.vue')
   },
+  {
+    path: '/clos-inverse',
+    name: 'CLOs Inverse',
+    component: () => import('../views/CLOsInverse.vue')
+  },
 ]
 
 const router = createRouter({
