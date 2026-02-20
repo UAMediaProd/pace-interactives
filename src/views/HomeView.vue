@@ -40,6 +40,10 @@
             <i class="fas fa-circle text-[6px] my-auto align-middle mr-3" />
             <RouterLink to="/clos" class="home-router-link">CLOs</RouterLink>
           </li>
+          <li class="home-list-item">
+            <i class="fas fa-circle text-[6px] my-auto align-middle mr-3" />
+            <RouterLink to="/rubric-outcome-mapping" class="home-router-link">Rubric Outcome Mapping Demo</RouterLink>
+          </li>
         </ul>
       </div>
     </div>

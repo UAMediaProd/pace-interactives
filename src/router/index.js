@@ -56,6 +56,11 @@ const routes = [
     name: 'CLOs Inverse',
     component: () => import('../views/CLOsInverse.vue')
   },
+  {
+    path: '/rubric-outcome-mapping',
+    name: 'Rubric Outcome Mapping Demo',
+    component: () => import('../views/RubricOutcomeMapping.vue')
+  },
 ]
 
 const router = createRouter({
