@@ -425,7 +425,7 @@ const newRubric = { id: '', name: '', criteria: [] }
 const newCriterion = { id: '', name: '', description: '', points: 4, outcomeId: '' }
 const newAssignment = { id: '', name: '', type: 'Assignment', details: '', points: 0, rubricId: '' }
 
-const currentMenu = ref(menus[2])
+const currentMenu = ref(menus[0])
 const outcomesTab = ref(outcomesTabs[0])
 const rubricsView = ref(rubricsViews[0])
 const assignmentsView = ref(assignmentsViews[0])
