@@ -86,7 +86,8 @@
                     <div class="text-xl">{{ outcomes.length }} OUTCOMES</div>
                     <div class="flex">
                       <div class="mr-3"><strong class="text-lg">{{ outcomeCoverage }}%</strong> Coverage</div>
-                      <div><strong class="text-lg">{{ avgAlignmentsPerOutcome }}</strong> Avg. Alignments per Outcome</div>
+                      <div><strong class="text-lg">{{ avgAlignmentsPerOutcome }}</strong> Avg. Alignments per Outcome
+                      </div>
                     </div>
                   </div>
 
@@ -120,10 +121,12 @@
 
           <!--    Rubrics      -->
           <div v-if="currentMenu === 'Rubrics'" class="p-12 pt-9">
-            <div v-if="rubricView === 'List'" class="mx-6">
+            <div v-if="rubricsView === 'List'" class="mx-6">
               <div class="flex justify-between">
                 <div class="font-bold text-[38px]">Rubrics</div>
-                <button class="h-9 bg-blue-600 text-white rounded-md px-4 my-auto hover:bg-blue-700" @click="startCreateRubric"><i class="far fa-plus mr-1"/> Create New Rubric</button>
+                <button class="h-9 bg-blue-600 text-white rounded-md px-4 my-auto hover:bg-blue-700" @click="startCreateRubric">
+                  <i class="far fa-plus mr-1"/> Create New Rubric
+                </button>
               </div>
               <table class="w-full">
                 <thead>
@@ -138,7 +141,7 @@
                 <tbody>
                   <tr v-for="rubric in rubrics" class="text-left border-b">
                     <td class="px-1">{{ rubric.name }}</td>
-                    <td class="px-1">{{ rubric.criteria.reduce((a,c) => a + c.points, 0) }}</td>
+                    <td class="px-1">{{ rubric.criteria.reduce((a, c) => a + c.points, 0) }}</td>
                     <td class="px-1">{{ rubric.criteria.length }}</td>
                     <td class="px-1">-</td>
                     <td class="px-1 flex">
@@ -150,42 +153,52 @@
               </table>
             </div>
 
-            <div v-if="['Create', 'Edit'].includes(rubricView)" class="mx-6">
-              <div class="font-bold text-[38px]">{{ rubricView === 'Create' ? 'Create New' : 'Edit' }} Rubric</div>
+            <div v-if="['Create', 'Edit'].includes(rubricsView)" class="mx-6">
+              <div class="font-bold text-[38px]">{{ rubricsView === 'Create' ? 'Create New' : 'Edit' }} Rubric</div>
               <div class="flex">
                 <div class="w-1/2">
-                  <div class="font-bold text-lg">Rubric Name <span :class="currentRubric.name ? '' : 'text-red-600'">*</span></div>
-                  <input v-model="currentRubric.name" type="text" class="border border-slate-200 shadow-inner rounded w-full px-2 py-1" />
+                  <div class="font-bold text-lg">Rubric Name
+                    <span :class="currentRubric.name ? '' : 'text-red-600'">*</span></div>
+                  <input v-model="currentRubric.name" type="text" class="border border-slate-200 shadow-inner rounded w-full px-2 py-1"/>
                   <div><span v-if="!currentRubric.name" class="text-red-600 text-sm">Rubric requires a name</span></div>
                 </div>
               </div>
 
               <div class="flex justify-between my-3">
                 <div class="font-bold text-xl my-auto">Criteria Builder</div>
-                <div class="font-bold text-lg my-auto">{{ currentRubric.criteria.reduce((a,c) => a + c.points, 0) }} Points Possible</div>
+                <div class="font-bold text-lg my-auto">{{ currentRubric.criteria.reduce((a, c) => a + c.points, 0) }} Points Possible</div>
               </div>
 
               <div v-for="(criterion, index) in currentRubric.criteria" class="my-3">
                 <div class="flex justify-between">
                   <div class="flex grow">
                     <div class="flex flex-col justify-between w-3 text-lg mr-3">
-                      <div><i v-if="index" class="fas fa-caret-up cursor-pointer opacity-60 hover:opacity-100" @click="swapCriterion(index, index-1)"/></div>
-                      <div><i v-if="index < currentRubric.criteria.length - 1" class="fas fa-caret-down cursor-pointer opacity-60 hover:opacity-100" @click="swapCriterion(index, index+1)" /></div>
+                      <div>
+                        <i v-if="index" class="fas fa-caret-up cursor-pointer opacity-60 hover:opacity-100" @click="swapCriterion(index, index-1)"/>
+                      </div>
+                      <div>
+                        <i v-if="index < currentRubric.criteria.length - 1" class="fas fa-caret-down cursor-pointer opacity-60 hover:opacity-100" @click="swapCriterion(index, index+1)"/>
+                      </div>
                     </div>
-                    <div class="text-lg font-bold mr-2">{{ index + 1 }}. </div>
+                    <div class="text-lg font-bold mr-2">{{ index + 1 }}.</div>
                     <div class="my-auto">
                       <div class="text-lg font-bold">{{ criterion.name }}</div>
                       <div v-if="criterion.description" class="text-sm text-slate-600 leading-tight">{{ criterion.description }}</div>
-                      <div class="text-sm font-bold">Outcome: <span :class="outcomes.find(o => o.id === criterion.outcomeId) ? 'text-white bg-orange-600 rounded-full px-2 py-0.5 ml-0.5' : 'font-normal text-slate-600'">{{ outcomes.find(o => o.id === criterion.outcomeId) ? outcomes.find(o => o.id === criterion.outcomeId).name : 'N/A' }}</span></div>
+                      <div class="text-sm font-bold">Outcome:
+                        <span :class="outcomes.find(o => o.id === criterion.outcomeId) ? 'text-white bg-orange-600 rounded-full px-2 py-0.5 ml-0.5' : 'font-normal text-slate-600'">{{ outcomes.find(o => o.id === criterion.outcomeId) ? outcomes.find(o => o.id === criterion.outcomeId).name : 'N/A' }}</span>
+                      </div>
                     </div>
                   </div>
                   <div class="flex justify-end">
                     <div class="rounded-full bg-sky-600 text-white text-sm px-2 my-auto mx-2">{{ criterion.points }} pts</div>
-                    <div class="mx-2 my-auto"><i class="fal fa-pencil-alt cursor-pointer" @click="editCriterion(criterion.id)" /></div>
-                    <div class="mx-2 my-auto"><i class="fal fa-trash-alt text-red-700 cursor-pointer" @click="deleteCriterion(criterion.id)"/></div>
+                    <div class="mx-2 my-auto">
+                      <i class="fal fa-pencil-alt cursor-pointer" @click="editCriterion(criterion.id)"/></div>
+                    <div class="mx-2 my-auto">
+                      <i class="fal fa-trash-alt text-red-700 cursor-pointer" @click="deleteCriterion(criterion.id)"/>
+                    </div>
                   </div>
                 </div>
-                <hr class="my-1" />
+                <hr class="my-1"/>
               </div>
 
               <div class="flex my-3">
@@ -194,21 +207,21 @@
                 </button>
               </div>
 
-              <hr />
+              <hr/>
               <div class="flex justify-end py-2">
                 <button class="bg-slate-50 border border-slate-300 rounded-md px-3 py-2 cursor-pointer mr-2 my-auto hover:bg-gray-100" @click="endEditRubric">Cancel</button>
-                <button v-if="rubricView === 'Create'" class="bg-indigo-500  rounded-md px-3 py-2 cursor-pointer mr-2 my-auto hover:bg-indigo-700 text-white disabled:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed" :disabled="!currentRubric.name || !currentRubric.criteria" @click="createRubric">Create rubric</button>
+                <button v-if="rubricsView === 'Create'" class="bg-indigo-500  rounded-md px-3 py-2 cursor-pointer mr-2 my-auto hover:bg-indigo-700 text-white disabled:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed" :disabled="!currentRubric.name || !currentRubric.criteria" @click="createRubric">Create rubric</button>
                 <button v-else class="bg-indigo-500  rounded-md px-3 py-2 cursor-pointer mr-2 my-auto hover:bg-indigo-700 text-white disabled:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed" :disabled="!currentRubric.name || !currentRubric.criteria" @click="updateRubric">Save rubric</button>
               </div>
 
             </div>
 
-            <div v-if="rubricView === 'View'" class="mx-6">
+            <div v-if="rubricsView === 'View'" class="mx-6">
 
             </div>
 
-
-            <div v-show="criterionMode" id="CriterionModal" class="fixed inset-0 z-[999] h-screen w-screen place-items-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300 flex justify-center">
+            <!--    Criterion Modal        -->
+            <div v-if="criterionMode" id="CriterionModal" class="fixed inset-0 z-[999] h-screen w-screen place-items-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300 flex justify-center">
               <div class="w-3/5 rounded bg-white shadow overflow-hidden">
                 <div class="py-3 px-4 text-xl font-bold">{{ criterionMode === 'Create' ? 'Create new' : 'Edit' }} criterion</div>
                 <hr/>
@@ -216,7 +229,7 @@
                   <div class="flex">
                     <div class="w-1/3 px-1">
                       <div class="font-bold">Criterion name</div>
-                      <input v-model="currentCriterion.name" type="text" class="border border-slate-200 shadow-inner rounded w-full px-2 py-1" placeholder="Enter the name" />
+                      <input v-model="currentCriterion.name" type="text" class="border border-slate-200 shadow-inner rounded w-full px-2 py-1" placeholder="Enter the name"/>
                     </div>
                     <div class="w-2/3 px-1">
                       <div class="font-bold">Criterion description</div>
@@ -224,7 +237,11 @@
                     </div>
                   </div>
                   <div class="flex justify-between my-4">
-                    <div>4 - Exceeds <span class="text-slate-300 mx-1">|</span> 3 - Mastery <span class="text-slate-300 mx-1">|</span> 2 - Near <span class="text-slate-300 mx-1">|</span> 1 - Below <span class="text-slate-300 mx-1">|</span> 0 - No Evidence</div>
+                    <div>4 - Exceeds <span class="text-slate-300 mx-1">|</span> 3 - Mastery
+                      <span class="text-slate-300 mx-1">|</span> 2 - Near
+                      <span class="text-slate-300 mx-1">|</span> 1 - Below
+                      <span class="text-slate-300 mx-1">|</span> 0 - No Evidence
+                    </div>
                     <div>4 Points possible</div>
                   </div>
                   <div class="flex mb-3">
@@ -243,11 +260,102 @@
             </div>
           </div>
 
-          <!--    Rubrics      -->
+          <!--    Assignments      -->
           <div v-if="currentMenu === 'Assignments'" class="p-12 pt-9">
-            <div class="mx-6">
-              <div class="font-bold text-[38px]">Assignments</div>
+            <div v-if="assignmentsView !== 'View'" class="mx-6">
+              <div class="flex justify-between">
+                <div></div>
+                <div class="flex justify-end">
+                  <button class="bg-blue-600 hover:bg-blue-700 text-white rounded px-4 py-2" @click="createAssignment">
+                    <i class="fal fa-plus mr-1"/>Assignment
+                  </button>
+                </div>
+              </div>
+              <div class="border border-gray-200 my-3">
+                <div class="border-b border-gray-200 bg-gray-100 px-6 py-3 font-bold text-lg">Assignments</div>
+                <div v-if="assignments.length">
+                  <div v-for="(assignment, index) in assignments">
+                    <hr v-if="index"/>
+                    <div class="flex justify-between py-3 hover:bg-blue-50">
+                      <div class="flex grow">
+                        <div class="flex flex-col justify-between w-3 mx-3">
+                          <div class="leading-tight">
+                            <i v-if="index" class="fas fa-caret-up cursor-pointer opacity-60 hover:opacity-100" @click="swapAssignments(index, index-1)"/>
+                          </div>
+                          <div>
+                            <i v-if="index < assignments.length - 1" class="fas fa-caret-down cursor-pointer opacity-60 hover:opacity-100" @click="swapAssignments(index, index+1)"/>
+                          </div>
+                        </div>
+                        <div class="my-auto">
+                          <img v-if="['Assignment', 'External tool', 'Not graded'].includes(assignment.type)" src="@/assets/rubric-outcome-mapping/assignment-icon.svg" alt="Assignment" class="w-4 h-4 mr-4"/>
+                          <img v-if="assignment.type === 'Discussion'" src="@/assets/rubric-outcome-mapping/discussion-icon.svg" alt="Assignment" class="w-4 h-4 mr-4"/>
+                          <img v-if="assignment.type === 'Quiz'" src="@/assets/rubric-outcome-mapping/quiz-icon.svg" alt="Assignment" class="w-4 h-4 mr-4"/>
+                        </div>
+                        <div class="my-auto">
+                          <div class="font-bold cursor-pointer hover:underline" @click="viewAssignment(assignment.id)">{{ assignment.name }}</div>
+                          <div v-if="assignment.points" class="text-xs leading-tight">{{ assignment.points }} pts</div>
+                        </div>
+                      </div>
+                      <div class="flex justify-end mr-2">
+                        <div class="mx-2 my-auto">
+                          <i class="fal fa-pencil-alt cursor-pointer" @click="editAssignment(assignment.id)"/></div>
+                        <div class="mx-2 my-auto">
+                          <i class="fal fa-trash-alt text-red-700 cursor-pointer" @click="deleteAssignment(assignment.id)"/>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div v-else class="py-1 text-center">No assignments in this group</div>
+              </div>
             </div>
+
+            <div v-if="assignmentsView === 'View'" class="mx-6">
+              <div class="font-bold text-[38px]">{{ currentAssignment.name }}</div>
+              <div class="border border-gray-300 px-3 py-2 w-full">No additional details were added for this assignment.</div>
+              <div class="font-bold ml-3 my-3">Points: <span class="font-normal">{{ currentAssignment.points }}</span>
+              </div>
+              <hr/>
+              <div class="w-fit border border-gray-200 p-3 mr-auto mt-6">
+                <div v-if="currentAssignment.rubricId" class="flex">
+                  <img src="@/assets/rubric-outcome-mapping/rubric-icon.svg" alt="rubric" class="w-4 h-4 mr-3">
+                  <div class="mx-2">{{ rubrics.find(r => r.id === currentAssignment.rubricId).name }}</div>
+                  <button class="bg-gray-100 border border-gray-300 rounded mx-2"><i class="fal fa-trash-alt"/></button>
+                  <button class="bg-gray-100 px-3 py-2 border border-gray-300 rounded ">
+                    <i class="fal fa-search mr-2"/>Replace rubric
+                  </button>
+                </div>
+                <div v-else>
+                  <button class="bg-gray-100 px-3 py-2 border border-gray-300 rounded ">
+                    <i class="fal fa-search mr-2"/>Find rubric
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!--     Assignment Edit modal       -->
+            <div v-if="['Create', 'Edit'].includes(assignmentsView)" id="AssignmentModal" class="fixed inset-0 z-[999] h-screen w-screen place-items-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300 flex justify-center">
+              <div class="w-2/5 max-w-[480px] rounded bg-white shadow overflow-hidden">
+                <div class="py-3 px-6 text-xl font-bold">{{ assignmentsView }} assignment</div>
+                <hr/>
+                <div class="px-6 py-4">
+                  <div class="font-bold my-1">Type</div>
+                  <select v-model="currentAssignment.type" class="w-full px-2 py-2 rounded border border-slate-500 mb-4">
+                    <option v-for="type in assignmentTypes" :value="type">{{ type }}</option>
+                  </select>
+                  <div class="font-bold my-1">Name <span :class="currentAssignment.name ? '' : 'text-red-700'">*</span>
+                  </div>
+                  <input v-model="currentAssignment.name" type="text" class="w-full px-3 py-1.5 rounded border border-slate-500 mb-4"/>
+                  <div class="font-bold my-1">Points</div>
+                  <input v-model="currentAssignment.points" type="number" min="0" class="w-full px-3 py-1.5 rounded border border-slate-500 mb-4"/>
+                </div>
+                <div class="flex justify-end py-3 px-6 border-t border-slate-300 bg-gray-100">
+                  <button class="rounded-md border border-slate-300 py-1 px-4 text-center hover:bg-gray-200" @click="closeAssignmentModal">Cancel</button>
+                  <button class="rounded-md bg-blue-600 py-1 px-4 text-center text-white hover:bg-blue-700 disabled:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50 ml-2" :disabled="!currentAssignment.name" @click="saveAssignment">Save</button>
+                </div>
+              </div>
+            </div>
+
           </div>
 
           <!--    Grades      -->
@@ -269,13 +377,17 @@ import { computed, ref, watch } from "vue";
 
 const menus = ['Outcomes', 'Rubrics', 'Assignments', 'Grades']
 const outcomesTabs = ['Manage', 'Alignments']
-const rubricViews = ['List', 'Create', 'View', 'Edit']
-const newRubric = { id: '', name: '', criteria: []}
+const rubricsViews = ['List', 'Create', 'Edit', 'View']
+const assignmentsViews = ['List', 'Create', 'Edit', 'View']
+const assignmentTypes = ['Assignment', 'Discussion', 'Quiz', 'External tool', 'Not graded']
+const newRubric = { id: '', name: '', criteria: [] }
 const newCriterion = { id: '', name: '', description: '', points: 4, outcomeId: '' }
+const newAssignment = { id: '', name: '', type: 'Assignment', details: '', points: 0, rubricId: '' }
 
-const currentMenu = ref(menus[1])
+const currentMenu = ref(menus[2])
 const outcomesTab = ref(outcomesTabs[0])
-const rubricView = ref(rubricViews[0])
+const rubricsView = ref(rubricsViews[0])
+const assignmentsView = ref(assignmentsViews[0])
 
 const isOutcomeCreateMode = ref(false)
 const newOutcomeName = ref('')
@@ -284,21 +396,23 @@ const criterionMode = ref('') //Create, Edit
 
 const outcomes = ref(JSON.parse(localStorage.getItem('outcomes:rubric-outcome-mapping') || '[]') || [])
 const rubrics = ref(JSON.parse(localStorage.getItem('rubrics:rubric-outcome-mapping') || '[]') || [])
+const assignments = ref(JSON.parse(localStorage.getItem('assignments:rubric-outcome-mapping') || '[]') || [])
 
 const currentRubric = ref({ ...newRubric })
 const currentCriterion = ref({ ...newCriterion })
+const currentAssignment = ref({ ...newAssignment })
 
 const outcomeCoverage = computed(() => {
-  return outcomes.value.length ? Math.round(outcomes.value.filter(r => numOfRubricsMappedToOutcome(r.id)).length / outcomes.value.length * 1000)/10 : 0
+  return outcomes.value.length ? Math.round(outcomes.value.filter(r => numOfRubricsMappedToOutcome(r.id)).length / outcomes.value.length * 1000) / 10 : 0
 })
 
 const avgAlignmentsPerOutcome = computed(() => {
   return outcomes.value.length
-    ? outcomes.value.reduce((a, c) => a + numOfRubricsMappedToOutcome(c.id), 0) / outcomes.value. length
+    ? outcomes.value.reduce((a, c) => a + numOfRubricsMappedToOutcome(c.id), 0) / outcomes.value.length
     : 0
 })
 
-function numOfRubricsMappedToOutcome(id) {
+function numOfRubricsMappedToOutcome (id) {
   return rubrics.value.filter(r => r.criteria.filter(c => c.outcomeId === id).length).length
 }
 
@@ -319,6 +433,14 @@ function endOutcomeCreate () {
 
 function saveOutcomesToLocal () {
   localStorage.setItem('outcomes:rubric-outcome-mapping', JSON.stringify(outcomes.value))
+}
+
+function saveRubricsToLocal () {
+  localStorage.setItem('rubrics:rubric-outcome-mapping', JSON.stringify(rubrics.value))
+}
+
+function saveAssignmentsToLocal () {
+  localStorage.setItem('assignments:rubric-outcome-mapping', JSON.stringify(assignments.value))
 }
 
 function addOutcome () {
@@ -344,42 +466,42 @@ function removeOutcome (id) {
   }
 }
 
-function startCreateRubric() {
+function startCreateRubric () {
   currentRubric.value = { ...newRubric, criteria: [] }
-  rubricView.value = 'Create'
+  rubricsView.value = 'Create'
 }
 
-function startEditRubric(id) {
+function startEditRubric (id) {
   const selected = rubrics.value.find(r => r.id === id)
-  if (!id || !selected ) {
+  if (!id || !selected) {
     return
   }
   currentRubric.value = { ...selected }
-  rubricView.value = 'Edit'
+  rubricsView.value = 'Edit'
 }
 
-function endEditRubric() {
-  rubricView.value = 'List'
+function endEditRubric () {
+  rubricsView.value = 'List'
   currentRubric.value = { ...newRubric, criteria: [] }
 }
 
-function createRubric() {
+function createRubric () {
   rubrics.value.push({ ...currentRubric.value, id: 'r-' + Date.now().toString(32) })
   endEditRubric()
   saveRubricsToLocal()
 }
 
-function updateRubric() {
+function updateRubric () {
   if (!currentRubric.value.id || !currentRubric.value.name || !currentRubric.value.criteria) {
     return
   }
   const index = rubrics.value.findIndex(r => r.id === currentRubric.value.id)
   rubrics.value[index] = { ...currentRubric.value }
   endEditRubric()
-  saveRubricsToLocal ()
+  saveRubricsToLocal()
 }
 
-function deleteRubric(id) {
+function deleteRubric (id) {
   const index = rubrics.value.findIndex(r => r.id === id)
   if (index > -1) {
     rubrics.value.splice(index, 1)
@@ -387,37 +509,33 @@ function deleteRubric(id) {
   }
 }
 
-function saveRubricsToLocal () {
-  localStorage.setItem('rubrics:rubric-outcome-mapping', JSON.stringify(rubrics.value))
-}
-
-function createCriterion() {
+function createCriterion () {
   currentCriterion.value = { ...newCriterion }
   criterionMode.value = 'Create'
 }
 
-function editCriterion(id) {
+function editCriterion (id) {
   const selected = currentRubric.value.criteria.find(c => c.id === id)
-  if (!id ||!selected ) {
+  if (!id || !selected) {
     return
   }
   currentCriterion.value = { ...selected }
   criterionMode.value = 'Edit'
 }
 
-function deleteCriterion(id) {
-  const index = currentRubric.value.criteria.findIndex(c=> c.id === id)
+function deleteCriterion (id) {
+  const index = currentRubric.value.criteria.findIndex(c => c.id === id)
   if (index > -1) {
     currentRubric.value.criteria.splice(index, 1)
   }
 }
 
-function closeCriterionModal() {
+function closeCriterionModal () {
   criterionMode.value = ''
   currentCriterion.value = { ...newCriterion }
 }
 
-function saveCriterion() {
+function saveCriterion () {
   if (!currentCriterion.value.id) {
     currentCriterion.value.id = 'c-' + Date.now().toString(32)
     currentRubric.value.criteria.push(currentCriterion.value)
@@ -432,17 +550,78 @@ function saveCriterion() {
   closeCriterionModal()
 }
 
-function swapCriterion(index1, index2) {
+function swapCriterion (index1, index2) {
   const temp = currentRubric.value.criteria[index1]
   currentRubric.value.criteria[index1] = currentRubric.value.criteria[index2]
   currentRubric.value.criteria[index2] = temp
 }
 
+function createAssignment () {
+  currentAssignment.value = { ...newAssignment }
+  assignmentsView.value = 'Create'
+}
+
+function editAssignment (id) {
+  const selected = assignments.value.find(a => a.id === id)
+  if (!id || !selected) {
+    return
+  }
+  currentAssignment.value = { ...selected }
+  assignmentsView.value = 'Edit'
+}
+
+function viewAssignment (id) {
+  const selected = assignments.value.find(a => a.id === id)
+  if (!id || !selected) {
+    return
+  }
+  currentAssignment.value = { ...selected }
+  assignmentsView.value = 'View'
+}
+
+function closeAssignmentModal () {
+  assignmentsView.value = 'List'
+  currentAssignment.value = { ...newAssignment }
+}
+
+function saveAssignment () {
+  if (assignmentsView.value === 'Create') {
+    assignments.value.push({ ...currentAssignment.value, id: 'a-' + Date.now().toString(32) })
+    closeAssignmentModal()
+    saveAssignmentsToLocal()
+  } else if (assignmentsView.value === 'Edit') {
+    if (!currentAssignment.value.id || !currentAssignment.value.name) {
+      return
+    }
+    const index = assignments.value.findIndex(a => a.id === currentAssignment.value.id)
+    if (index > -1) {
+      assignments.value[index] = { ...currentAssignment.value }
+      closeAssignmentModal()
+      saveAssignmentsToLocal()
+    }
+  }
+}
+
+function swapAssignments (index1, index2) {
+  const temp = assignments.value[index1]
+  assignments.value[index1] = assignments.value[index2]
+  assignments.value[index2] = temp
+  saveAssignmentsToLocal()
+}
+
+function deleteAssignment (id) {
+  const index = assignments.value.findIndex(a => a.id === id)
+  if (index > -1) {
+    assignments.value.splice(index, 1)
+    saveAssignmentsToLocal()
+  }
+}
+
 
 function resizeTextarea (id) {
-  const textarea = document.querySelector(`#${id}`)
+  const textarea = document.querySelector(`#${ id }`)
   textarea.style.height = 'auto'
-  textarea.style.height = `${textarea.scrollHeight + 2}px`
+  textarea.style.height = `${ textarea.scrollHeight + 2 }px`
 }
 
 function preventNewLine (e) {
@@ -454,12 +633,22 @@ function preventNewLine (e) {
 watch(currentMenu, () => {
   if (currentMenu.value === 'Outcomes') {
     outcomesTab.value = outcomesTabs[0]
+  } else if (currentMenu.value === 'Rubrics') {
+    rubricsView.value = rubricsViews[0]
   }
-})
 
-watch(currentMenu, () => {
-  if (currentMenu.value === 'Rubrics') {
-    rubricView.value = rubricViews[0]
+  switch (currentMenu.value) {
+    case 'Outcomes':
+      outcomesTab.value = outcomesTabs[0];
+      break
+    case 'Rubrics':
+      rubricsView.value = rubricsViews[0];
+      break
+    case 'Assignments':
+      assignmentsView.value = assignmentsViews[0];
+      break
+    default:
+      break
   }
 })
 </script>
