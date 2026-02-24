@@ -80,6 +80,7 @@
                   <div class="text-center mt-4">There are no outcomes in this course.</div>
                 </div>
               </div>
+
               <div v-if="outcomesTab === 'Alignments'">
                 <div class="flex my-2 px-3">
                   <div class="border border-slate-200 shadow rounded-md p-4 mr-3">
@@ -92,10 +93,13 @@
                   </div>
 
                   <div class="border border-slate-200 shadow rounded-md p-4">
-                    <div class="text-xl">0 ASSESSABLE ARTIFACTS</div>
+                    <div class="text-xl">{{ assignments.length }} ASSESSABLE ARTIFACTS</div>
                     <div class="flex">
-                      <div class="mr-3"><strong class="text-lg">{{ 0 }}%</strong> With Alignments</div>
-                      <div><strong class="text-lg">{{ '0.0' }}</strong> Avg. Alignments per Artefact</div>
+                      <div class="mr-3">
+                        <strong class="text-lg">{{ percentageOfAssignmentsWithAlignments }}%</strong> With Alignments
+                      </div>
+                      <div><strong class="text-lg">{{ avgAlignmentPerArtefact }}</strong> Avg. Alignments per Artefact
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -104,9 +108,11 @@
                     <div class="flex justify-between">
                       <div class="font-bold py-3 my-auto">{{ outcome.name }}</div>
                       <div class="flex justify-end my-auto">
-                        <div>Alignments: <strong>{{ numOfRubricsMappedToOutcome(outcome.id) }}</strong></div>
+                        <div>Alignments:
+                          <strong>{{ numOfRubricsMappedToOutcome(outcome.id) + numOfAssignmentsMappedToOutcome(outcome.id) }}</strong>
+                        </div>
                         <div class="mx-2">(Rubrics: <strong>{{ numOfRubricsMappedToOutcome(outcome.id) }}</strong></div>
-                        <div>Assignments: <strong>{{ 0 }}</strong>)</div>
+                        <div>Assignments: <strong>{{ numOfAssignmentsMappedToOutcome(outcome.id) }}</strong>)</div>
                       </div>
                     </div>
 
@@ -135,6 +141,7 @@
                     <th class="px-1">Total points</th>
                     <th class="px-1">Criteria</th>
                     <th class="px-1">Location Used</th>
+                    <th class="px-1">Outcomes</th>
                     <th class="px-1">Actions</th>
                   </tr>
                 </thead>
@@ -143,10 +150,16 @@
                     <td class="px-1">{{ rubric.name }}</td>
                     <td class="px-1">{{ rubric.criteria.reduce((a, c) => a + c.points, 0) }}</td>
                     <td class="px-1">{{ rubric.criteria.length }}</td>
-                    <td class="px-1">-</td>
+                    <td class="px-1">{{ numOfLocation(rubric.id) ? numOfLocation(rubric.id) + (numOfLocation(rubric.id) > 1 ? ' assignments' : ' assignment') : '-' }}</td>
+                    <td class="px-1">
+                      <div v-if="outcomesMappedToRubric(rubric.id).length" class="flex">
+                        <div v-for="outcome in outcomesMappedToRubric(rubric.id)" class="px-2 text-xs bg-orange-600 text-white rounded-full mr-1 my-auto">{{ outcome.name }}</div>
+                      </div>
+                      <div v-else class="my-auto">-</div>
+                    </td>
                     <td class="px-1 flex">
                       <button class="mr-4" @click="startEditRubric(rubric.id)">Edit</button>
-                      <button class="text-red-700 disabled:text-gray-400 disabled:cursor-not-allowed" :disabled="false" @click="deleteRubric(rubric.id)">Delete</button>
+                      <button class="text-red-700 disabled:text-gray-400 disabled:cursor-not-allowed" :disabled="numOfLocation(rubric.id)" @click="deleteRubric(rubric.id)">Delete</button>
                     </td>
                   </tr>
                 </tbody>
@@ -222,7 +235,7 @@
 
             <!--    Criterion Modal        -->
             <div v-if="criterionMode" id="CriterionModal" class="fixed inset-0 z-[999] h-screen w-screen place-items-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300 flex justify-center">
-              <div class="w-3/5 rounded bg-white shadow overflow-hidden">
+              <div class="w-10/12 max-w-[1100px] rounded bg-white shadow overflow-hidden">
                 <div class="py-3 px-4 text-xl font-bold">{{ criterionMode === 'Create' ? 'Create new' : 'Edit' }} criterion</div>
                 <hr/>
                 <div class="p-4">
@@ -318,24 +331,52 @@
               <hr/>
               <div class="w-fit border border-gray-200 p-3 mr-auto mt-6">
                 <div v-if="currentAssignment.rubricId" class="flex">
-                  <img src="@/assets/rubric-outcome-mapping/rubric-icon.svg" alt="rubric" class="w-4 h-4 mr-3">
-                  <div class="mx-2">{{ rubrics.find(r => r.id === currentAssignment.rubricId).name }}</div>
-                  <button class="bg-gray-100 border border-gray-300 rounded mx-2"><i class="fal fa-trash-alt"/></button>
-                  <button class="bg-gray-100 px-3 py-2 border border-gray-300 rounded ">
+                  <img src="@/assets/rubric-outcome-mapping/rubric-icon.svg" alt="rubric" class="w-4 h-4 mr-2 my-auto">
+                  <div class="mr-4 my-auto">{{ rubrics.find(r => r.id === currentAssignment.rubricId).name }}</div>
+                  <button class="bg-gray-100 border border-gray-300 rounded py-2 px-4 mx-2 my-auto" @click="removeRubricFromAssignment">
+                    <i class="fal fa-trash-alt"/></button>
+                  <button class="bg-gray-100 px-3 py-2 border border-gray-300 rounded my-auto" @click="selectedAssignmentRubricId='';showRubricOptions=true">
                     <i class="fal fa-search mr-2"/>Replace rubric
                   </button>
                 </div>
                 <div v-else>
-                  <button class="bg-gray-100 px-3 py-2 border border-gray-300 rounded ">
+                  <button class="bg-gray-100 px-3 py-2 border border-gray-300 rounded hover:bg-gray-200" @click="selectedAssignmentRubricId='';showRubricOptions=true">
                     <i class="fal fa-search mr-2"/>Find rubric
                   </button>
+                </div>
+                <div v-if="showRubricOptions">
+                  <div v-for="rubric in rubrics">
+                    <hr class="my-3"/>
+                    <div class="flex cursor-pointer" @click="selectedAssignmentRubricId = rubric.id">
+                      <i class="my-auto ml-1 mr-3 text-lg" :class="selectedAssignmentRubricId ===rubric.id ? 'fas fa-dot-circle' : 'far fa-circle text-gray-500'"/>
+                      <div class="my-auto">
+                        <div class="text-lg">{{ rubric.name }}</div>
+                        <div class="flex text-sm leading-tight">
+                          <div class="my-auto">{{ rubric.criteria.length * 4 }} pts
+                            <span class="mx-1">|</span> {{ rubric.criteria.length }} criterion
+                          </div>
+                          <div v-if="outcomesMappedToRubric(rubric.id).length" class="flex my-auto">
+                            <span class="mx-1 my-auto">|</span>
+                            <div v-for="outcome in outcomesMappedToRubric(rubric.id)" class="px-2 py-1 text-xs bg-orange-600 text-white rounded-full mr-1 my-auto">{{ outcome.name }}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                  <div class="flex mt-5">
+                    <button class="rounded-md border border-slate-300 py-1 px-4 text-center hover:bg-gray-200" @click="showRubricOptions=false">Cancel</button>
+                    <button class="rounded-md bg-blue-600 py-1 px-4 text-center text-white hover:bg-blue-700 disabled:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50 ml-2" :disabled="!selectedAssignmentRubricId" @click="addRubricToAssignment">
+                      <i class="fal fa-plus mr-2"/>Add
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
 
             <!--     Assignment Edit modal       -->
             <div v-if="['Create', 'Edit'].includes(assignmentsView)" id="AssignmentModal" class="fixed inset-0 z-[999] h-screen w-screen place-items-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300 flex justify-center">
-              <div class="w-2/5 max-w-[480px] rounded bg-white shadow overflow-hidden">
+              <div class="w-10/12 max-w-[480px] rounded bg-white shadow overflow-hidden">
                 <div class="py-3 px-6 text-xl font-bold">{{ assignmentsView }} assignment</div>
                 <hr/>
                 <div class="px-6 py-4">
@@ -393,6 +434,8 @@ const isOutcomeCreateMode = ref(false)
 const newOutcomeName = ref('')
 const isOutcomeNameEmpty = ref(false)
 const criterionMode = ref('') //Create, Edit
+const showRubricOptions = ref(false)
+const selectedAssignmentRubricId = ref('')
 
 const outcomes = ref(JSON.parse(localStorage.getItem('outcomes:rubric-outcome-mapping') || '[]') || [])
 const rubrics = ref(JSON.parse(localStorage.getItem('rubrics:rubric-outcome-mapping') || '[]') || [])
@@ -403,17 +446,51 @@ const currentCriterion = ref({ ...newCriterion })
 const currentAssignment = ref({ ...newAssignment })
 
 const outcomeCoverage = computed(() => {
-  return outcomes.value.length ? Math.round(outcomes.value.filter(r => numOfRubricsMappedToOutcome(r.id)).length / outcomes.value.length * 1000) / 10 : 0
+  return outcomes.value.length
+    ? Math.round(outcomes.value.filter(r => numOfRubricsMappedToOutcome(r.id)).length / outcomes.value.length * 1000) / 10
+    : 0
 })
 
 const avgAlignmentsPerOutcome = computed(() => {
   return outcomes.value.length
-    ? outcomes.value.reduce((a, c) => a + numOfRubricsMappedToOutcome(c.id), 0) / outcomes.value.length
+    ? Math.round(outcomes.value.reduce((a, c) => a + numOfRubricsMappedToOutcome(c.id) + numOfAssignmentsMappedToOutcome(c.id), 0) / outcomes.value.length * 10) / 10
     : 0
 })
 
-function numOfRubricsMappedToOutcome (id) {
-  return rubrics.value.filter(r => r.criteria.filter(c => c.outcomeId === id).length).length
+const percentageOfAssignmentsWithAlignments = computed(() => {
+  return assignments.value.length
+    ? Math.round(assignments.value.filter(a => a.rubricId && outcomesMappedToRubric(a.rubricId).length).length / assignments.value.length * 1000) / 10
+    : 0
+})
+
+const avgAlignmentPerArtefact = computed(() => {
+  return assignments.value.length
+    ? Math.round(assignments.value.map(a => a.rubricId ? outcomesMappedToRubric(a.rubricId).length : 0).reduce((a, c) => a + c, 0) / assignments.value.length * 10) / 10
+    : 0
+})
+
+function numOfRubricsMappedToOutcome (oId) {
+  return rubrics.value.filter(r => r.criteria.filter(c => c.outcomeId === oId).length).length
+}
+
+function numOfAssignmentsMappedToOutcome (oId) {
+  return assignments.value.length ? assignments.value.filter(a => a.rubricId && outcomesMappedToRubric(a.rubricId).find(o => o.id === oId)).length : 0
+}
+
+function outcomesMappedToRubric (rId) {
+  const rubric = rubrics.value.find(r => r.id === rId)
+  if (!rId || !rubric || !rubric.criteria.length) {
+    return []
+  }
+  const oIds = rubric.criteria.map(c => c.outcomeId).filter(oId => oId)
+  if (!oIds.length) {
+    return []
+  }
+  return outcomes.value.filter(o => oIds.includes(o.id))
+}
+
+function numOfLocation (rId) {
+  return assignments.value.filter(a => a.rubricId === rId).length
 }
 
 function clearOutcomeInput () {
@@ -602,6 +679,32 @@ function saveAssignment () {
   }
 }
 
+function addRubricToAssignment () {
+  if (!selectedAssignmentRubricId.value || !currentAssignment.value.id || !assignments.value.find(a => a.id === currentAssignment.value.id) || !rubrics.value.find(r => r.id === selectedAssignmentRubricId.value)) {
+    return
+  }
+  currentAssignment.value.rubricId = selectedAssignmentRubricId.value
+  const index = assignments.value.findIndex(a => a.id === currentAssignment.value.id)
+  if (index > -1) {
+    assignments.value[index] = { ...currentAssignment.value }
+    showRubricOptions.value = false
+    saveAssignmentsToLocal()
+  }
+}
+
+function removeRubricFromAssignment () {
+  if (!currentAssignment.value.id || !assignments.value.find(a => a.id === currentAssignment.value.id)) {
+    return
+  }
+  currentAssignment.value.rubricId = ''
+  const index = assignments.value.findIndex(a => a.id === currentAssignment.value.id)
+  if (index > -1) {
+    assignments.value[index] = { ...currentAssignment.value }
+    showRubricOptions.value = false
+    saveAssignmentsToLocal()
+  }
+}
+
 function swapAssignments (index1, index2) {
   const temp = assignments.value[index1]
   assignments.value[index1] = assignments.value[index2]
@@ -640,12 +743,14 @@ watch(currentMenu, () => {
   switch (currentMenu.value) {
     case 'Outcomes':
       outcomesTab.value = outcomesTabs[0];
+      isOutcomeCreateMode.value = false
       break
     case 'Rubrics':
       rubricsView.value = rubricsViews[0];
       break
     case 'Assignments':
       assignmentsView.value = assignmentsViews[0];
+      showRubricOptions.value = false
       break
     default:
       break
