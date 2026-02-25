@@ -127,7 +127,7 @@
 
           <!--    Rubrics      -->
           <div v-if="currentMenu === 'Rubrics'" class="p-12 pt-9">
-            <div v-if="rubricsView === 'List'" class="mx-6">
+            <div v-if="rubricsView === 'List'">
               <div class="flex justify-between">
                 <div class="font-bold text-[38px]">Rubrics</div>
                 <button class="h-9 bg-blue-600 text-white rounded-md px-4 my-auto hover:bg-blue-700" @click="startCreateRubric">
@@ -152,8 +152,8 @@
                     <td class="px-1">{{ rubric.criteria.length }}</td>
                     <td class="px-1">{{ numOfLocation(rubric.id) ? numOfLocation(rubric.id) + (numOfLocation(rubric.id) > 1 ? ' assignments' : ' assignment') : '-' }}</td>
                     <td class="px-1">
-                      <div v-if="outcomesMappedToRubric(rubric.id).length" class="flex">
-                        <div v-for="outcome in outcomesMappedToRubric(rubric.id)" class="px-2 text-xs bg-orange-600 text-white rounded-full mr-1 my-auto">{{ outcome.name }}</div>
+                      <div v-if="outcomesMappedToRubric(rubric.id).length" class="flex flex-col justify-center">
+                        <div v-for="outcome in outcomesMappedToRubric(rubric.id)" class="px-2 py-0.5 text-xs bg-orange-600 text-white rounded-full my-0.5 mr-auto">{{ outcome.name }}</div>
                       </div>
                       <div v-else class="my-auto">-</div>
                     </td>
@@ -166,7 +166,7 @@
               </table>
             </div>
 
-            <div v-if="['Create', 'Edit'].includes(rubricsView)" class="mx-6">
+            <div v-if="['Create', 'Edit'].includes(rubricsView)">
               <div class="font-bold text-[38px]">{{ rubricsView === 'Create' ? 'Create New' : 'Edit' }} Rubric</div>
               <div class="flex">
                 <div class="w-1/2">
@@ -207,7 +207,8 @@
                     <div class="mx-2 my-auto">
                       <i class="fal fa-pencil-alt cursor-pointer" @click="editCriterion(criterion.id)"/></div>
                     <div class="mx-2 my-auto">
-                      <i class="fal fa-trash-alt text-red-700 cursor-pointer" @click="deleteCriterion(criterion.id)"/>
+                      <button class="text-red-700 disabled:text-gray-300 disabled:cursor-not-allowed" :disabled="rubricsView==='Edit' && numOfLocation(currentRubric.id)" @click="deleteCriterion(criterion.id)">
+                        <i class="fal fa-trash-alt"/></button>
                     </div>
                   </div>
                 </div>
@@ -215,9 +216,12 @@
               </div>
 
               <div class="flex my-3">
-                <button class="border border-gray-300 bg-gray-50 text-gray-800 hover:bg-gray-200 rounded-md px-2 py-1 my-auto" @click="createCriterion">
+                <button class="border border-gray-300 bg-gray-50 text-gray-800 hover:bg-gray-200 rounded-md px-2 py-1 my-auto disabled:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" :disabled="rubricsView==='Edit' && numOfLocation(currentRubric.id)" @click="createCriterion">
                   <i class="fal fa-pencil-alt -scale-x-100 text-lg mr-1"/>Draft New Criterion
                 </button>
+                <div v-if="rubricsView==='Edit' && numOfLocation(currentRubric.id)" class="text-gray-500 text-sm my-auto ml-2">
+                  <i class="fas fa-exclamation-circle"/> This rubric is currently in use for grades.
+                </div>
               </div>
 
               <hr/>
@@ -229,9 +233,7 @@
 
             </div>
 
-            <div v-if="rubricsView === 'View'" class="mx-6">
-
-            </div>
+            <div v-if="rubricsView === 'View'"></div>
 
             <!--    Criterion Modal        -->
             <div v-if="criterionMode" id="CriterionModal" class="fixed inset-0 z-[999] h-screen w-screen place-items-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300 flex justify-center">
@@ -275,7 +277,7 @@
 
           <!--    Assignments      -->
           <div v-if="currentMenu === 'Assignments'" class="p-12 pt-9">
-            <div v-if="assignmentsView !== 'View'" class="mx-6">
+            <div v-if="assignmentsView !== 'View'">
               <div class="flex justify-between">
                 <div></div>
                 <div class="flex justify-end">
@@ -310,6 +312,12 @@
                         </div>
                       </div>
                       <div class="flex justify-end mr-2">
+                        <div v-if="assignment.rubricId && rubrics.find(r => r.id === assignment.rubricId)" class="mx-3 my-auto">
+                          <div class="text-xs text-right mr-1">{{ rubrics.find(r => r.id === assignment.rubricId).name }}</div>
+                          <div v-if="outcomesMappedToRubric(assignment.rubricId).length" class="flex justify-end">
+                            <div v-for="outcome in outcomesMappedToRubric(assignment.rubricId)" class="text-2xs bg-orange-600 text-white rounded-full px-2 py-0.5 ml-1">{{ outcome.name }}</div>
+                          </div>
+                        </div>
                         <div class="mx-2 my-auto">
                           <i class="fal fa-pencil-alt cursor-pointer" @click="editAssignment(assignment.id)"/></div>
                         <div class="mx-2 my-auto">
@@ -323,7 +331,7 @@
               </div>
             </div>
 
-            <div v-if="assignmentsView === 'View'" class="mx-6">
+            <div v-if="assignmentsView === 'View'">
               <div class="font-bold text-[38px]">{{ currentAssignment.name }}</div>
               <div class="border border-gray-300 px-3 py-2 w-full">No additional details were added for this assignment.</div>
               <div class="font-bold ml-3 my-3">Points: <span class="font-normal">{{ currentAssignment.points }}</span>
@@ -333,14 +341,17 @@
                 <div v-if="currentAssignment.rubricId" class="flex">
                   <img src="@/assets/rubric-outcome-mapping/rubric-icon.svg" alt="rubric" class="w-4 h-4 mr-2 my-auto">
                   <div class="mr-4 my-auto">{{ rubrics.find(r => r.id === currentAssignment.rubricId).name }}</div>
-                  <button class="bg-gray-100 border border-gray-300 rounded py-2 px-4 mx-2 my-auto" @click="removeRubricFromAssignment">
+                  <button class="bg-gray-100 border border-gray-300 rounded py-2 px-4 mx-2 my-auto" :disabled="grades.filter(g=> g.assignmentId === currentAssignment.id).length" @click="removeRubricFromAssignment">
                     <i class="fal fa-trash-alt"/></button>
-                  <button class="bg-gray-100 px-3 py-2 border border-gray-300 rounded my-auto" @click="selectedAssignmentRubricId='';showRubricOptions=true">
+                  <button class="bg-gray-100 px-3 py-2 border border-gray-300 rounded my-auto " :disabled="grades.filter(g=> g.assignmentId === currentAssignment.id).length" @click="selectedAssignmentRubricId='';showRubricOptions=true">
                     <i class="fal fa-search mr-2"/>Replace rubric
                   </button>
+                  <div v-if="grades.filter(g=> g.assignmentId === currentAssignment.id).length" class="text-gray-500 text-sm my-auto ml-2">
+                    <i class="fas fa-exclamation-circle"/> This rubric is currently in use for grades.
+                  </div>
                 </div>
                 <div v-else>
-                  <button class="bg-gray-100 px-3 py-2 border border-gray-300 rounded hover:bg-gray-200" @click="selectedAssignmentRubricId='';showRubricOptions=true">
+                  <button class="bg-gray-100 px-3 py-2 border border-gray-300 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed" @click="selectedAssignmentRubricId='';showRubricOptions=true">
                     <i class="fal fa-search mr-2"/>Find rubric
                   </button>
                 </div>
@@ -401,8 +412,147 @@
 
           <!--    Grades      -->
           <div v-if="currentMenu === 'Grades'" class="p-12 pt-9">
-            <div class="mx-6">
-              <div class="font-bold text-[38px]">Grades</div>
+            <div class="flex justify-between">
+              <div class="font-bold text-lg my-auto">Gradebook</div>
+              <button class="border border-gray-300 bg-gray-100 hover:bg-gray-200 rounded px-3 py-1 my-auto" @click="addStudent">
+                <i class="fal fa-plus text-lg mr-2"/>Student
+              </button>
+            </div>
+            <table class="w-full text-left my-2">
+              <thead class="text-sm">
+                <tr class="bg-gray-100">
+                  <th class="px-2 py-1 font-normal border border-gray-200">Student name</th>
+                  <th v-for="assignment in assignments" class="text-center px-2 py-1 font-normal border border-gray-200">
+                    <div class="leading-tight">{{ assignment.name }}</div>
+                    <div v-if="assignment.rubricId">
+
+                    </div>
+                    <div v-else class="text-red-700 text-xs leading-tight">No rubric</div>
+                  </th>
+                  <th class="text-center px-2 py-1 font-normal border border-gray-200">Outcomes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="student in students">
+                  <td class="px-2 py-1 font-normal border border-gray-200">
+                    <div class="flex justify-between">
+                      <div>{{ student.name }}</div>
+                      <div>
+                        <button @click="editStudent(student.id)"><i class="fal fa-pencil-alt text-sm mx-2"/></button>
+                        <button @click="deleteStudent(student.id)"><i class="fal fa-trash-alt text-sm text-red-700"/>
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                  <td v-for="assignment in assignments" class="px-2 py-1 font-normal border border-gray-200">
+                    <div class="flex justify-center ">
+                      <div v-if="grades.find(g => g.studentId === student.id && g.assignmentId === assignment.id)" class="flex justify-between w-full">
+                        <div/>
+                        <div>{{ calcAssignmentGrade(grades.find(g => g.studentId === student.id && g.assignmentId === assignment.id).id) }}</div>
+                        <div>
+                          <button @click="editGrade(grades.find(g => g.studentId === student.id && g.assignmentId === assignment.id).id)">
+                            <i class="fal fa-pencil-alt text-sm mx-2"/></button>
+                          <button @click="deleteGrade(grades.find(g => g.studentId === student.id && g.assignmentId === assignment.id).id)">
+                            <i class="fal fa-trash-alt text-sm text-red-700"/></button>
+                        </div>
+                      </div>
+                      <div v-else>
+                        <button class="text-blue-600 hover:text-blue-700 disabled:text-gray-300 disabled:cursor-not-allowed" :disabled="!assignment.rubricId" @click="addGrade(student.id, assignment.id, assignment.rubricId)">
+                          <i class="fas fa-plus-circle mx-2"/></button>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-2 py-1 font-normal border border-gray-200">
+                    <div v-for="outcome in outcomes" class="rounded-full px-2 my-0.5 w-fit text-white text-xs" :class="isOutcomeMet(student.id, outcome.id) ? 'bg-green-600' : 'bg-orange-600'">{{ outcome.name }}</div>
+                  </td>
+                </tr>
+                <tr v-if="!students.length">
+                  <td colspan="6" class="text-center px-2 py-1 font-normal border border-gray-200">-</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!--    student modal        -->
+            <div v-if="studentModal" id="StudentModal" class="fixed inset-0 z-[999] h-screen w-screen place-items-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300 flex justify-center">
+              <div class="w-10/12 max-w-[480px] rounded bg-white shadow overflow-hidden">
+                <div class="py-3 px-6 text-xl font-bold">{{ studentModal }} student</div>
+                <hr/>
+                <div class="px-6 py-4">
+                  <div class="font-bold my-1">Name</div>
+                  <input v-model="currentStudent.name" type="text" class="w-full px-3 py-1.5 rounded border border-slate-500 mb-4"/>
+
+                </div>
+                <div class="flex justify-end py-3 px-6 border-t border-slate-300 bg-gray-100">
+                  <button class="rounded-md border border-slate-300 py-1 px-4 text-center hover:bg-gray-200" @click="closeStudentModal">Cancel</button>
+                  <button class="rounded-md bg-blue-600 py-1 px-4 text-center text-white hover:bg-blue-700 disabled:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50 ml-2" :disabled="!currentStudent.name" @click="saveStudent">Save</button>
+                </div>
+              </div>
+            </div>
+
+
+            <!--    score modal        -->
+            <div v-if="gradeModal" id="StudentModal" class="fixed inset-0 z-[999] h-screen w-screen place-items-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300 flex justify-center">
+              <div class="w-10/12 max-w-[1100px] rounded bg-white shadow overflow-hidden">
+                <div class="py-3 px-6 text-xl font-bold">{{ gradeModal }} grade</div>
+                <hr/>
+                <div class="px-6 py-4">
+                  <div class="flex my-3">
+                    <div class="font-bold">Student name:
+                      <span class="font-normal ml-1">{{ students.find(s => s.id === currentGrade.studentId).name }}</span>
+                    </div>
+                    <div class="font-bold ml-6">Assignment:
+                      <span class="font-normal ml-1">{{ assignments.find(a => a.id === currentGrade.assignmentId).name }}</span>
+                    </div>
+                    <div class="text-sm my-auto ml-2">(Total points: {{ assignments.find(a => a.id === currentGrade.assignmentId).points }})</div>
+                  </div>
+
+                  <div class="font-bold my-3">Rubric:
+                    <span class="font-normal ml-1">{{ rubrics.find(r => r.id === currentGrade.rubricId).name }}</span>
+                  </div>
+
+                  <table class="w-full text-left">
+                    <thead>
+                      <tr class="bg-gray-100">
+                        <th class="px-2 py-1 border border-gray-300">Criteria</th>
+                        <th class="px-2 py-1 border border-gray-300">Ratings</th>
+                        <th class="px-2 py-1 border border-gray-300">Outcome</th>
+                        <th class="px-2 py-1 border border-gray-300">Points</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(criterion, index) in rubrics.find(r => r.id === currentGrade.rubricId).criteria">
+                        <td class="px-2 py-1 border border-gray-300">
+                          <div>{{ criterion.name }}</div>
+                          <div v-if="criterion.description" class="text-xs">{{ criterion.description }}</div>
+                        </td>
+                        <td class="px-2 py-1 border border-gray-300">
+                          <div>4 - Exceeds <span class="text-slate-300 mx-1">|</span> 3 - Mastery
+                            <span class="text-slate-300 mx-1">|</span> 2 - Near
+                            <span class="text-slate-300 mx-1">|</span> 1 - Below
+                            <span class="text-slate-300 mx-1">|</span> 0 - No Evidence
+                          </div>
+                        </td>
+                        <td class="px-2 py-1 border border-gray-300">
+                          <div v-if="criterion.outcomeId && outcomes.find(o => o.id === criterion.outcomeId)" class="bg-orange-600 text-white text-xs px-2 rounded-full w-fit">{{ outcomes.find(o => o.id === criterion.outcomeId).name }}</div>
+                          <div v-else>-</div>
+                        </td>
+                        <td class="px-2 py-1 border border-gray-300">
+                          <div class="flex">
+                            <input v-model="currentGrade.criteria[index].points" type="number" min="0" max="4" class="border border-gray-300 px-2 py-1 rounded my-auto mr-1"/>
+                            <div class="my-auto">/4</div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+
+                  </table>
+                  <div class="flex justify-end mt-2 font-bold">Final points: {{ currentGradeFinal }}</div>
+                </div>
+                <div class="flex justify-end py-3 px-6 border-t border-slate-300 bg-gray-100">
+                  <button class="rounded-md border border-slate-300 py-1 px-4 text-center hover:bg-gray-200" @click="closeGradeModal">Cancel</button>
+                  <button class="rounded-md bg-blue-600 py-1 px-4 text-center text-white hover:bg-blue-700 ml-2" @click="saveGrade">Save</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -424,6 +574,8 @@ const assignmentTypes = ['Assignment', 'Discussion', 'Quiz', 'External tool', 'N
 const newRubric = { id: '', name: '', criteria: [] }
 const newCriterion = { id: '', name: '', description: '', points: 4, outcomeId: '' }
 const newAssignment = { id: '', name: '', type: 'Assignment', details: '', points: 0, rubricId: '' }
+const newStudent = { id: '', name: '' }
+const newGrade = { id: '', studentId: '', assignmentId: '', rubricId: '', criteria: [] }
 
 const currentMenu = ref(menus[0])
 const outcomesTab = ref(outcomesTabs[0])
@@ -436,14 +588,20 @@ const isOutcomeNameEmpty = ref(false)
 const criterionMode = ref('') //Create, Edit
 const showRubricOptions = ref(false)
 const selectedAssignmentRubricId = ref('')
+const studentModal = ref('') //Add, Edit
+const gradeModal = ref('') //Add, Edit
 
 const outcomes = ref(JSON.parse(localStorage.getItem('outcomes:rubric-outcome-mapping') || '[]') || [])
 const rubrics = ref(JSON.parse(localStorage.getItem('rubrics:rubric-outcome-mapping') || '[]') || [])
 const assignments = ref(JSON.parse(localStorage.getItem('assignments:rubric-outcome-mapping') || '[]') || [])
+const students = ref(JSON.parse(localStorage.getItem('students:rubric-outcome-mapping') || '[]') || [])
+const grades = ref(JSON.parse(localStorage.getItem('grades:rubric-outcome-mapping') || '[]') || [])
 
 const currentRubric = ref({ ...newRubric })
 const currentCriterion = ref({ ...newCriterion })
 const currentAssignment = ref({ ...newAssignment })
+const currentStudent = ref({ ...newStudent })
+const currentGrade = ref({ ...newGrade })
 
 const outcomeCoverage = computed(() => {
   return outcomes.value.length
@@ -466,6 +624,12 @@ const percentageOfAssignmentsWithAlignments = computed(() => {
 const avgAlignmentPerArtefact = computed(() => {
   return assignments.value.length
     ? Math.round(assignments.value.map(a => a.rubricId ? outcomesMappedToRubric(a.rubricId).length : 0).reduce((a, c) => a + c, 0) / assignments.value.length * 10) / 10
+    : 0
+})
+
+const currentGradeFinal = computed(() => {
+  return currentGrade.value.criteria.length
+    ? Math.round(currentGrade.value.criteria.reduce((a, c) => a + c.points, 0) / (currentGrade.value.criteria.length * 4) * assignments.value.find(a => a.id === currentGrade.value.assignmentId).points * 10) / 10
     : 0
 })
 
@@ -493,6 +657,39 @@ function numOfLocation (rId) {
   return assignments.value.filter(a => a.rubricId === rId).length
 }
 
+function calcAssignmentGrade (gId) {
+  const grade = grades.value.find(g => g.id === gId)
+  if (!gId || !grade) {
+    return 'Grade not found'
+  }
+  const assignment = assignments.value.find(a => a.id === grade.assignmentId)
+  if (!assignment) {
+    return 'Assignment not found'
+  }
+  return grade.criteria.length
+    ? Math.round(grade.criteria.reduce((a, c) => a + c.points, 0) / (grade.criteria.length * 4) * assignment.points * 10) / 10
+    : 0
+}
+
+function isOutcomeMet (studentId, outcomeId) {
+  const studentGrades = grades.value.filter(g => g.studentId === studentId)
+  const outcome = outcomes.value.find(o => o.id === outcomeId)
+  if (!outcome || !studentGrades.length) {
+    return false
+  }
+  let points = 0
+  let numOfMappedCriteria = 0
+  studentGrades.forEach(g => {
+    rubrics.value.find(r => r.id === g.rubricId).criteria.forEach((c, i) => {
+      if (c.outcomeId === outcomeId) {
+        numOfMappedCriteria++
+        points += g.criteria[i].points
+      }
+    })
+  })
+  return numOfMappedCriteria ? Math.round(points / (numOfMappedCriteria * 4) * 1000) / 10 >= 50 : false
+}
+
 function clearOutcomeInput () {
   newOutcomeName.value = ''
   isOutcomeNameEmpty.value = false
@@ -518,6 +715,14 @@ function saveRubricsToLocal () {
 
 function saveAssignmentsToLocal () {
   localStorage.setItem('assignments:rubric-outcome-mapping', JSON.stringify(assignments.value))
+}
+
+function saveStudentsToLocal () {
+  localStorage.setItem('students:rubric-outcome-mapping', JSON.stringify(students.value))
+}
+
+function saveGradeToLocal () {
+  localStorage.setItem('grades:rubric-outcome-mapping', JSON.stringify(grades.value))
 }
 
 function addOutcome () {
@@ -715,11 +920,129 @@ function swapAssignments (index1, index2) {
 function deleteAssignment (id) {
   const index = assignments.value.findIndex(a => a.id === id)
   if (index > -1) {
+    const gradeIds = grades.value.filter(g => g.assignmentId === id).map(g => g.id)
+    if (gradeIds.length > 0) {
+      gradeIds.forEach(gId => {
+        deleteGrade(gId)
+      })
+    }
     assignments.value.splice(index, 1)
     saveAssignmentsToLocal()
   }
 }
 
+function addStudent () {
+  currentStudent.value = { ...newStudent }
+  studentModal.value = 'Add'
+}
+
+function editStudent (id) {
+  const selected = students.value.find(a => a.id === id)
+  if (!id || !selected) {
+    return
+  }
+  currentStudent.value = { ...selected }
+  studentModal.value = 'Edit'
+}
+
+function closeStudentModal () {
+  studentModal.value = ''
+  currentStudent.value = { ...newStudent }
+}
+
+function saveStudent () {
+  if (studentModal.value === 'Add') {
+    if (!currentStudent.value.name) {
+      return
+    }
+    students.value.push({ ...currentStudent.value, id: 's-' + Date.now().toString(32) })
+    saveStudentsToLocal()
+    closeStudentModal()
+  } else if (studentModal.value === 'Edit') {
+    if (!currentStudent.value.name || !currentStudent.value.id) {
+      return
+    }
+    const index = students.value.findIndex(s => s.id === currentStudent.value.id)
+    if (index > -1) {
+      students.value[index] = { ...currentStudent.value }
+      saveStudentsToLocal()
+      closeStudentModal()
+    }
+  }
+}
+
+function deleteStudent (id) {
+  if (!id) {
+    return
+  }
+  const index = students.value.findIndex(s => s.id === id)
+  if (index > -1) {
+    const gradeIds = grades.value.filter(g => g.studentId === id).map(g => g.id)
+    if (gradeIds.length > 0) {
+      gradeIds.forEach(gId => {
+        deleteGrade(gId)
+      })
+    }
+    students.value.splice(index, 1)
+    saveStudentsToLocal()
+  }
+}
+
+function addGrade (studentId, assignmentId, rubricId) {
+  const rubric = rubrics.value.find(r => r.id === rubricId)
+  if (!studentId || !assignmentId || !rubricId || !rubric) {
+    return
+  }
+  const criteria = rubric.criteria.map(c => ({ id: c.id, points: 0 }))
+  currentGrade.value = { ...newGrade, studentId, assignmentId, rubricId, criteria }
+  gradeModal.value = 'Add'
+}
+
+function editGrade (id) {
+  const selected = grades.value.find(g => g.id === id)
+  if (!id || !selected) {
+    return
+  }
+  currentGrade.value = { ...selected }
+  gradeModal.value = 'Edit'
+}
+
+function closeGradeModal () {
+  gradeModal.value = ''
+  currentGrade.value = { ...newGrade, criteria: [] }
+}
+
+function saveGrade () {
+  if (gradeModal.value === 'Add') {
+    if (!currentGrade.value.studentId || !currentGrade.value.assignmentId) {
+      return
+    }
+    grades.value.push({ ...currentGrade.value, id: 'g-' + Date.now().toString(32) })
+    saveGradeToLocal()
+    closeGradeModal()
+  } else if (gradeModal.value === 'Edit') {
+    if (!currentGrade.value.id || !currentGrade.value.studentId || !currentGrade.value.assignmentId) {
+      return
+    }
+    const index = grades.value.findIndex(g => g.id === currentGrade.value.id)
+    if (index > -1) {
+      grades.value[index] = { ...currentGrade.value }
+      saveGradeToLocal()
+      closeGradeModal()
+    }
+  }
+}
+
+function deleteGrade (id) {
+  if (!id) {
+    return
+  }
+  const index = grades.value.findIndex(g => g.id === id)
+  if (index > -1) {
+    grades.value.splice(index, 1)
+    saveGradeToLocal()
+  }
+}
 
 function resizeTextarea (id) {
   const textarea = document.querySelector(`#${ id }`)
@@ -751,6 +1074,8 @@ watch(currentMenu, () => {
     case 'Assignments':
       assignmentsView.value = assignmentsViews[0];
       showRubricOptions.value = false
+      break
+    case 'Grades':
       break
     default:
       break
