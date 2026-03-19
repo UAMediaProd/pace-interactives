@@ -4,7 +4,7 @@
     <div class="clo-hero">
       <span class="clo-hero-label">Stream B Calculator</span>
       <h1 class="clo-page-title">Assignment to CLO Contribution Calculator</h1>
-      <p class="clo-subtitle">Calculate CLO weightings based on assessment rubric criteria</p>
+      <p class="clo-subtitle">Calculate CLO weightings based on assignment rubric criteria</p>
     </div>
 
     <!-- Main Container -->

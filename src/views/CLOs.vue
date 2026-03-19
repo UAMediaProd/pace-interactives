@@ -3,8 +3,8 @@
     <!-- Hero Header -->
     <div class="clo-hero">
       <span class="clo-hero-label">Stream A Calculator</span>
-      <h1 class="clo-page-title">CLO to Assessment Weightings Calculator</h1>
-      <p class="clo-subtitle">Design assessments based on your Course Learning Outcomes distribution</p>
+      <h1 class="clo-page-title">CLO to Assignment Weightings Calculator</h1>
+      <p class="clo-subtitle">Design assignments based on your Course Learning Outcomes distribution</p>
     </div>
 
     <!-- Main Container -->
@@ -73,37 +73,37 @@
       </div>
     </section>
 
-    <!-- Section 2: Assessment Raw Values -->
+    <!-- Section 2: Assignment Raw Values -->
     <section class="clo-section">
       <div class="clo-section-header">
         <div>
-          <h2 class="clo-section-heading">2. Assessment Raw Values (Pre-Scaled)</h2>
+          <h2 class="clo-section-heading">2. Assignment Raw Values (Pre-Scaled)</h2>
           <div class="clo-section-divider"></div>
         </div>
-        <button @click="addAssessment" class="clo-btn clo-btn-primary">
-          Add Assessment
+        <button @click="addAssignment" class="clo-btn clo-btn-primary">
+          Add Assignment
         </button>
       </div>
       <p class="clo-section-description">
-        Enter raw values for each CLO within each assessment (e.g., hours, points, or any proportional measure).
+        Enter raw values for each CLO within each assignment (e.g., hours, points, or any proportional measure).
       </p>
       <div class="clo-table-wrapper">
         <table class="clo-table">
           <thead>
             <tr>
               <th class="clo-th clo-th-left">CLO</th>
-              <th v-for="assessment in assessments" :key="assessment.id" class="clo-th clo-th-center">
-                <div class="clo-assessment-header-cell">
+              <th v-for="assignment in assignments" :key="assignment.id" class="clo-th clo-th-center">
+                <div class="clo-assignment-header-cell">
                   <input 
-                    v-model="assessment.name" 
+                    v-model="assignment.name" 
                     type="text" 
                     class="clo-input clo-input-sm"
-                    placeholder="Assessment name"
+                    placeholder="Assignment name"
                   />
                   <button 
-                    @click="removeAssessment(assessment.id)" 
+                    @click="removeAssignment(assignment.id)" 
                     class="clo-btn clo-btn-danger clo-btn-xs"
-                    :disabled="assessments.length === 1"
+                    :disabled="assignments.length === 1"
                   >
                     Remove
                   </button>
@@ -115,10 +115,10 @@
           <tbody>
             <tr v-for="(clo, index) in clos" :key="clo.id">
               <td class="clo-td clo-td-bold clo-td-row-header">CLO {{ index + 1 }}</td>
-              <td v-for="assessment in assessments" :key="assessment.id" class="clo-td">
+              <td v-for="assignment in assignments" :key="assignment.id" class="clo-td">
                 <input 
-                  :value="getRawValue(clo.id, assessment.id)" 
-                  @input="setRawValue(clo.id, assessment.id, parseFloat($event.target.value) || 0)"
+                  :value="getRawValue(clo.id, assignment.id)" 
+                  @input="setRawValue(clo.id, assignment.id, parseFloat($event.target.value) || 0)"
                   type="number" 
                   min="0"
                   step="any"
@@ -152,15 +152,15 @@
       <transition name="accordion">
         <div v-if="showSection2A" class="clo-accordion-content">
           <p class="clo-section-description">
-            Raw values converted to percentages for each CLO across all assessments.
+            Raw values converted to percentages for each CLO across all assignments.
           </p>
           <div class="clo-table-wrapper">
             <table class="clo-table">
               <thead>
                 <tr>
                   <th class="clo-th clo-th-left">CLO</th>
-                  <th v-for="assessment in assessments" :key="assessment.id" class="clo-th clo-th-center">
-                    {{ assessment.name || 'Assessment ' + assessment.id }}
+                  <th v-for="assignment in assignments" :key="assignment.id" class="clo-th clo-th-center">
+                    {{ assignment.name || 'Assignment ' + assignment.id }}
                   </th>
                   <th class="clo-th clo-th-center clo-th-highlight">Total</th>
                 </tr>
@@ -168,8 +168,8 @@
               <tbody>
                 <tr v-for="(clo, index) in clos" :key="clo.id">
                   <td class="clo-td clo-td-bold clo-td-row-header">CLO {{ index + 1 }}</td>
-                  <td v-for="assessment in assessments" :key="assessment.id" class="clo-td clo-td-right clo-td-scaled">
-                    {{ getScaledPercentage(clo.id, assessment.id).toFixed(1) }}%
+                  <td v-for="assignment in assignments" :key="assignment.id" class="clo-td clo-td-right clo-td-scaled">
+                    {{ getScaledPercentage(clo.id, assignment.id).toFixed(1) }}%
                   </td>
                   <td class="clo-td clo-td-right clo-td-bold clo-td-row-header" :class="getCLOScaledTotal(clo.id) === 100 ? 'clo-status-success' : 'clo-status-warning'">
                     {{ getCLOScaledTotal(clo.id) }}%
@@ -191,29 +191,29 @@
         </div>
       </div>
       <p class="clo-section-description">
-        Contribution of each CLO within each assessment towards the overall course grade.
+        Contribution of each CLO within each assignment towards the overall course grade.
       </p>
       <div class="clo-table-wrapper">
         <table class="clo-table clo-results-table">
           <thead>
             <tr>
               <th class="clo-th clo-th-left">CLO</th>
-              <th v-for="assessment in assessments" :key="assessment.id" class="clo-th clo-th-center">
-                {{ assessment.name || 'Assessment ' + assessment.id }}
+              <th v-for="assignment in assignments" :key="assignment.id" class="clo-th clo-th-center">
+                {{ assignment.name || 'Assignment ' + assignment.id }}
               </th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(clo, index) in clos" :key="clo.id">
               <td class="clo-td clo-td-bold clo-td-row-header">CLO {{ index + 1 }}</td>
-              <td v-for="assessment in assessments" :key="assessment.id" class="clo-td clo-td-right clo-td-heatmap" :style="getHeatmapStyle(getCourseContribution(clo.id, assessment.id), section3Values)">
-                {{ getCourseContribution(clo.id, assessment.id).toFixed(2) }}%
+              <td v-for="assignment in assignments" :key="assignment.id" class="clo-td clo-td-right clo-td-heatmap" :style="getHeatmapStyle(getCourseContribution(clo.id, assignment.id), section3Values)">
+                {{ getCourseContribution(clo.id, assignment.id).toFixed(2) }}%
               </td>
             </tr>
             <tr class="clo-table-footer">
-              <td class="clo-td clo-td-bold">Assessment Total:</td>
-              <td v-for="assessment in assessments" :key="assessment.id" class="clo-td clo-td-right clo-td-bold">
-                {{ getAssessmentTotal(assessment.id).toFixed(2) }}%
+              <td class="clo-td clo-td-bold">Assignment Total:</td>
+              <td v-for="assignment in assignments" :key="assignment.id" class="clo-td clo-td-right clo-td-bold">
+                {{ getAssignmentTotal(assignment.id).toFixed(2) }}%
               </td>
             </tr>
           </tbody>
@@ -230,38 +230,38 @@
       </div>
     </section>
 
-    <!-- Section 4: CLO Emphasis per Assessment -->
+    <!-- Section 4: CLO Emphasis per Assignment -->
     <section class="clo-section">
       <div class="clo-section-header">
         <div>
-          <h2 class="clo-section-heading">4. CLO Emphasis per Assessment (%)</h2>
+          <h2 class="clo-section-heading">4. CLO Emphasis per Assignment (%)</h2>
           <div class="clo-section-divider"></div>
         </div>
       </div>
       <p class="clo-section-description">
-        Percentage emphasis of each CLO within each individual assessment.
+        Percentage emphasis of each CLO within each individual assignment.
       </p>
       <div class="clo-table-wrapper">
         <table class="clo-table clo-results-table">
           <thead>
             <tr>
               <th class="clo-th clo-th-left">CLO</th>
-              <th v-for="assessment in assessments" :key="assessment.id" class="clo-th clo-th-center">
-                {{ assessment.name || 'Assessment ' + assessment.id }}
+              <th v-for="assignment in assignments" :key="assignment.id" class="clo-th clo-th-center">
+                {{ assignment.name || 'Assignment ' + assignment.id }}
               </th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(clo, index) in clos" :key="clo.id">
               <td class="clo-td clo-td-bold clo-td-row-header">CLO {{ index + 1 }}</td>
-              <td v-for="assessment in assessments" :key="assessment.id" class="clo-td clo-td-right clo-td-heatmap" :style="getHeatmapStyle(getCLOEmphasis(clo.id, assessment.id), section4Values)">
-                {{ getCLOEmphasis(clo.id, assessment.id).toFixed(1) }}%
+              <td v-for="assignment in assignments" :key="assignment.id" class="clo-td clo-td-right clo-td-heatmap" :style="getHeatmapStyle(getCLOEmphasis(clo.id, assignment.id), section4Values)">
+                {{ getCLOEmphasis(clo.id, assignment.id).toFixed(1) }}%
               </td>
             </tr>
             <tr class="clo-table-footer">
-              <td class="clo-td clo-td-bold">Total per Assessment:</td>
-              <td v-for="assessment in assessments" :key="assessment.id" class="clo-td clo-td-right clo-td-bold" :class="getAssessmentEmphasisTotal(assessment.id) === 100 ? 'clo-status-success' : 'clo-status-warning'">
-                {{ getAssessmentEmphasisTotal(assessment.id).toFixed(1) }}%
+              <td class="clo-td clo-td-bold">Total per Assignment:</td>
+              <td v-for="assignment in assignments" :key="assignment.id" class="clo-td clo-td-right clo-td-bold" :class="getAssignmentEmphasisTotal(assignment.id) === 100 ? 'clo-status-success' : 'clo-status-warning'">
+                {{ getAssignmentEmphasisTotal(assignment.id).toFixed(1) }}%
               </td>
             </tr>
           </tbody>
@@ -284,26 +284,26 @@ const clos = ref([
   { id: 1, name: 'CLO 1', weighting: 100 }
 ])
 
-const assessments = ref([
-  { id: 1, name: 'Assessment 1' }
+const assignments = ref([
+  { id: 1, name: 'Assignment 1' }
 ])
 
 const rawValues = reactive({})
 
 let nextCLOId = 2
-let nextAssessmentId = 2
+let nextAssignmentId = 2
 
 // Helper functions
-const getRawValue = (cloId, assessmentId) => {
-  const key = `${cloId}-${assessmentId}`
+const getRawValue = (cloId, assignmentId) => {
+  const key = `${cloId}-${assignmentId}`
   if (!rawValues[key]) {
     rawValues[key] = 0
   }
   return rawValues[key]
 }
 
-const setRawValue = (cloId, assessmentId, value) => {
-  const key = `${cloId}-${assessmentId}`
+const setRawValue = (cloId, assignmentId, value) => {
+  const key = `${cloId}-${assignmentId}`
   rawValues[key] = value
 }
 
@@ -314,57 +314,57 @@ const totalCLOWeighting = computed(() => {
 
 // Section 2 computations
 const getCLOTotal = (cloId) => {
-  return assessments.value.reduce((sum, assessment) => {
-    return sum + (getRawValue(cloId, assessment.id) || 0)
+  return assignments.value.reduce((sum, assignment) => {
+    return sum + (getRawValue(cloId, assignment.id) || 0)
   }, 0)
 }
 
 // Section 2A computations
-const getScaledPercentage = (cloId, assessmentId) => {
+const getScaledPercentage = (cloId, assignmentId) => {
   const total = getCLOTotal(cloId)
   if (total === 0) return 0
-  const rawValue = getRawValue(cloId, assessmentId) || 0
+  const rawValue = getRawValue(cloId, assignmentId) || 0
   return (rawValue / total) * 100
 }
 
 const getCLOScaledTotal = (cloId) => {
-  const total = assessments.value.reduce((sum, assessment) => {
-    return sum + getScaledPercentage(cloId, assessment.id)
+  const total = assignments.value.reduce((sum, assignment) => {
+    return sum + getScaledPercentage(cloId, assignment.id)
   }, 0)
   return Math.round(total)
 }
 
 // Section 3 computations
-const getCourseContribution = (cloId, assessmentId) => {
+const getCourseContribution = (cloId, assignmentId) => {
   const clo = clos.value.find(c => c.id === cloId)
   if (!clo) return 0
-  const scaledPercentage = getScaledPercentage(cloId, assessmentId)
+  const scaledPercentage = getScaledPercentage(cloId, assignmentId)
   return (scaledPercentage / 100) * (clo.weighting || 0)
 }
 
-const getAssessmentTotal = (assessmentId) => {
+const getAssignmentTotal = (assignmentId) => {
   return clos.value.reduce((sum, clo) => {
-    return sum + getCourseContribution(clo.id, assessmentId)
+    return sum + getCourseContribution(clo.id, assignmentId)
   }, 0)
 }
 
 const grandTotal = computed(() => {
-  return assessments.value.reduce((sum, assessment) => {
-    return sum + getAssessmentTotal(assessment.id)
+  return assignments.value.reduce((sum, assignment) => {
+    return sum + getAssignmentTotal(assignment.id)
   }, 0)
 })
 
 // Section 4 computations
-const getCLOEmphasis = (cloId, assessmentId) => {
-  const assessmentTotal = getAssessmentTotal(assessmentId)
-  if (assessmentTotal === 0) return 0
-  const contribution = getCourseContribution(cloId, assessmentId)
-  return (contribution / assessmentTotal) * 100
+const getCLOEmphasis = (cloId, assignmentId) => {
+  const assignmentTotal = getAssignmentTotal(assignmentId)
+  if (assignmentTotal === 0) return 0
+  const contribution = getCourseContribution(cloId, assignmentId)
+  return (contribution / assignmentTotal) * 100
 }
 
-const getAssessmentEmphasisTotal = (assessmentId) => {
+const getAssignmentEmphasisTotal = (assignmentId) => {
   return clos.value.reduce((sum, clo) => {
-    return sum + getCLOEmphasis(clo.id, assessmentId)
+    return sum + getCLOEmphasis(clo.id, assignmentId)
   }, 0)
 }
 
@@ -372,8 +372,8 @@ const getAssessmentEmphasisTotal = (assessmentId) => {
 const section3Values = computed(() => {
   const values = []
   clos.value.forEach(clo => {
-    assessments.value.forEach(assessment => {
-      values.push(getCourseContribution(clo.id, assessment.id))
+    assignments.value.forEach(assignment => {
+      values.push(getCourseContribution(clo.id, assignment.id))
     })
   })
   return values
@@ -382,8 +382,8 @@ const section3Values = computed(() => {
 const section4Values = computed(() => {
   const values = []
   clos.value.forEach(clo => {
-    assessments.value.forEach(assessment => {
-      values.push(getCLOEmphasis(clo.id, assessment.id))
+    assignments.value.forEach(assignment => {
+      values.push(getCLOEmphasis(clo.id, assignment.id))
     })
   })
   return values
@@ -438,29 +438,29 @@ const removeCLO = (index) => {
   if (clos.value.length > 1) {
     const cloId = clos.value[index].id
     // Remove associated raw values
-    assessments.value.forEach(assessment => {
-      const key = `${cloId}-${assessment.id}`
+    assignments.value.forEach(assignment => {
+      const key = `${cloId}-${assignment.id}`
       delete rawValues[key]
     })
     clos.value.splice(index, 1)
   }
 }
 
-const addAssessment = () => {
-  assessments.value.push({
-    id: nextAssessmentId++,
-    name: `Assessment ${assessments.value.length + 1}`
+const addAssignment = () => {
+  assignments.value.push({
+    id: nextAssignmentId++,
+    name: `Assignment ${assignments.value.length + 1}`
   })
 }
 
-const removeAssessment = (assessmentId) => {
-  if (assessments.value.length > 1) {
+const removeAssignment = (assignmentId) => {
+  if (assignments.value.length > 1) {
     // Remove associated raw values
     clos.value.forEach(clo => {
-      const key = `${clo.id}-${assessmentId}`
+      const key = `${clo.id}-${assignmentId}`
       delete rawValues[key]
     })
-    assessments.value = assessments.value.filter(a => a.id !== assessmentId)
+    assignments.value = assignments.value.filter(a => a.id !== assignmentId)
   }
 }
 </script>
@@ -929,8 +929,8 @@ const removeAssessment = (assessmentId) => {
   min-width: 100px;
 }
 
-/* Assessment header cell in table */
-.clo-assessment-header-cell {
+/* Assignment header cell in table */
+.clo-assignment-header-cell {
   display: flex;
   flex-direction: column;
   gap: 8px;
