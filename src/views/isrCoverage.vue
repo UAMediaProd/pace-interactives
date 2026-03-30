@@ -91,7 +91,32 @@ const showDefinition = (id) => {
 </script>
 
 <style scoped>
- .st0 {
+      /* Embed Made Evolve Sans fonts for offline/mobile reliability */
+      @font-face {
+        font-family: 'Made Evolve Sans';
+        src: url('@/assets/fonts/MADE Evolve Sans Bold.otf') format('opentype');
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: 'Made Evolve Sans';
+        src: url('@/assets/fonts/MADE Evolve Sans Medium.otf') format('opentype');
+        font-weight: 500;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: 'Made Evolve Sans';
+        src: url('@/assets/fonts/MADE Evolve Sans Regular.otf') format('opentype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      .st0 {
         fill: #102535;
       }
 
@@ -108,7 +133,7 @@ const showDefinition = (id) => {
       }
 
       .st3, .st2, .st5, .st6 {
-        font-family: MADEEvolveSans-Bold, 'MADE Evolve Sans';
+        font-family: 'Made Evolve Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
         font-weight: 700;
       }
 
