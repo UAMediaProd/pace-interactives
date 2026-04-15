@@ -63,7 +63,7 @@
             </tr>
             <tr class="clo-table-footer">
               <td colspan="2" class="clo-td clo-td-right clo-td-bold">Total:</td>
-              <td class="clo-td clo-td-right clo-td-bold" :class="totalCLOWeighting === 100 ? 'clo-status-success' : 'clo-status-warning'">
+              <td class="clo-td clo-td-right clo-td-bold" :class="Math.round(totalCLOWeighting) === 100 ? 'clo-status-success' : 'clo-status-warning'">
                 {{ totalCLOWeighting.toFixed(1) }}%
               </td>
               <td class="clo-td"></td>
@@ -171,7 +171,7 @@
                   <td v-for="assignment in assignments" :key="assignment.id" class="clo-td clo-td-right clo-td-scaled">
                     {{ getScaledPercentage(clo.id, assignment.id).toFixed(1) }}%
                   </td>
-                  <td class="clo-td clo-td-right clo-td-bold clo-td-row-header" :class="getCLOScaledTotal(clo.id) === 100 ? 'clo-status-success' : 'clo-status-warning'">
+                  <td class="clo-td clo-td-right clo-td-bold clo-td-row-header" :class="Math.round(getCLOScaledTotal(clo.id)) === 100 ? 'clo-status-success' : 'clo-status-warning'">
                     {{ getCLOScaledTotal(clo.id) }}%
                   </td>
                 </tr>
@@ -221,7 +221,7 @@
         <div class="clo-callout clo-callout-highlight">
           <p class="clo-callout-text">
             Grand Total: 
-            <span :class="grandTotal === 100 ? 'clo-status-success' : 'clo-status-warning'">
+            <span :class="Math.round(grandTotal) === 100 ? 'clo-status-success' : 'clo-status-warning'">
               {{ grandTotal.toFixed(2) }}%
             </span>
             <span class="clo-callout-note">(Should equal 100%)</span>
@@ -260,7 +260,7 @@
             </tr>
             <tr class="clo-table-footer">
               <td class="clo-td clo-td-bold">Total per Assignment:</td>
-              <td v-for="assignment in assignments" :key="assignment.id" class="clo-td clo-td-right clo-td-bold" :class="getAssignmentEmphasisTotal(assignment.id) === 100 ? 'clo-status-success' : 'clo-status-warning'">
+              <td v-for="assignment in assignments" :key="assignment.id" class="clo-td clo-td-right clo-td-bold" :class="Math.round(getAssignmentEmphasisTotal(assignment.id)) === 100 ? 'clo-status-success' : 'clo-status-warning'">
                 {{ getAssignmentEmphasisTotal(assignment.id).toFixed(1) }}%
               </td>
             </tr>

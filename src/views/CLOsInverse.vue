@@ -4,17 +4,17 @@
     <div class="clo-hero">
       <span class="clo-hero-label">Stream B Calculator</span>
       <h1 class="clo-page-title">Assignment to CLO Contribution Calculator</h1>
-      <p class="clo-subtitle">Calculate CLO weightings based on assignment rubric criteria</p>
+      <p class="clo-subtitle">Calculate CLO weightings based on assignment marking criteria</p>
     </div>
 
     <!-- Main Container -->
     <div class="clo-container">
     
-    <!-- Section 1: Assignments and Rubric Criteria -->
+    <!-- Section 1: Assignments and Marking Criteria -->
     <section class="clo-section">
       <div class="clo-section-header">
         <div>
-          <h2 class="clo-section-heading">1. Assignments and Rubric Criteria</h2>
+          <h2 class="clo-section-heading">1. Assignments and Marking Criteria</h2>
           <div class="clo-section-divider"></div>
         </div>
         <button @click="addAssignment" class="clo-btn clo-btn-primary">
@@ -56,14 +56,14 @@
           </div>
         </div>
 
-        <!-- Rubric Criteria Table -->
+        <!-- Marking Criteria Table -->
         <div class="clo-criteria-section">
           <div class="clo-criteria-header">
-            <h3 class="clo-subsection-heading">Rubric Criteria</h3>
+            <h3 class="clo-subsection-heading">Marking Criteria</h3>
             <button 
               @click="addCriteria(assignment.id)" 
               class="clo-btn clo-btn-secondary"
-              :disabled="getCriteria(assignment.id).length >= 5"
+              :disabled="getCriteria(assignment.id).length >= 10"
             >
               Add Criteria
             </button>
@@ -126,7 +126,7 @@
                       >
                         + Add CLO
                       </button>
-                      <span class="clo-allocation-total" :class="getCriteriaAllocationTotal(criteria) === 100 ? 'clo-status-success' : 'clo-status-warning'">
+                      <span class="clo-allocation-total" :class="Math.round(getCriteriaAllocationTotal(criteria)) === 100 ? 'clo-status-success' : 'clo-status-warning'">
                         Total: {{ getCriteriaAllocationTotal(criteria) }}%
                       </span>
                     </div>
@@ -166,7 +166,7 @@
       <div class="clo-callout">
         <p class="clo-callout-text">
           Total Assignment Weightings: 
-          <span :class="totalAssignmentWeighting === 100 ? 'clo-status-success' : 'clo-status-warning'">
+          <span :class="Math.round(totalAssignmentWeighting) === 100 ? 'clo-status-success' : 'clo-status-warning'">
             {{ totalAssignmentWeighting.toFixed(1) }}%
           </span>
           <span class="clo-callout-note">(Should equal 100%)</span>
@@ -183,7 +183,7 @@
         </div>
       </div>
       <p class="clo-section-description">
-        Calculated contribution of each assignment to each CLO, based on rubric criteria.
+        Calculated contribution of each assignment to each CLO, based on marking criteria.
       </p>
 
       <div v-if="discoveredCLOs.length > 0" class="clo-table-wrapper">
@@ -212,7 +212,7 @@
               <td v-for="assignment in assignments" :key="assignment.id" class="clo-td clo-td-right clo-td-bold">
                 {{ getAssignmentColumnTotal(assignment.id).toFixed(2) }}%
               </td>
-              <td class="clo-td clo-td-right clo-td-bold" :class="grandTotal === 100 ? 'clo-status-success' : 'clo-status-warning'">
+              <td class="clo-td clo-td-right clo-td-bold" :class="Math.round(grandTotal) === 100 ? 'clo-status-success' : 'clo-status-warning'">
                 {{ grandTotal.toFixed(2) }}%
               </td>
             </tr>
@@ -222,7 +222,7 @@
         <div class="clo-callout clo-callout-highlight">
           <p class="clo-callout-text">
             Grand Total: 
-            <span :class="grandTotal === 100 ? 'clo-status-success' : 'clo-status-warning'">
+            <span :class="Math.round(grandTotal) === 100 ? 'clo-status-success' : 'clo-status-warning'">
               {{ grandTotal.toFixed(2) }}%
             </span>
             <span class="clo-callout-note">(Should equal 100%)</span>
