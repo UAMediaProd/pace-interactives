@@ -10,6 +10,23 @@
     <!-- Main Container -->
     <div class="clo-container">
 
+    <!-- Input Mode Toggle -->
+    <div class="clo-mode-toggle">
+      <span class="clo-mode-label">Input mode</span>
+      <div class="clo-mode-pills">
+        <button
+          class="clo-mode-pill"
+          :class="{ 'clo-mode-pill-active': !visualMode }"
+          @click="visualMode = false"
+        >Numbers</button>
+        <button
+          class="clo-mode-pill"
+          :class="{ 'clo-mode-pill-active': visualMode }"
+          @click="visualMode = true"
+        >Visual</button>
+      </div>
+    </div>
+
     <!-- Section 1: CLO Weightings -->
     <section class="clo-section">
       <div class="clo-section-header">
@@ -43,13 +60,33 @@
                 />
               </td>
               <td class="clo-td">
-                <input 
-                  v-model.number="clo.weighting" 
-                  type="number" 
-                  min="0" 
-                  max="100"
+                <input
+                  v-if="!visualMode"
+                  type="number"
+                  min="0"
+                  :max="maxWeightingFor(clo.id)"
+                  :value="clo.weighting"
+                  @change="setCLOWeighting(clo.id, $event.target.value)"
                   class="clo-input clo-input-sm clo-input-numeric"
                 />
+                <div v-else class="clo-slider-cell">
+                  <div
+                    class="clo-custom-slider"
+                    @mousedown="startWeightDrag(clo.id, $event)"
+                    @touchstart.prevent="startWeightDrag(clo.id, $event)"
+                  >
+                    <div class="clo-custom-track" :style="getSliderStyle(clo.weighting, maxWeightingFor(clo.id))"></div>
+                    <div class="clo-custom-thumb" :style="{ left: clo.weighting + '%' }"></div>
+                  </div>
+                  <input
+                    type="number"
+                    min="0"
+                    :max="maxWeightingFor(clo.id)"
+                    :value="clo.weighting"
+                    @change="setCLOWeighting(clo.id, $event.target.value)"
+                    class="clo-input clo-input-sm clo-input-numeric clo-slider-number"
+                  />
+                </div>
               </td>
               <td class="clo-td clo-td-center">
                 <button 
@@ -116,14 +153,33 @@
             <tr v-for="(clo, index) in clos" :key="clo.id">
               <td class="clo-td clo-td-bold clo-td-row-header">CLO {{ index + 1 }}</td>
               <td v-for="assignment in assignments" :key="assignment.id" class="clo-td">
-                <input 
-                  :value="getRawValue(clo.id, assignment.id)" 
+                <input
+                  v-if="!visualMode"
+                  :value="getRawValue(clo.id, assignment.id)"
                   @input="setRawValue(clo.id, assignment.id, parseFloat($event.target.value) || 0)"
-                  type="number" 
+                  type="number"
                   min="0"
                   step="any"
                   class="clo-input clo-input-sm clo-input-numeric"
                 />
+                <div v-else class="clo-slider-cell">
+                  <input
+                    type="range"
+                    min="0" max="100" step="1"
+                    :value="getRawValue(clo.id, assignment.id)"
+                    :style="getSliderStyle(getRawValue(clo.id, assignment.id))"
+                    @input="setRawValue(clo.id, assignment.id, parseFloat($event.target.value) || 0)"
+                    class="clo-slider"
+                  />
+                  <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    :value="getRawValue(clo.id, assignment.id)"
+                    @input="setRawValue(clo.id, assignment.id, parseFloat($event.target.value) || 0)"
+                    class="clo-input clo-input-sm clo-input-numeric clo-slider-number"
+                  />
+                </div>
               </td>
               <td class="clo-td clo-td-right clo-td-bold clo-td-row-header">
                 {{ getCLOTotal(clo.id).toFixed(2) }}
@@ -278,6 +334,7 @@ import { ref, computed, reactive } from 'vue'
 
 // UI state
 const showSection2A = ref(false)
+const visualMode = ref(false)
 
 // Data structures
 const clos = ref([
@@ -311,6 +368,16 @@ const setRawValue = (cloId, assignmentId, value) => {
 const totalCLOWeighting = computed(() => {
   return clos.value.reduce((sum, clo) => sum + (clo.weighting || 0), 0)
 })
+
+const maxWeightingFor = (cloId) => {
+  const othersTotal = clos.value.reduce((sum, c) => c.id === cloId ? sum : sum + (c.weighting || 0), 0)
+  return Math.max(0, 100 - othersTotal)
+}
+
+const setCLOWeighting = (cloId, value) => {
+  const clo = clos.value.find(c => c.id === cloId)
+  if (clo) clo.weighting = Math.min(maxWeightingFor(cloId), Math.max(0, parseFloat(value) || 0))
+}
 
 // Section 2 computations
 const getCLOTotal = (cloId) => {
@@ -419,6 +486,44 @@ const getHeatmapStyle = (value, allValues) => {
     backgroundColor: style.bg,
     color: style.text
   }
+}
+
+// availableMax: the cap for this slider (0-100). Remaining is "locked" by other CLOs.
+const getSliderStyle = (value, availableMax = 100) => {
+  const v = Math.min(100, Math.max(0, value))
+  const a = Math.min(100, Math.max(0, availableMax))
+  // Two visible zones + invisible locked area: filled | available | transparent
+  return {
+    background: `linear-gradient(to right,
+      #140F50 0%, #140F50 ${v}%,
+      #ddd8f8 ${v}%, #ddd8f8 ${a}%,
+      transparent ${a}%, transparent 100%)`
+  }
+}
+
+const startWeightDrag = (cloId, event) => {
+  event.preventDefault()
+  const track = event.currentTarget
+  const rect = track.getBoundingClientRect()
+
+  const applyPosition = (clientX) => {
+    const pct = Math.min(100, Math.max(0, (clientX - rect.left) / rect.width * 100))
+    setCLOWeighting(cloId, pct)
+  }
+
+  applyPosition(event.touches ? event.touches[0].clientX : event.clientX)
+
+  const onMove = (e) => applyPosition(e.touches ? e.touches[0].clientX : e.clientX)
+  const onUp = () => {
+    window.removeEventListener('mousemove', onMove)
+    window.removeEventListener('mouseup', onUp)
+    window.removeEventListener('touchmove', onMove)
+    window.removeEventListener('touchend', onUp)
+  }
+  window.addEventListener('mousemove', onMove)
+  window.addEventListener('mouseup', onUp)
+  window.addEventListener('touchmove', onMove, { passive: false })
+  window.addEventListener('touchend', onUp)
 }
 
 // Actions
@@ -995,6 +1100,115 @@ const removeAssignment = (assignmentId) => {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* ========================================
+   Input Mode Toggle
+   ======================================== */
+.clo-mode-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-bottom: var(--clo-space-md);
+}
+
+.clo-mode-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--clo-ink-muted);
+}
+
+.clo-mode-pills {
+  display: flex;
+  background: var(--clo-bg-warm);
+  border: 1px solid var(--clo-border);
+  border-radius: 20px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.clo-mode-pill {
+  font-family: var(--clo-font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 5px 16px;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--clo-ink-muted);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.clo-mode-pill:hover:not(.clo-mode-pill-active) {
+  color: var(--clo-ink);
+  background: rgba(20,15,80,0.06);
+}
+
+.clo-mode-pill-active {
+  background: var(--clo-accent-a);
+  color: #fff;
+}
+
+/* ========================================
+   Slider Cell
+   ======================================== */
+.clo-slider-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 180px;
+}
+
+.clo-custom-slider {
+  flex: 1;
+  position: relative;
+  height: 24px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.clo-custom-track {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  height: 6px;
+  border-radius: 3px;
+}
+
+.clo-custom-thumb {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--clo-accent-a);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(20,15,80,0.3);
+  cursor: grab;
+  transition: box-shadow 0.15s ease, transform 0.1s ease;
+  pointer-events: none;
+}
+
+.clo-custom-slider:hover .clo-custom-thumb {
+  box-shadow: 0 0 0 5px rgba(20,15,80,0.12), 0 1px 4px rgba(20,15,80,0.3);
+  transform: translate(-50%, -50%) scale(1.15);
+}
+
+.clo-custom-slider:active .clo-custom-thumb {
+  cursor: grabbing;
+  box-shadow: 0 0 0 7px rgba(20,15,80,0.1), 0 1px 4px rgba(20,15,80,0.3);
+}
+
+.clo-slider-number {
+  width: 62px;
+  flex-shrink: 0;
 }
 
 /* ========================================
