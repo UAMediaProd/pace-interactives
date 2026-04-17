@@ -21,6 +21,9 @@
           Add Assignment
         </button>
       </div>
+      <p class="clo-section-description">
+        For each assignment, provide the assignment name, its weighting as a percentage of the course grade, and the marking/rubric criteria. Each criterion is mapped to one or more CLOs with a percentage allocation, plus a total marks value.
+      </p>
 
       <!-- Assignment Cards -->
       <div v-for="(assignment) in assignments" :key="assignment.id" class="clo-assignment-card">
@@ -183,7 +186,7 @@
         </div>
       </div>
       <p class="clo-section-description">
-        Calculated contribution of each assignment to each CLO, based on marking criteria.
+        The estimated overall weighting of each CLO across the course, showing how much each CLO contributes to each assignment and to the total course grade.
       </p>
 
       <div v-if="discoveredCLOs.length > 0" class="clo-table-wrapper">
@@ -203,11 +206,11 @@
               <td v-for="assignment in assignments" :key="assignment.id" class="clo-td clo-td-right clo-td-heatmap" :style="getHeatmapStyle(getCLOContribution(cloNum, assignment.id), allContributions)">
                 {{ getCLOContribution(cloNum, assignment.id).toFixed(2) }}%
               </td>
-              <td class="clo-td clo-td-right clo-td-bold clo-td-heatmap" :style="getHeatmapStyle(getCLOOverall(cloNum), overallContributions)">
+              <td class="clo-td clo-td-right clo-td-bold clo-td-overall-column" :style="getHeatmapStyle(getCLOOverall(cloNum), overallContributions)">
                 {{ getCLOOverall(cloNum).toFixed(2) }}%
               </td>
             </tr>
-            <tr class="clo-table-footer">
+            <tr class="clo-table-footer clo-table-footer-highlight">
               <td class="clo-td clo-td-bold">Total:</td>
               <td v-for="assignment in assignments" :key="assignment.id" class="clo-td clo-td-right clo-td-bold">
                 {{ getAssignmentColumnTotal(assignment.id).toFixed(2) }}%
@@ -944,6 +947,12 @@ const removeCLOAllocation = (assignmentId, criteriaId, allocationIndex) => {
   color: var(--clo-accent-a);
 }
 
+/* Overall column highlight */
+.clo-td-overall-column {
+  background: var(--clo-accent-a-soft) !important;
+  color: var(--clo-accent-a) !important;
+}
+
 .clo-td {
   padding: 12px 14px;
   border: 1px solid var(--clo-border);
@@ -994,6 +1003,21 @@ const removeCLOAllocation = (assignmentId, criteriaId, allocationIndex) => {
 }
 
 .clo-table-footer .clo-td:last-child {
+  border-bottom-right-radius: var(--clo-radius);
+}
+
+/* Highlighted footer row (totals) */
+.clo-table-footer-highlight .clo-td {
+  background: var(--clo-accent-a);
+  color: #fff;
+  border-color: var(--clo-accent-a);
+}
+
+.clo-table-footer-highlight .clo-td:first-child {
+  border-bottom-left-radius: var(--clo-radius);
+}
+
+.clo-table-footer-highlight .clo-td:last-child {
   border-bottom-right-radius: var(--clo-radius);
 }
 

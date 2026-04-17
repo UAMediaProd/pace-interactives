@@ -23,7 +23,7 @@
           class="clo-mode-pill"
           :class="{ 'clo-mode-pill-active': visualMode }"
           @click="visualMode = true"
-        >Visual</button>
+        >Visuals</button>
       </div>
     </div>
 
@@ -31,13 +31,16 @@
     <section class="clo-section">
       <div class="clo-section-header">
         <div>
-          <h2 class="clo-section-heading">1. CLO Course Weightings</h2>
+          <h2 class="clo-section-heading">1. CLO weightings</h2>
           <div class="clo-section-divider"></div>
         </div>
         <button @click="addCLO" class="clo-btn clo-btn-primary">
           Add CLO
         </button>
       </div>
+      <p class="clo-section-description">
+        Estimate the relative importance of each CLO in your course, expressed as percentages totalling 100%.
+      </p>
       <div class="clo-table-wrapper">
         <table class="clo-table">
           <thead>
@@ -114,7 +117,7 @@
     <section class="clo-section">
       <div class="clo-section-header">
         <div>
-          <h2 class="clo-section-heading">2. Assignment Raw Values (Pre-Scaled)</h2>
+          <h2 class="clo-section-heading">2. CLO Mapping</h2>
           <div class="clo-section-divider"></div>
         </div>
         <button @click="addAssignment" class="clo-btn clo-btn-primary">
@@ -122,7 +125,7 @@
         </button>
       </div>
       <p class="clo-section-description">
-        Enter raw values for each CLO within each assignment (e.g., hours, points, or any proportional measure).
+        Map the relative importance of each CLO across your assignment tasks.
       </p>
       <div class="clo-table-wrapper">
         <table class="clo-table">
@@ -208,7 +211,7 @@
       <transition name="accordion">
         <div v-if="showSection2A" class="clo-accordion-content">
           <p class="clo-section-description">
-            Raw values converted to percentages for each CLO across all assignments.
+            inputs converted to percentages for each CLO across all assignments.
           </p>
           <div class="clo-table-wrapper">
             <table class="clo-table">
@@ -242,12 +245,12 @@
     <section class="clo-section">
       <div class="clo-section-header">
         <div>
-          <h2 class="clo-section-heading">3. Overall Course Contribution (%)</h2>
+          <h2 class="clo-section-heading">3. Assignment Weightings</h2>
           <div class="clo-section-divider"></div>
         </div>
       </div>
       <p class="clo-section-description">
-        Contribution of each CLO within each assignment towards the overall course grade.
+        The estimated weighting of each assignment as a percentage of the overall course grade.
       </p>
       <div class="clo-table-wrapper">
         <table class="clo-table clo-results-table">
@@ -266,7 +269,7 @@
                 {{ getCourseContribution(clo.id, assignment.id).toFixed(2) }}%
               </td>
             </tr>
-            <tr class="clo-table-footer">
+            <tr class="clo-table-footer clo-table-footer-highlight">
               <td class="clo-td clo-td-bold">Assignment Total:</td>
               <td v-for="assignment in assignments" :key="assignment.id" class="clo-td clo-td-right clo-td-bold">
                 {{ getAssignmentTotal(assignment.id).toFixed(2) }}%
@@ -290,12 +293,12 @@
     <section class="clo-section">
       <div class="clo-section-header">
         <div>
-          <h2 class="clo-section-heading">4. CLO Emphasis per Assignment (%)</h2>
+          <h2 class="clo-section-heading">4. Marking Guide/ Rubric Composition</h2>
           <div class="clo-section-divider"></div>
         </div>
       </div>
       <p class="clo-section-description">
-        Percentage emphasis of each CLO within each individual assignment.
+        The percentage emphasis each CLO should have within each individual assignment.
       </p>
       <div class="clo-table-wrapper">
         <table class="clo-table clo-results-table">
@@ -1027,6 +1030,21 @@ const removeAssignment = (assignmentId) => {
 }
 
 .clo-table-footer .clo-td:last-child {
+  border-bottom-right-radius: var(--clo-radius);
+}
+
+/* Highlighted footer row (totals) */
+.clo-table-footer-highlight .clo-td {
+  background: var(--clo-accent-a);
+  color: #fff;
+  border-color: var(--clo-accent-a);
+}
+
+.clo-table-footer-highlight .clo-td:first-child {
+  border-bottom-left-radius: var(--clo-radius);
+}
+
+.clo-table-footer-highlight .clo-td:last-child {
   border-bottom-right-radius: var(--clo-radius);
 }
 
