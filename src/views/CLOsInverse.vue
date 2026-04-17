@@ -197,7 +197,7 @@
               <th v-for="assignment in assignments" :key="assignment.id" class="clo-th clo-th-center">
                 {{ assignment.name || 'Assignment ' + assignment.id }}
               </th>
-              <th class="clo-th clo-th-center clo-th-highlight">Overall</th>
+              <th class="clo-th clo-th-center clo-th-highlight clo-th-overall">Overall</th>
             </tr>
           </thead>
           <tbody>
@@ -210,12 +210,12 @@
                 {{ getCLOOverall(cloNum).toFixed(2) }}%
               </td>
             </tr>
-            <tr class="clo-table-footer clo-table-footer-highlight">
+            <tr class="clo-table-footer">
               <td class="clo-td clo-td-bold">Total:</td>
               <td v-for="assignment in assignments" :key="assignment.id" class="clo-td clo-td-right clo-td-bold">
                 {{ getAssignmentColumnTotal(assignment.id).toFixed(2) }}%
               </td>
-              <td class="clo-td clo-td-right clo-td-bold" :class="Math.round(grandTotal) === 100 ? 'clo-status-success' : 'clo-status-warning'">
+              <td class="clo-td clo-td-right clo-td-bold clo-td-overall-column" :class="Math.round(grandTotal) === 100 ? 'clo-status-success' : 'clo-status-warning'">
                 {{ grandTotal.toFixed(2) }}%
               </td>
             </tr>
@@ -948,9 +948,16 @@ const removeCLOAllocation = (assignmentId, criteriaId, allocationIndex) => {
 }
 
 /* Overall column highlight */
+.clo-th-overall {
+  background: var(--clo-accent-a) !important;
+  color: #fff !important;
+  border-color: #0C0930 !important;
+}
+
 .clo-td-overall-column {
-  background: var(--clo-accent-a-soft) !important;
-  color: var(--clo-accent-a) !important;
+  background: var(--clo-accent-a) !important;
+  color: #fff !important;
+  border-color: #0C0930 !important;
 }
 
 .clo-td {
