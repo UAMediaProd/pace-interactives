@@ -241,7 +241,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+
+onMounted(() => { document.title = 'Stream B: Assignments → Learning Outcomes' })
 
 // Data structures
 const assignments = ref([

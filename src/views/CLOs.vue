@@ -332,7 +332,9 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, onMounted } from 'vue'
+
+onMounted(() => { document.title = 'Stream A: Learning Outcomes → Assignments' })
 
 // UI state
 const showSection2A = ref(false)
