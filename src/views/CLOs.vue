@@ -2,9 +2,8 @@
   <div class="clo-page">
     <!-- Hero Header -->
     <div class="clo-hero">
-      <span class="clo-hero-label">Stream A Calculator</span>
-      <h1 class="clo-page-title">CLO to Assignment Weightings Calculator</h1>
-      <p class="clo-subtitle">Design assignments based on your Course Learning Outcomes distribution</p>
+      <span class="clo-hero-label">The Constructive Alignment Tool</span>
+      <h1 class="clo-page-title">Stream A: Learning Outcomes → Assignments</h1>
     </div>
 
     <!-- Main Container -->
