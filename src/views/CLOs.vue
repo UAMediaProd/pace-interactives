@@ -199,15 +199,14 @@
                   class="clo-input clo-input-sm clo-input-numeric"
                 />
                 <div v-else class="clo-slider-cell">
-
-                  <input
-                    type="range"
-                    min="0" max="100" step="1"
-                    :value="getRawValue(clo.id, assignment.id)"
-                    :style="getSliderStyle(getRawValue(clo.id, assignment.id))"
-                    @input="setRawValue(clo.id, assignment.id, parseFloat($event.target.value) || 0)"
-                    class="clo-slider"
-                  />
+                  <div
+                    class="clo-custom-slider"
+                    @mousedown="startMappingDrag(clo.id, assignment.id, $event)"
+                    @touchstart.prevent="startMappingDrag(clo.id, assignment.id, $event)"
+                  >
+                    <div class="clo-custom-track" :style="getSliderStyle(getRawValue(clo.id, assignment.id))"></div>
+                    <div class="clo-custom-thumb" :style="{ left: Math.min(100, getRawValue(clo.id, assignment.id)) + '%' }"></div>
+                  </div>
                   <input
                     type="number"
                     min="0"
@@ -584,6 +583,31 @@ const startWeightDrag = (cloId, event) => {
   const applyPosition = (clientX) => {
     const pct = Math.min(100, Math.max(0, (clientX - rect.left) / rect.width * 100))
     setCLOWeighting(cloId, pct)
+  }
+
+  applyPosition(event.touches ? event.touches[0].clientX : event.clientX)
+
+  const onMove = (e) => applyPosition(e.touches ? e.touches[0].clientX : e.clientX)
+  const onUp = () => {
+    window.removeEventListener('mousemove', onMove)
+    window.removeEventListener('mouseup', onUp)
+    window.removeEventListener('touchmove', onMove)
+    window.removeEventListener('touchend', onUp)
+  }
+  window.addEventListener('mousemove', onMove)
+  window.addEventListener('mouseup', onUp)
+  window.addEventListener('touchmove', onMove, { passive: false })
+  window.addEventListener('touchend', onUp)
+}
+
+const startMappingDrag = (cloId, assignmentId, event) => {
+  event.preventDefault()
+  const track = event.currentTarget
+  const rect = track.getBoundingClientRect()
+
+  const applyPosition = (clientX) => {
+    const pct = Math.min(100, Math.max(0, (clientX - rect.left) / rect.width * 100))
+    setRawValue(cloId, assignmentId, pct)
   }
 
   applyPosition(event.touches ? event.touches[0].clientX : event.clientX)
