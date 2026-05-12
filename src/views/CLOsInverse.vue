@@ -719,13 +719,6 @@ const exportCSV = () => {
   margin-top: 6px;
 }
 
-.clo-section-description {
-  color: var(--clo-ink-light);
-  font-size: 0.97rem;
-  line-height: 1.7;
-  margin-bottom: var(--clo-space-md);
-}
-
 .clo-subsection-heading {
   font-family: var(--clo-font-display);
   font-weight: 500;
