@@ -1,15 +1,13 @@
 <template>
   <div class="clo-page">
-    <!-- Hero Header -->
     <div class="clo-hero">
+      <img src="@/assets/catLogo.png" class="mx-auto my-4" width="100"/>
       <span class="clo-hero-label">The Constructive Alignment Tool</span>
-      <h1 class="clo-page-title">Stream A: Learning Outcomes → Assignments</h1>
+      <h1 class="clo-page-title">Pathway A: Learning Outcomes → Assignments</h1>
     </div>
 
-    <!-- Main Container -->
     <div class="clo-container">
 
-    <!-- Input Mode Toggle -->
     <div class="clo-mode-toggle">
       <span class="clo-mode-label">Input mode</span>
       <div class="clo-mode-pills">
@@ -26,8 +24,31 @@
       </div>
     </div>
 
-    <!-- Section 1: CLO Weightings -->
-    <section class="clo-section">
+    <div class="clo-tab-bar">
+      <button
+        v-for="(label, i) in tabLabels"
+        :key="i"
+        class="clo-tab"
+        :class="{ 'clo-tab-active': currentTab === i }"
+        @click="currentTab = i"
+      >{{ label }}</button>
+    </div>
+
+    <!-- Tab 0: CLO Weightings -->
+    <section class="clo-section" v-show="currentTab === 0">
+      <div class="clo-instructions">
+        <ol class="list-decimal ml-4">
+          <li>Click <strong>Add CLO</strong> to add course learning outcomes.</li>
+          <li>Toggle between <strong>Visual mode</strong> (sliders) and <strong>Numbers mode</strong> (direct input).</li>
+          <li>Estimate relative importance as percentages totalling 100%.</li>
+          <li>Consider outcome influence across assignments, not just teaching time.</li>
+          <li>Set equal weightings if CLOs are equally important — weightings should reflect actual assessment influence.</li>
+        </ol>
+        <p class="clo-instructions-links">
+          <a href="#" class="clo-placeholder-link"><!-- TODO: replace with final URL -->View overview</a> ·
+          <a href="#" class="clo-placeholder-link"><!-- TODO: replace with final URL -->Read the guide for this step</a>
+        </p>
+      </div>
       <div class="clo-section-header">
         <div>
           <h2 class="clo-section-heading">1. CLO weightings</h2>
@@ -112,8 +133,21 @@
       </div>
     </section>
 
-    <!-- Section 2: Assignment Raw Values -->
+    <!-- Tab 1: CLO Mapping -->
+    <div v-show="currentTab === 1">
     <section class="clo-section">
+      <div class="clo-instructions">
+        <ol class="list-decimal ml-4">
+          <li>Click <strong>Add Assignment</strong> for each summative assignment.</li>
+          <li>Toggle between <strong>Visual mode</strong> (relative importance) and <strong>Numbers mode</strong> (progression).</li>
+          <li>Values represent a ratio of relative importance across assignments per CLO.</li>
+          <li>Use <strong>0</strong> to indicate unassessed CLOs for a given assignment.</li>
+        </ol>
+        <p class="clo-instructions-links">
+          <a href="#" class="clo-placeholder-link"><!-- TODO: replace with final URL -->View overview</a> ·
+          <a href="#" class="clo-placeholder-link"><!-- TODO: replace with final URL -->Read the guide for this step</a>
+        </p>
+      </div>
       <div class="clo-section-header">
         <div>
           <h2 class="clo-section-heading">2. CLO Mapping</h2>
@@ -165,6 +199,7 @@
                   class="clo-input clo-input-sm clo-input-numeric"
                 />
                 <div v-else class="clo-slider-cell">
+
                   <input
                     type="range"
                     min="0" max="100" step="1"
@@ -192,7 +227,6 @@
       </div>
     </section>
 
-    <!-- Section 2A: Scaled Percentages (Collapsible) -->
     <section class="clo-section clo-section-collapsible">
       <button class="clo-btn clo-btn-secondary clo-toggle-btn" @click="toggleSection2A">
         <span>{{ showSection2A ? 'Hide' : 'Show' }} Section 2A - Calculated Details</span>
@@ -239,9 +273,21 @@
         </div>
       </transition>
     </section>
-
-    <!-- Section 3: Overall Course Contribution -->
-    <section class="clo-section">
+    </div>
+    <!-- Tab 2: Assignment Weightings -->
+    <section class="clo-section" v-show="currentTab === 2">
+      <div class="clo-instructions">
+        <ol class="list-decimal ml-4">
+          <li>Review estimated assignment weightings as course grade percentages.</li>
+          <li>Round totals to the nearest 5% when reading results.</li>
+          <li>Verify the distribution aligns with your intended course design.</li>
+          <li>Return to earlier tabs if you notice significant discrepancies.</li>
+        </ol>
+        <p class="clo-instructions-links">
+          <a href="#" class="clo-placeholder-link"><!-- TODO: replace with final URL -->View overview</a> ·
+          <a href="#" class="clo-placeholder-link"><!-- TODO: replace with final URL -->Read the guide for this step</a>
+        </p>
+      </div>
       <div class="clo-section-header">
         <div>
           <h2 class="clo-section-heading">3. Assignment Weightings</h2>
@@ -264,7 +310,7 @@
           <tbody>
             <tr v-for="(clo, index) in clos" :key="clo.id">
               <td class="clo-td clo-td-bold clo-td-row-header">CLO {{ index + 1 }}</td>
-              <td v-for="assignment in assignments" :key="assignment.id" class="clo-td clo-td-right clo-td-heatmap" :style="getHeatmapStyle(getCourseContribution(clo.id, assignment.id), section3Values)">
+              <td v-for="assignment in assignments" :key="assignment.id" class="clo-td clo-td-right clo-td-heatmap" :style="getHeatmapStyle(getCourseContribution(clo.id, assignment.id))">
                 {{ getCourseContribution(clo.id, assignment.id).toFixed(2) }}%
               </td>
             </tr>
@@ -288,11 +334,23 @@
       </div>
     </section>
 
-    <!-- Section 4: CLO Emphasis per Assignment -->
-    <section class="clo-section">
+    <!-- Tab 3: Marking Guide / Rubric Composition -->
+    <section class="clo-section" v-show="currentTab === 3">
+      <div class="clo-instructions">
+        <ol class="list-decimal ml-4">
+          <li>Read each column as an individual assignment breakdown.</li>
+          <li>Highlighted cells show which CLO has the strongest influence in each assignment.</li>
+          <li>Verify the composition aligns with your intended marking criteria design.</li>
+          <li>Note that rubric changes may affect teaching sequence decisions.</li>
+        </ol>
+        <p class="clo-instructions-links">
+          <a href="#" class="clo-placeholder-link"><!-- TODO: replace with final URL -->View overview</a> ·
+          <a href="#" class="clo-placeholder-link"><!-- TODO: replace with final URL -->Read the guide for this step</a>
+        </p>
+      </div>
       <div class="clo-section-header">
         <div>
-          <h2 class="clo-section-heading">4. Marking Guide/ Rubric Composition</h2>
+          <h2 class="clo-section-heading">4. Marking Guide / Rubric Composition</h2>
           <div class="clo-section-divider"></div>
         </div>
       </div>
@@ -312,7 +370,7 @@
           <tbody>
             <tr v-for="(clo, index) in clos" :key="clo.id">
               <td class="clo-td clo-td-bold clo-td-row-header">CLO {{ index + 1 }}</td>
-              <td v-for="assignment in assignments" :key="assignment.id" class="clo-td clo-td-right clo-td-heatmap" :style="getHeatmapStyle(getCLOEmphasis(clo.id, assignment.id), section4Values)">
+              <td v-for="assignment in assignments" :key="assignment.id" class="clo-td clo-td-right clo-td-heatmap" :style="getHeatmapStyle(getCLOEmphasis(clo.id, assignment.id))">
                 {{ getCLOEmphasis(clo.id, assignment.id).toFixed(1) }}%
               </td>
             </tr>
@@ -327,20 +385,60 @@
       </div>
     </section>
     
-    </div><!-- end clo-container -->
-  </div><!-- end clo-page -->
-</template>
+    <div class="clo-tab-nav">
+      <button v-if="currentTab > 0" class="clo-btn clo-btn-secondary" @click="currentTab--">← Back</button>
+      <span v-else></span>
+      <button v-if="currentTab < 3" class="clo-btn clo-btn-primary" @click="currentTab++">
+        Continue to {{ tabLabels[currentTab + 1] }} →
+      </button>
+    </div>
+
+    <div class="clo-notes-section">
+      <div class="clo-notes-header">
+        <label class="clo-notes-label" for="clo-notes-a">Design Rationale / Notes</label>
+        <button class="clo-btn clo-btn-secondary" @click="exportCSV">Download CSV</button>
+      </div>
+      <textarea
+        id="clo-notes-a"
+        v-model="notes"
+        class="clo-notes-textarea"
+        placeholder="Record your design decisions and rationale here — this will be included in your CSV export."
+        rows="5"
+      ></textarea>
+    </div>
+
+    </div>  </div></template>
 
 <script setup>
-import { ref, computed, reactive, onMounted } from 'vue'
+import { ref, computed, reactive, onMounted, watch } from 'vue'
+import { useAnalytics } from '@/composables/useAnalytics'
 
-onMounted(() => { document.title = 'Stream A: Learning Outcomes → Assignments' })
+const { trackEvent, trackFunnelStep, trackCompletion, trackExport } = useAnalytics()
 
-// UI state
+onMounted(() => {
+  document.title = 'Pathway A: Learning Outcomes → Assignments'
+  trackEvent('activity_started')
+})
+
 const showSection2A = ref(false)
 const visualMode = ref(false)
+const currentTab = ref(0)
+const tabLabels = ['CLO Weightings', 'CLO Mapping', 'Assignment Weightings', 'Marking Guide / Rubric Composition']
+const notes = ref('')
+const hasTrackedCompletion = ref(false)
 
-// Data structures
+watch(currentTab, (tab) => {
+  if (tab === 1) trackFunnelStep(25)
+  else if (tab === 2) trackFunnelStep(50)
+  else if (tab === 3) {
+    trackFunnelStep(75)
+    if (!hasTrackedCompletion.value) {
+      hasTrackedCompletion.value = true
+      trackCompletion({ clo_count: clos.value.length, assignment_count: assignments.value.length })
+    }
+  }
+})
+
 const clos = ref([
   { id: 1, name: 'CLO 1', weighting: 100 }
 ])
@@ -354,7 +452,6 @@ const rawValues = reactive({})
 let nextCLOId = 2
 let nextAssignmentId = 2
 
-// Helper functions
 const getRawValue = (cloId, assignmentId) => {
   const key = `${cloId}-${assignmentId}`
   if (!rawValues[key]) {
@@ -368,7 +465,6 @@ const setRawValue = (cloId, assignmentId, value) => {
   rawValues[key] = value
 }
 
-// Section 1 computations
 const totalCLOWeighting = computed(() => {
   return clos.value.reduce((sum, clo) => sum + (clo.weighting || 0), 0)
 })
@@ -383,14 +479,12 @@ const setCLOWeighting = (cloId, value) => {
   if (clo) clo.weighting = Math.min(maxWeightingFor(cloId), Math.max(0, parseFloat(value) || 0))
 }
 
-// Section 2 computations
 const getCLOTotal = (cloId) => {
   return assignments.value.reduce((sum, assignment) => {
     return sum + (getRawValue(cloId, assignment.id) || 0)
   }, 0)
 }
 
-// Section 2A computations
 const getScaledPercentage = (cloId, assignmentId) => {
   const total = getCLOTotal(cloId)
   if (total === 0) return 0
@@ -405,7 +499,6 @@ const getCLOScaledTotal = (cloId) => {
   return Math.round(total)
 }
 
-// Section 3 computations
 const getCourseContribution = (cloId, assignmentId) => {
   const clo = clos.value.find(c => c.id === cloId)
   if (!clo) return 0
@@ -425,7 +518,6 @@ const grandTotal = computed(() => {
   }, 0)
 })
 
-// Section 4 computations
 const getCLOEmphasis = (cloId, assignmentId) => {
   const assignmentTotal = getAssignmentTotal(assignmentId)
   if (assignmentTotal === 0) return 0
@@ -439,28 +531,7 @@ const getAssignmentEmphasisTotal = (assignmentId) => {
   }, 0)
 }
 
-// Heatmap calculations
-const section3Values = computed(() => {
-  const values = []
-  clos.value.forEach(clo => {
-    assignments.value.forEach(assignment => {
-      values.push(getCourseContribution(clo.id, assignment.id))
-    })
-  })
-  return values
-})
-
-const section4Values = computed(() => {
-  const values = []
-  clos.value.forEach(clo => {
-    assignments.value.forEach(assignment => {
-      values.push(getCLOEmphasis(clo.id, assignment.id))
-    })
-  })
-  return values
-})
-
-const getHeatmapStyle = (value, allValues) => {
+const getHeatmapStyle = (value) => {
   if (value === 0) {
     return { backgroundColor: '#faf9ff' }
   }
@@ -530,7 +601,6 @@ const startWeightDrag = (cloId, event) => {
   window.addEventListener('touchend', onUp)
 }
 
-// Actions
 const toggleSection2A = () => {
   showSection2A.value = !showSection2A.value
 }
@@ -572,12 +642,68 @@ const removeAssignment = (assignmentId) => {
     assignments.value = assignments.value.filter(a => a.id !== assignmentId)
   }
 }
+
+const exportCSV = () => {
+  const cell = (v) => {
+    const s = String(v ?? '')
+    return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g, '""')}"` : s
+  }
+  const row = (cells) => cells.map(cell).join(',')
+  const lines = []
+  const date = new Date().toLocaleDateString('en-AU')
+
+  lines.push(row(['CAT — Pathway A: Learning Outcomes → Assignments']))
+  lines.push(row([`Exported: ${date}`]))
+  lines.push('')
+
+  lines.push(row(['Section 1: CLO Weightings']))
+  lines.push(row(['CLO', 'Name', 'Weighting (%)']))
+  clos.value.forEach((clo, i) => lines.push(row([`CLO ${i + 1}`, clo.name, clo.weighting])))
+  lines.push(row(['', 'Total:', totalCLOWeighting.value.toFixed(1) + '%']))
+  lines.push('')
+
+  const aNames = assignments.value.map(a => a.name || `Assignment ${a.id}`)
+  lines.push(row(['Section 2: CLO Mapping (Raw Values)']))
+  lines.push(row(['CLO', ...aNames, 'Total']))
+  clos.value.forEach((clo, i) => {
+    lines.push(row([`CLO ${i + 1}`, ...assignments.value.map(a => getRawValue(clo.id, a.id)), getCLOTotal(clo.id).toFixed(2)]))
+  })
+  lines.push('')
+
+  lines.push(row(['Section 3: Assignment Weightings']))
+  lines.push(row(['CLO', ...aNames]))
+  clos.value.forEach((clo, i) => {
+    lines.push(row([`CLO ${i + 1}`, ...assignments.value.map(a => getCourseContribution(clo.id, a.id).toFixed(2) + '%')]))
+  })
+  lines.push(row(['Assignment Total', ...assignments.value.map(a => getAssignmentTotal(a.id).toFixed(2) + '%')]))
+  lines.push(row(['Grand Total', grandTotal.value.toFixed(2) + '%']))
+  lines.push('')
+
+  lines.push(row(['Section 4: Marking Guide / Rubric Composition']))
+  lines.push(row(['CLO', ...aNames]))
+  clos.value.forEach((clo, i) => {
+    lines.push(row([`CLO ${i + 1}`, ...assignments.value.map(a => getCLOEmphasis(clo.id, a.id).toFixed(1) + '%')]))
+  })
+  lines.push(row(['Total per Assignment', ...assignments.value.map(a => getAssignmentEmphasisTotal(a.id).toFixed(1) + '%')]))
+  lines.push('')
+
+  lines.push(row(['Notes']))
+  lines.push(row([notes.value || '(no notes)']))
+
+  const csv = lines.join('\n')
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'CAT-Pathway-A.csv'
+  a.click()
+  URL.revokeObjectURL(url)
+
+  trackExport({ format: 'csv', tool: 'pathway_a', clo_count: clos.value.length, assignment_count: assignments.value.length })
+}
 </script>
 
 <style scoped>
-/* ========================================
-   Phase 1: Token System (Global Scope)
-   ======================================== */
 :global(:root) {
   /* Purple Brand Colors */
   --clo-ink: #140F50;
@@ -622,9 +748,6 @@ const removeAssignment = (assignmentId) => {
   --clo-font-body: 'Source Sans 3', 'Segoe UI', sans-serif;
 }
 
-/* ========================================
-   Phase 2 & 3: Page Layout & Hero
-   ======================================== */
 .clo-page {
   font-family: var(--clo-font-body);
   color: var(--clo-ink);
@@ -696,16 +819,6 @@ const removeAssignment = (assignmentId) => {
   animation-fill-mode: both;
 }
 
-.clo-subtitle {
-  font-size: 1.1rem;
-  color: var(--clo-ink-light);
-  line-height: 1.75;
-  max-width: 600px;
-  margin: 0 auto;
-  animation: fadeUp 0.6s ease forwards 0.2s;
-  animation-fill-mode: both;
-}
-
 /* Main Container */
 .clo-container {
   max-width: var(--clo-w-max);
@@ -715,9 +828,6 @@ const removeAssignment = (assignmentId) => {
   z-index: 1;
 }
 
-/* ========================================
-   Section Styling
-   ======================================== */
 .clo-section {
   background: var(--clo-surface);
   border: 1px solid var(--clo-border);
@@ -767,9 +877,6 @@ const removeAssignment = (assignmentId) => {
   margin-bottom: var(--clo-space-md);
 }
 
-/* ========================================
-   Phase 4: Button System
-   ======================================== */
 .clo-btn {
   display: inline-flex;
   align-items: center;
@@ -860,9 +967,6 @@ const removeAssignment = (assignmentId) => {
   transform: rotate(180deg);
 }
 
-/* ========================================
-   Accordion Content
-   ======================================== */
 .clo-accordion-content {
   width: 100%;
   padding-top: var(--clo-space-md);
@@ -887,9 +991,6 @@ const removeAssignment = (assignmentId) => {
   max-height: 2000px;
 }
 
-/* ========================================
-   Phase 7: Form Controls
-   ======================================== */
 .clo-input {
   width: 100%;
   font-family: var(--clo-font-body);
@@ -918,9 +1019,6 @@ const removeAssignment = (assignmentId) => {
   padding: 8px 10px;
 }
 
-/* ========================================
-   Phase 7: Table Styling
-   ======================================== */
 .clo-table-wrapper {
   overflow-x: auto;
   border-radius: var(--clo-radius);
@@ -986,10 +1084,6 @@ const removeAssignment = (assignmentId) => {
 
 .clo-td:last-child {
   border-right: 1px solid var(--clo-border);
-}
-
-.clo-td-left {
-  text-align: left;
 }
 
 .clo-td-center {
@@ -1061,13 +1155,9 @@ const removeAssignment = (assignmentId) => {
   align-items: stretch;
 }
 
-/* ========================================
-   Phase 6: Callouts
-   ======================================== */
 .clo-callout {
   background: linear-gradient(135deg, var(--clo-accent-b-soft), var(--clo-bg-warm));
-  border-left: 4px solid var(--clo-accent-b);
-  border-radius: 0 var(--clo-radius) var(--clo-radius) 0;
+  border-radius: var(--clo-radius);
   padding: var(--clo-space-md);
   margin-top: var(--clo-space-md);
 }
@@ -1094,9 +1184,6 @@ const removeAssignment = (assignmentId) => {
   font-size: 0.9rem;
 }
 
-/* ========================================
-   Status Indicators
-   ======================================== */
 .clo-status-success {
   color: var(--clo-success);
   font-weight: 600;
@@ -1107,9 +1194,6 @@ const removeAssignment = (assignmentId) => {
   font-weight: 600;
 }
 
-/* ========================================
-   Phase 9: Animations
-   ======================================== */
 @keyframes fadeUp {
   from {
     opacity: 0;
@@ -1121,9 +1205,6 @@ const removeAssignment = (assignmentId) => {
   }
 }
 
-/* ========================================
-   Input Mode Toggle
-   ======================================== */
 .clo-mode-toggle {
   display: flex;
   align-items: center;
@@ -1172,9 +1253,6 @@ const removeAssignment = (assignmentId) => {
   color: #fff;
 }
 
-/* ========================================
-   Slider Cell
-   ======================================== */
 .clo-slider-cell {
   display: flex;
   align-items: center;
@@ -1230,9 +1308,6 @@ const removeAssignment = (assignmentId) => {
   flex-shrink: 0;
 }
 
-/* ========================================
-   Responsive Design
-   ======================================== */
 @media (max-width: 860px) {
   .clo-hero {
     padding: var(--clo-space-md);
@@ -1270,5 +1345,134 @@ input:focus-visible,
 select:focus-visible {
   outline: 3px solid var(--clo-highlight);
   outline-offset: 2px;
+}
+
+.clo-notes-section {
+  margin-top: var(--clo-space-md);
+  background: var(--clo-surface);
+  border: 1px solid var(--clo-border);
+  border-radius: var(--clo-radius);
+  padding: var(--clo-space-md);
+  box-shadow: 0 2px 8px rgba(20,15,80,0.04);
+}
+
+.clo-notes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  gap: var(--clo-space-sm);
+}
+
+.clo-notes-label {
+  font-family: var(--clo-font-display);
+  font-weight: 500;
+  font-size: 1.1rem;
+  color: var(--clo-ink);
+}
+
+.clo-notes-textarea {
+  width: 100%;
+  font-family: var(--clo-font-body);
+  font-size: 0.95rem;
+  color: var(--clo-ink);
+  background: var(--clo-bg);
+  border: 1px solid var(--clo-border);
+  border-radius: var(--clo-radius-sm);
+  padding: 10px 12px;
+  resize: vertical;
+  line-height: 1.6;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.clo-notes-textarea:focus {
+  outline: none;
+  border-color: var(--clo-highlight);
+  box-shadow: 0 0 0 3px rgba(131,107,255,0.1);
+}
+
+.clo-tab-bar {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--clo-border);
+  margin-bottom: var(--clo-space-md);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.clo-tab-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.clo-tab {
+  font-family: var(--clo-font-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  background: transparent;
+  color: var(--clo-ink);
+  opacity: 0.45;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+
+.clo-tab:hover {
+  opacity: 0.75;
+}
+
+.clo-tab-active {
+  opacity: 1;
+  border-bottom-color: var(--clo-ink);
+  font-weight: 600;
+}
+
+.clo-instructions {
+  background: var(--clo-bg-warm);
+  border: 1px solid var(--clo-border);
+  border-radius: var(--clo-radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: var(--clo-space-md);
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--clo-ink-light);
+}
+
+.clo-instructions ul {
+  padding-left: 1.25rem;
+}
+
+.clo-instructions li {
+  margin-bottom: 0.3rem;
+}
+
+.clo-instructions-links {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--clo-ink-muted);
+}
+
+.clo-placeholder-link {
+  color: var(--clo-accent-b);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--clo-accent-b);
+}
+
+.clo-placeholder-link:hover {
+  opacity: 0.75;
+}
+
+.clo-tab-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--clo-space-md);
+  padding-top: var(--clo-space-md);
+  border-top: 1px solid var(--clo-border);
 }
 </style>

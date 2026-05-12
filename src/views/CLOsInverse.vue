@@ -1,251 +1,316 @@
 <template>
   <div class="clo-page">
-    <!-- Hero Header -->
     <div class="clo-hero">
+      <img src="@/assets/catLogo.png" class="mx-auto my-4" width="100"/>
       <span class="clo-hero-label">The Constructive Alignment Tool</span>
-      <h1 class="clo-page-title">Stream B: Assignments → Learning Outcomes</h1>
+      <h1 class="clo-page-title">Pathway B: Assignments → Learning Outcomes</h1>
     </div>
 
-    <!-- Main Container -->
     <div class="clo-container">
-    
-    <!-- Section 1: Assignments and Marking Criteria -->
-    <section class="clo-section">
-      <div class="clo-section-header">
-        <div>
-          <h2 class="clo-section-heading">1. Assignments and Marking Criteria</h2>
-          <div class="clo-section-divider"></div>
+
+    <div class="clo-tab-bar">
+      <button
+        v-for="(assignment, i) in assignments"
+        :key="assignment.id"
+        class="clo-tab"
+        :class="{ 'clo-tab-active': currentTab === i }"
+        @click="currentTab = i"
+      >{{ assignment.name || `Assignment ${i + 1}` }}</button>
+      <button class="clo-tab clo-tab-add" @click="addAssignment">+ Add</button>
+      <span class="clo-tab-sep" aria-hidden="true"></span>
+      <button
+        class="clo-tab"
+        :class="{ 'clo-tab-active': currentTab === assignments.length }"
+        @click="currentTab = assignments.length"
+      >CLO Weightings and Contributions</button>
+    </div>
+
+    <template v-for="(assignment, assignmentIndex) in assignments" :key="assignment.id">
+      <div v-show="currentTab === assignmentIndex">
+        <div class="clo-instructions">
+          <ol class="ml-4 list-decimal">
+            <li>Click <strong>Add Assignment</strong> to add each assignment.<br>OR<br>Click <strong>Remove Assignment</strong> to adjust the number of assignment tabs to match the total number of assignments in your course.</li>
+            <li>For each assignment:
+              <ol class="ml-4 list-decimal">
+                <li>Provide the assignment name and its weighting as a percentage of the total course grade.</li>
+                <li>Add marking criteria.</li>
+                <li>For each criterion, provide the total marks value.</li>
+                <li>Map each criterion to one or more CLOs with a percentage allocation.<br><br>When a criterion is mapped to only one CLO, the allocation is 100%. Most criteria will likely be mapped to a single CLO. The multi-CLO scenario is available for criteria that genuinely assess more than one outcome. When this happens, you indicate the relative influence of each CLO on that criterion (e.g. Criteria 2 in Assignment 1 mapped to both CLO 1 (30%) and CLO 2 (70%)). The allocations for a single criterion must always total 100%.</li>
+              </ol>
+            </li>
+            <li>Repeat this process for each assignment.</li>
+          </ol>
         </div>
-        <button @click="addAssignment" class="clo-btn clo-btn-primary">
-          Add Assignment
-        </button>
-      </div>
-      <p class="clo-section-description">
-        For each assignment, provide the assignment name, its weighting as a percentage of the course grade, and the marking/rubric criteria. Each criterion is mapped to one or more CLOs with a percentage allocation, plus a total marks value.
-      </p>
-
-      <!-- Assignment Cards -->
-      <div v-for="(assignment) in assignments" :key="assignment.id" class="clo-assignment-card">
-        <div class="clo-assignment-tag">Assignment {{ assignment.id }}</div>
-        <div class="clo-assignment-header">
-          <div class="clo-field-group">
-            <label class="clo-label">Assignment Name</label>
-            <input 
-              v-model="assignment.name" 
-              type="text" 
-              class="clo-input"
-              placeholder="Assignment name"
-            />
-          </div>
-          <div class="clo-field-group clo-field-narrow">
-            <label class="clo-label">Weighting (%)</label>
-            <input 
-              v-model.number="assignment.weighting" 
-              type="number" 
-              min="0" 
-              max="100"
-              class="clo-input clo-input-numeric"
-            />
-          </div>
-          <div class="clo-field-actions">
-            <button 
-              @click="removeAssignment(assignment.id)" 
-              class="clo-btn clo-btn-danger"
-              :disabled="assignments.length === 1"
-            >
-              Remove
-            </button>
-          </div>
-        </div>
-
-        <!-- Marking Criteria Table -->
-        <div class="clo-criteria-section">
-          <div class="clo-criteria-header">
-            <h3 class="clo-subsection-heading">Marking Criteria</h3>
-            <button 
-              @click="addCriteria(assignment.id)" 
-              class="clo-btn clo-btn-secondary"
-              :disabled="getCriteria(assignment.id).length >= 10"
-            >
-              Add Criteria
-            </button>
+        <div class="clo-assignment-card">
+          <div class="clo-assignment-tag">Assignment {{ assignmentIndex + 1 }}</div>
+          <div class="clo-assignment-header">
+            <div class="clo-field-group">
+              <label class="clo-label">Assignment Name</label>
+              <input
+                v-model="assignment.name"
+                type="text"
+                class="clo-input"
+                placeholder="Assignment name"
+              />
+            </div>
+            <div class="clo-field-group clo-field-narrow">
+              <label class="clo-label">Weighting (%)</label>
+              <input
+                v-model.number="assignment.weighting"
+                type="number"
+                min="0"
+                max="100"
+                class="clo-input clo-input-numeric"
+              />
+            </div>
+            <div class="clo-field-actions">
+              <button
+                @click="removeAssignment(assignment.id)"
+                class="clo-btn clo-btn-danger"
+                :disabled="assignments.length === 1"
+              >
+                Remove
+              </button>
+            </div>
           </div>
 
-          <div class="clo-table-wrapper">
-            <table class="clo-table">
-              <thead>
-                <tr>
-                  <th class="clo-th clo-th-left">Criteria Name</th>
-                  <th class="clo-th clo-th-left">CLO Allocations</th>
-                  <th class="clo-th clo-th-right">Total Marks</th>
-                  <th class="clo-th clo-th-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(criteria) in getCriteria(assignment.id)" :key="criteria.id">
-                  <td class="clo-td">
-                    <input 
-                      v-model="criteria.name" 
-                      type="text" 
-                      class="clo-input clo-input-sm"
-                      placeholder="Criteria name"
-                    />
-                  </td>
-                  <td class="clo-td">
-                    <!-- CLO Allocations -->
-                    <div class="clo-allocation-row">
-                      <div v-for="(cloAlloc, cloIndex) in criteria.cloAllocations" :key="cloIndex" class="clo-allocation-pill">
-                        <label class="clo-allocation-label">CLO:</label>
-                        <input 
-                          v-model.number="cloAlloc.cloNumber" 
-                          type="number" 
-                          min="1"
-                          class="clo-input clo-input-xs"
-                          placeholder="#"
-                        />
-                        <label class="clo-allocation-label">%:</label>
-                        <input 
-                          v-model.number="cloAlloc.percentage" 
-                          type="number" 
-                          min="0" 
-                          max="100"
-                          class="clo-input clo-input-xs"
-                          placeholder="%"
-                        />
-                        <button 
-                          @click="removeCLOAllocation(assignment.id, criteria.id, cloIndex)"
-                          class="clo-btn-remove"
-                          :disabled="criteria.cloAllocations.length === 1"
-                          title="Remove CLO"
+                <div class="clo-criteria-section">
+            <div class="clo-criteria-header">
+              <h3 class="clo-subsection-heading">Marking Criteria</h3>
+              <button
+                @click="addCriteria(assignment.id)"
+                class="clo-btn clo-btn-secondary"
+                :disabled="getCriteria(assignment.id).length >= 10"
+              >
+                Add Criteria
+              </button>
+            </div>
+
+            <div class="clo-table-wrapper">
+              <table class="clo-table">
+                <thead>
+                  <tr>
+                    <th class="clo-th clo-th-left">Criteria Name</th>
+                    <th class="clo-th clo-th-left">CLO Allocations</th>
+                    <th class="clo-th clo-th-right">Total Marks</th>
+                    <th class="clo-th clo-th-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(criteria) in getCriteria(assignment.id)" :key="criteria.id">
+                    <td class="clo-td">
+                      <input
+                        v-model="criteria.name"
+                        type="text"
+                        class="clo-input clo-input-sm"
+                        placeholder="Criteria name"
+                      />
+                    </td>
+                    <td class="clo-td">
+                                        <div class="clo-allocation-row">
+                        <div v-for="(cloAlloc, cloIndex) in criteria.cloAllocations" :key="cloIndex" class="clo-allocation-pill">
+                          <label class="clo-allocation-label">CLO:</label>
+                          <input
+                            v-model.number="cloAlloc.cloNumber"
+                            type="number"
+                            min="1"
+                            class="clo-input clo-input-xs"
+                            placeholder="#"
+                          />
+                          <label class="clo-allocation-label">%:</label>
+                          <input
+                            v-model.number="cloAlloc.percentage"
+                            type="number"
+                            min="0"
+                            max="100"
+                            class="clo-input clo-input-xs"
+                            placeholder="%"
+                          />
+                          <button
+                            @click="removeCLOAllocation(assignment.id, criteria.id, cloIndex)"
+                            class="clo-btn-remove"
+                            :disabled="criteria.cloAllocations.length === 1"
+                            title="Remove CLO"
+                          >
+                            ×
+                          </button>
+                        </div>
+                        <button
+                          v-if="criteria.cloAllocations.length < 3"
+                          @click="addCLOAllocation(assignment.id, criteria.id)"
+                          class="clo-btn clo-btn-add-clo"
                         >
-                          ×
+                          + Add CLO
                         </button>
+                        <span class="clo-allocation-total" :class="Math.round(getCriteriaAllocationTotal(criteria)) === 100 ? 'clo-status-success' : 'clo-status-warning'">
+                          Total: {{ getCriteriaAllocationTotal(criteria) }}%
+                        </span>
                       </div>
-                      <button 
-                        v-if="criteria.cloAllocations.length < 3"
-                        @click="addCLOAllocation(assignment.id, criteria.id)" 
-                        class="clo-btn clo-btn-add-clo"
+                    </td>
+                    <td class="clo-td">
+                      <input
+                        v-model.number="criteria.totalMarks"
+                        type="number"
+                        min="0"
+                        step="any"
+                        class="clo-input clo-input-sm clo-input-numeric"
+                      />
+                    </td>
+                    <td class="clo-td clo-td-center">
+                      <button
+                        @click="removeCriteria(assignment.id, criteria.id)"
+                        class="clo-btn clo-btn-danger clo-btn-sm"
                       >
-                        + Add CLO
+                        Remove
                       </button>
-                      <span class="clo-allocation-total" :class="Math.round(getCriteriaAllocationTotal(criteria)) === 100 ? 'clo-status-success' : 'clo-status-warning'">
-                        Total: {{ getCriteriaAllocationTotal(criteria) }}%
-                      </span>
-                    </div>
-                  </td>
-                  <td class="clo-td">
-                    <input 
-                      v-model.number="criteria.totalMarks" 
-                      type="number" 
-                      min="0"
-                      step="any"
-                      class="clo-input clo-input-sm clo-input-numeric"
-                    />
-                  </td>
-                  <td class="clo-td clo-td-center">
-                    <button 
-                      @click="removeCriteria(assignment.id, criteria.id)" 
-                      class="clo-btn clo-btn-danger clo-btn-sm"
-                    >
-                      Remove
-                    </button>
-                  </td>
-                </tr>
-                <tr class="clo-table-footer">
-                  <td colspan="2" class="clo-td clo-td-right clo-td-bold">Total Marks:</td>
-                  <td class="clo-td clo-td-right clo-td-bold">
-                    {{ getAssignmentTotalMarks(assignment.id).toFixed(2) }}
-                  </td>
-                  <td class="clo-td"></td>
-                </tr>
-              </tbody>
-            </table>
+                    </td>
+                  </tr>
+                  <tr class="clo-table-footer">
+                    <td colspan="2" class="clo-td clo-td-right clo-td-bold">Total Marks:</td>
+                    <td class="clo-td clo-td-right clo-td-bold">
+                      {{ getAssignmentTotalMarks(assignment.id).toFixed(2) }}
+                    </td>
+                    <td class="clo-td"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Total Weightings Check -->
-      <div class="clo-callout">
+            <div class="clo-tab-nav">
+          <button v-if="assignmentIndex > 0" class="clo-btn clo-btn-secondary" @click="currentTab--">← Back</button>
+          <span v-else></span>
+          <button v-if="assignmentIndex < assignments.length - 1" class="clo-btn clo-btn-primary" @click="currentTab++">
+            Next Assignment →
+          </button>
+          <button v-else class="clo-btn clo-btn-primary" @click="currentTab = assignments.length">
+            View CLO Contribution Results →
+          </button>
+        </div>
+      </div>
+    </template>
+
+    <div v-show="currentTab === assignments.length">
+        <div class="clo-callout">
         <p class="clo-callout-text">
-          Total Assignment Weightings: 
+          Total Assignment Weightings:
           <span :class="Math.round(totalAssignmentWeighting) === 100 ? 'clo-status-success' : 'clo-status-warning'">
             {{ totalAssignmentWeighting.toFixed(1) }}%
           </span>
           <span class="clo-callout-note">(Should equal 100%)</span>
         </p>
       </div>
-    </section>
 
-    <!-- Section 2: CLO Contribution Results -->
-    <section class="clo-section">
-      <div class="clo-section-header">
-        <div>
-          <h2 class="clo-section-heading">2. CLO Contribution Results</h2>
-          <div class="clo-section-divider"></div>
+      <section class="clo-section">
+        <div class="clo-section-header">
+          <div>
+            <h2 class="clo-section-heading">CLO Weightings and Contributions</h2>
+            <div class="clo-section-divider"></div>
+          </div>
         </div>
-      </div>
-      <p class="clo-section-description">
-        The estimated overall weighting of each CLO across the course, showing how much each CLO contributes to each assignment and to the total course grade.
-      </p>
+        <div class="clo-instructions">
+          <ol class="ml-4 list-decimal">
+            <li>First, review the <strong>Overall</strong> column which provides the most important set of outputs — the estimated overall weighting of each CLO across the entire course.</li>
+            <li>Ask yourself: do these CLO weightings and contributions match your intended emphasis? You can also evaluate them against the energy each CLO demands in your teaching sequence?</li>
+            <li>If the numbers are close to what you expected (within about 5%), then the alignment is working. Move on to review the assignment columns.</li>
+            <li>If there is a significant discrepancy, then the inputs provided in each assignment need to be adjusted. However, before going back to assignment inputs, review the assignment columns.</li>
+            <li>Read each Assignment column. The assignment columns show how the overall total of each CLO is distributed across any assignment it is mapped to. If you wish to increase or decrease the overall weighting of a CLO, the assignment columns will show where you can either increase or decrease the CLO weighting.</li>
+            <li>To adjust any discrepancies, go back to each assignment to adjust the marking criteria, total marks value, or CLO mappings and percentage allocations.</li>
+          </ol>
+        </div>
 
-      <div v-if="discoveredCLOs.length > 0" class="clo-table-wrapper">
-        <table class="clo-table clo-results-table">
-          <thead>
-            <tr>
-              <th class="clo-th clo-th-left">CLO</th>
-              <th v-for="assignment in assignments" :key="assignment.id" class="clo-th clo-th-center">
-                {{ assignment.name || 'Assignment ' + assignment.id }}
-              </th>
-              <th class="clo-th clo-th-center clo-th-highlight clo-th-overall">Overall</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="cloNum in discoveredCLOs" :key="cloNum">
-              <td class="clo-td clo-td-bold clo-td-row-header">CLO {{ cloNum }}</td>
-              <td v-for="assignment in assignments" :key="assignment.id" class="clo-td clo-td-right clo-td-heatmap" :style="getHeatmapStyle(getCLOContribution(cloNum, assignment.id), allContributions)">
-                {{ getCLOContribution(cloNum, assignment.id).toFixed(2) }}%
-              </td>
-              <td class="clo-td clo-td-right clo-td-bold clo-td-overall-column" :style="getHeatmapStyle(getCLOOverall(cloNum), overallContributions)">
-                {{ getCLOOverall(cloNum).toFixed(2) }}%
-              </td>
-            </tr>
-            <tr class="clo-table-footer">
-              <td class="clo-td clo-td-bold">Total:</td>
-              <td v-for="assignment in assignments" :key="assignment.id" class="clo-td clo-td-right clo-td-bold">
-                {{ getAssignmentColumnTotal(assignment.id).toFixed(2) }}%
-              </td>
-              <td class="clo-td clo-td-right clo-td-bold clo-td-overall-column" :class="Math.round(grandTotal) === 100 ? 'clo-status-success' : 'clo-status-warning'">
+        <div v-if="discoveredCLOs.length > 0" class="clo-table-wrapper">
+          <table class="clo-table clo-results-table">
+            <thead>
+              <tr>
+                <th class="clo-th clo-th-left">CLO</th>
+                <th v-for="assignment in assignments" :key="assignment.id" class="clo-th clo-th-center">
+                  {{ assignment.name || 'Assignment ' + assignment.id }}
+                </th>
+                <th class="clo-th clo-th-center clo-th-highlight clo-th-overall">Overall</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="cloNum in discoveredCLOs" :key="cloNum">
+                <td class="clo-td clo-td-bold clo-td-row-header">CLO {{ cloNum }}</td>
+                <td v-for="assignment in assignments" :key="assignment.id" class="clo-td clo-td-right clo-td-heatmap" :style="getHeatmapStyle(getCLOContribution(cloNum, assignment.id))">
+                  {{ getCLOContribution(cloNum, assignment.id).toFixed(2) }}%
+                </td>
+                <td class="clo-td clo-td-right clo-td-bold clo-td-overall-column" :style="getHeatmapStyle(getCLOOverall(cloNum))">
+                  {{ getCLOOverall(cloNum).toFixed(2) }}%
+                </td>
+              </tr>
+              <tr class="clo-table-footer">
+                <td class="clo-td clo-td-bold">Total:</td>
+                <td v-for="assignment in assignments" :key="assignment.id" class="clo-td clo-td-right clo-td-bold">
+                  {{ getAssignmentColumnTotal(assignment.id).toFixed(2) }}%
+                </td>
+                <td class="clo-td clo-td-right clo-td-bold clo-td-overall-column" :class="Math.round(grandTotal) === 100 ? 'clo-status-success' : 'clo-status-warning'">
+                  {{ grandTotal.toFixed(2) }}%
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="clo-callout clo-callout-highlight">
+            <p class="clo-callout-text">
+              Grand Total:
+              <span :class="Math.round(grandTotal) === 100 ? 'clo-status-success' : 'clo-status-warning'">
                 {{ grandTotal.toFixed(2) }}%
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="clo-callout clo-callout-highlight">
-          <p class="clo-callout-text">
-            Grand Total: 
-            <span :class="Math.round(grandTotal) === 100 ? 'clo-status-success' : 'clo-status-warning'">
-              {{ grandTotal.toFixed(2) }}%
-            </span>
-            <span class="clo-callout-note">(Should equal 100%)</span>
-          </p>
+              </span>
+              <span class="clo-callout-note">(Should equal 100%)</span>
+            </p>
+          </div>
         </div>
+        <div v-else class="clo-empty-state">
+          <p>No CLOs defined yet. Add criteria with CLO allocations to see results.</p>
+        </div>
+      </section>
+
+        <div class="clo-tab-nav">
+        <button class="clo-btn clo-btn-secondary" @click="currentTab = assignments.length - 1">← Back to Assignments</button>
       </div>
-      <div v-else class="clo-empty-state">
-        <p>No CLOs defined yet. Add criteria with CLO allocations to see results.</p>
+    </div>
+
+    <div class="clo-notes-section">
+      <div class="clo-notes-header">
+        <label class="clo-notes-label" for="clo-notes-b">Design Rationale / Notes</label>
+        <button class="clo-btn clo-btn-secondary" @click="exportCSV">Download CSV</button>
       </div>
-    </section>
-    
-    </div><!-- end clo-container -->
-  </div><!-- end clo-page -->
-</template>
+      <textarea
+        id="clo-notes-b"
+        v-model="notes"
+        class="clo-notes-textarea"
+        placeholder="Record your design decisions and rationale here — this will be included in your CSV export."
+        rows="5"
+      ></textarea>
+    </div>
+
+    </div>  </div></template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useAnalytics } from '@/composables/useAnalytics'
 
-onMounted(() => { document.title = 'Stream B: Assignments → Learning Outcomes' })
+const { trackEvent, trackCompletion, trackExport } = useAnalytics()
 
-// Data structures
+onMounted(() => {
+  document.title = 'Pathway B: Assignments → Learning Outcomes'
+  trackEvent('activity_started')
+})
+
+const currentTab = ref(0)
+const notes = ref('')
+const hasTrackedCompletion = ref(false)
+
+watch(currentTab, (tab) => {
+  if (tab === assignments.value.length && !hasTrackedCompletion.value) {
+    hasTrackedCompletion.value = true
+    trackCompletion({ assignment_count: assignments.value.length })
+  }
+})
+
 const assignments = ref([
   { 
     id: 1, 
@@ -270,7 +335,6 @@ const criteria = ref({
 let nextAssignmentId = 2
 let nextCriteriaId = 2
 
-// Helper functions
 const getCriteria = (assignmentId) => {
   return criteria.value[assignmentId] || []
 }
@@ -284,12 +348,10 @@ const getCriteriaAllocationTotal = (criteria) => {
   return criteria.cloAllocations.reduce((sum, alloc) => sum + (alloc.percentage || 0), 0)
 }
 
-// Computed: Total assignment weighting
 const totalAssignmentWeighting = computed(() => {
   return assignments.value.reduce((sum, a) => sum + (a.weighting || 0), 0)
 })
 
-// Computed: Discover all CLOs used across all criteria
 const discoveredCLOs = computed(() => {
   const cloSet = new Set()
   Object.values(criteria.value).forEach(assignmentCriteria => {
@@ -304,8 +366,6 @@ const discoveredCLOs = computed(() => {
   return Array.from(cloSet).sort((a, b) => a - b)
 })
 
-// Calculation: CLO contribution for a specific assignment
-// Formula: IF total_marks > 0: (SUMIF marks where CLO# matches / total_marks) × assignment_weighting ELSE: 0
 const getCLOContribution = (cloNumber, assignmentId) => {
   const assignment = assignments.value.find(a => a.id === assignmentId)
   if (!assignment) return 0
@@ -329,43 +389,25 @@ const getCLOContribution = (cloNumber, assignmentId) => {
   return (cloMarks / totalMarks) * (assignment.weighting || 0)
 }
 
-// Calculation: Overall CLO contribution (sum across all assignments)
 const getCLOOverall = (cloNumber) => {
   return assignments.value.reduce((sum, assignment) => {
     return sum + getCLOContribution(cloNumber, assignment.id)
   }, 0)
 }
 
-// Calculation: Column total for an assignment (should match assignment weighting if all criteria allocated)
 const getAssignmentColumnTotal = (assignmentId) => {
   return discoveredCLOs.value.reduce((sum, cloNum) => {
     return sum + getCLOContribution(cloNum, assignmentId)
   }, 0)
 }
 
-// Calculation: Grand total (sum of all CLO overall contributions)
 const grandTotal = computed(() => {
   return discoveredCLOs.value.reduce((sum, cloNum) => {
     return sum + getCLOOverall(cloNum)
   }, 0)
 })
 
-// Heatmap calculations
-const allContributions = computed(() => {
-  const values = []
-  discoveredCLOs.value.forEach(cloNum => {
-    assignments.value.forEach(assignment => {
-      values.push(getCLOContribution(cloNum, assignment.id))
-    })
-  })
-  return values
-})
-
-const overallContributions = computed(() => {
-  return discoveredCLOs.value.map(cloNum => getCLOOverall(cloNum))
-})
-
-const getHeatmapStyle = (value, allValues) => {
+const getHeatmapStyle = (value) => {
   if (value === 0) {
     return { backgroundColor: '#faf9ff' }
   }
@@ -397,7 +439,6 @@ const getHeatmapStyle = (value, allValues) => {
   }
 }
 
-// Actions
 const addAssignment = () => {
   const newId = nextAssignmentId++
   assignments.value.push({
@@ -406,12 +447,14 @@ const addAssignment = () => {
     weighting: 0
   })
   criteria.value[newId] = []
+  currentTab.value = assignments.value.length - 1
 }
 
 const removeAssignment = (assignmentId) => {
   if (assignments.value.length > 1) {
     assignments.value = assignments.value.filter(a => a.id !== assignmentId)
     delete criteria.value[assignmentId]
+    currentTab.value = Math.min(currentTab.value, assignments.value.length - 1)
   }
 }
 
@@ -453,12 +496,70 @@ const removeCLOAllocation = (assignmentId, criteriaId, allocationIndex) => {
     criteriaItem.cloAllocations.splice(allocationIndex, 1)
   }
 }
+
+const exportCSV = () => {
+  const cell = (v) => {
+    const s = String(v ?? '')
+    return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g, '""')}"` : s
+  }
+  const row = (cells) => cells.map(cell).join(',')
+  const lines = []
+  const date = new Date().toLocaleDateString('en-AU')
+
+  lines.push(row(['CAT — Pathway B: Assignments → Learning Outcomes']))
+  lines.push(row([`Exported: ${date}`]))
+  lines.push('')
+
+  assignments.value.forEach((assignment, i) => {
+    lines.push(row([`Assignment ${i + 1}: ${assignment.name || '(unnamed)'} — Weighting: ${assignment.weighting}%`]))
+    lines.push(row(['Criteria Name', 'CLO Allocations', 'Total Marks']))
+    getCriteria(assignment.id).forEach(c => {
+      const allocs = c.cloAllocations.map(a => `CLO ${a.cloNumber}: ${a.percentage}%`).join(' | ')
+      lines.push(row([c.name, allocs, c.totalMarks]))
+    })
+    lines.push(row(['Total Marks', '', getAssignmentTotalMarks(assignment.id).toFixed(2)]))
+    lines.push('')
+  })
+
+  lines.push(row(['Total Assignment Weightings:', totalAssignmentWeighting.value.toFixed(1) + '%']))
+  lines.push('')
+
+  if (discoveredCLOs.value.length > 0) {
+    const aNames = assignments.value.map(a => a.name || `Assignment ${a.id}`)
+    lines.push(row(['CLO Contribution Results']))
+    lines.push(row(['CLO', ...aNames, 'Overall']))
+    discoveredCLOs.value.forEach(cloNum => {
+      lines.push(row([
+        `CLO ${cloNum}`,
+        ...assignments.value.map(a => getCLOContribution(cloNum, a.id).toFixed(2) + '%'),
+        getCLOOverall(cloNum).toFixed(2) + '%'
+      ]))
+    })
+    lines.push(row([
+      'Total',
+      ...assignments.value.map(a => getAssignmentColumnTotal(a.id).toFixed(2) + '%'),
+      grandTotal.value.toFixed(2) + '%'
+    ]))
+    lines.push('')
+  }
+
+  lines.push(row(['Notes']))
+  lines.push(row([notes.value || '(no notes)']))
+
+  const csv = lines.join('\n')
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'CAT-Pathway-B.csv'
+  a.click()
+  URL.revokeObjectURL(url)
+
+  trackExport({ format: 'csv', tool: 'pathway_b', assignment_count: assignments.value.length })
+}
 </script>
 
 <style scoped>
-/* ========================================
-   Phase 1: Token System (Global Scope)
-   ======================================== */
 :global(:root) {
   /* Purple Brand Colors */
   --clo-ink: #140F50;
@@ -503,9 +604,6 @@ const removeCLOAllocation = (assignmentId, criteriaId, allocationIndex) => {
   --clo-font-body: 'Source Sans 3', 'Segoe UI', sans-serif;
 }
 
-/* ========================================
-   Phase 2 & 3: Page Layout & Hero
-   ======================================== */
 .clo-page {
   font-family: var(--clo-font-body);
   color: var(--clo-ink);
@@ -577,16 +675,6 @@ const removeCLOAllocation = (assignmentId, criteriaId, allocationIndex) => {
   animation-fill-mode: both;
 }
 
-.clo-subtitle {
-  font-size: 1.1rem;
-  color: var(--clo-ink-light);
-  line-height: 1.75;
-  max-width: 600px;
-  margin: 0 auto;
-  animation: fadeUp 0.6s ease forwards 0.2s;
-  animation-fill-mode: both;
-}
-
 /* Main Container */
 .clo-container {
   max-width: var(--clo-w-max);
@@ -596,9 +684,6 @@ const removeCLOAllocation = (assignmentId, criteriaId, allocationIndex) => {
   z-index: 1;
 }
 
-/* ========================================
-   Section Styling
-   ======================================== */
 .clo-section {
   background: var(--clo-surface);
   border: 1px solid var(--clo-border);
@@ -649,9 +734,6 @@ const removeCLOAllocation = (assignmentId, criteriaId, allocationIndex) => {
   margin: 0;
 }
 
-/* ========================================
-   Phase 4: Button System
-   ======================================== */
 .clo-btn {
   display: inline-flex;
   align-items: center;
@@ -760,9 +842,6 @@ const removeCLOAllocation = (assignmentId, criteriaId, allocationIndex) => {
   cursor: not-allowed;
 }
 
-/* ========================================
-   Phase 5: Assignment Cards (Top-Accent)
-   ======================================== */
 .clo-assignment-card {
   background: var(--clo-surface);
   border: 1px solid var(--clo-border);
@@ -835,9 +914,6 @@ const removeCLOAllocation = (assignmentId, criteriaId, allocationIndex) => {
   display: block;
 }
 
-/* ========================================
-   Phase 7: Form Controls
-   ======================================== */
 .clo-input {
   width: 100%;
   font-family: var(--clo-font-body);
@@ -873,9 +949,6 @@ const removeCLOAllocation = (assignmentId, criteriaId, allocationIndex) => {
   text-align: center;
 }
 
-/* ========================================
-   Criteria Section
-   ======================================== */
 .clo-criteria-section {
   margin-top: var(--clo-space-md);
   padding-top: var(--clo-space-md);
@@ -891,9 +964,6 @@ const removeCLOAllocation = (assignmentId, criteriaId, allocationIndex) => {
   gap: var(--clo-space-sm);
 }
 
-/* ========================================
-   Phase 7: Table Styling
-   ======================================== */
 .clo-table-wrapper {
   overflow-x: auto;
   border-radius: var(--clo-radius);
@@ -971,10 +1041,6 @@ const removeCLOAllocation = (assignmentId, criteriaId, allocationIndex) => {
 
 .clo-td:last-child {
   border-right: 1px solid var(--clo-border);
-}
-
-.clo-td-left {
-  text-align: left;
 }
 
 .clo-td-center {
@@ -1069,13 +1135,9 @@ const removeCLOAllocation = (assignmentId, criteriaId, allocationIndex) => {
   white-space: nowrap;
 }
 
-/* ========================================
-   Phase 6: Callouts
-   ======================================== */
 .clo-callout {
   background: linear-gradient(135deg, var(--clo-accent-b-soft), var(--clo-bg-warm));
-  border-left: 4px solid var(--clo-accent-b);
-  border-radius: 0 var(--clo-radius) var(--clo-radius) 0;
+  border-radius: var(--clo-radius);
   padding: var(--clo-space-md);
   margin-top: var(--clo-space-md);
 }
@@ -1102,9 +1164,6 @@ const removeCLOAllocation = (assignmentId, criteriaId, allocationIndex) => {
   font-size: 0.9rem;
 }
 
-/* ========================================
-   Status Indicators
-   ======================================== */
 .clo-status-success {
   color: var(--clo-success);
   font-weight: 600;
@@ -1115,9 +1174,6 @@ const removeCLOAllocation = (assignmentId, criteriaId, allocationIndex) => {
   font-weight: 600;
 }
 
-/* ========================================
-   Empty State
-   ======================================== */
 .clo-empty-state {
   padding: var(--clo-space-lg) var(--clo-space-md);
   text-align: center;
@@ -1132,9 +1188,6 @@ const removeCLOAllocation = (assignmentId, criteriaId, allocationIndex) => {
   font-size: 0.95rem;
 }
 
-/* ========================================
-   Phase 9: Animations
-   ======================================== */
 @keyframes fadeUp {
   from {
     opacity: 0;
@@ -1146,9 +1199,6 @@ const removeCLOAllocation = (assignmentId, criteriaId, allocationIndex) => {
   }
 }
 
-/* ========================================
-   Responsive Design
-   ======================================== */
 @media (max-width: 860px) {
   .clo-hero {
     padding: var(--clo-space-md);
@@ -1212,5 +1262,146 @@ input:focus-visible,
 select:focus-visible {
   outline: 3px solid var(--clo-highlight);
   outline-offset: 2px;
+}
+
+.clo-instructions {
+  background: var(--clo-bg-warm);
+  border: 1px solid var(--clo-border);
+  border-radius: var(--clo-radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: var(--clo-space-md);
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--clo-ink-light);
+}
+
+.clo-instructions ul,
+.clo-instructions ol {
+  padding-left: 0;
+}
+
+.clo-instructions ol ol {
+  margin-top: 0.4rem;
+  margin-bottom: 0;
+}
+
+.clo-instructions li {
+  margin-bottom: 0.4rem;
+}
+
+.clo-notes-section {
+  margin-top: var(--clo-space-md);
+  background: var(--clo-surface);
+  border: 1px solid var(--clo-border);
+  border-radius: var(--clo-radius);
+  padding: var(--clo-space-md);
+  box-shadow: 0 2px 8px rgba(20,15,80,0.04);
+}
+
+.clo-notes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  gap: var(--clo-space-sm);
+}
+
+.clo-notes-label {
+  font-family: var(--clo-font-display);
+  font-weight: 500;
+  font-size: 1.1rem;
+  color: var(--clo-ink);
+}
+
+.clo-notes-textarea {
+  width: 100%;
+  font-family: var(--clo-font-body);
+  font-size: 0.95rem;
+  color: var(--clo-ink);
+  background: var(--clo-bg);
+  border: 1px solid var(--clo-border);
+  border-radius: var(--clo-radius-sm);
+  padding: 10px 12px;
+  resize: vertical;
+  line-height: 1.6;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.clo-notes-textarea:focus {
+  outline: none;
+  border-color: var(--clo-highlight);
+  box-shadow: 0 0 0 3px rgba(131,107,255,0.1);
+}
+
+.clo-tab-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-bottom: 2px solid var(--clo-border);
+  margin-bottom: var(--clo-space-md);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.clo-tab-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.clo-tab {
+  font-family: var(--clo-font-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  background: transparent;
+  color: var(--clo-ink);
+  opacity: 0.45;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.clo-tab:hover {
+  opacity: 0.75;
+}
+
+.clo-tab-active {
+  opacity: 1;
+  border-bottom-color: var(--clo-ink);
+  font-weight: 600;
+}
+
+.clo-tab-add {
+  opacity: 0.6;
+  color: var(--clo-accent-b);
+  font-weight: 600;
+}
+
+.clo-tab-add:hover {
+  opacity: 1;
+  background: var(--clo-accent-b-soft);
+  border-radius: var(--clo-radius-xs) var(--clo-radius-xs) 0 0;
+}
+
+.clo-tab-sep {
+  width: 1px;
+  height: 1.5rem;
+  background: var(--clo-border);
+  margin: 0 0.5rem;
+  flex-shrink: 0;
+}
+
+.clo-tab-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--clo-space-md);
+  padding-top: var(--clo-space-md);
+  border-top: 1px solid var(--clo-border);
 }
 </style>
