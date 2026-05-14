@@ -1,8 +1,13 @@
 <template>
   <div class="clo-page">
     <div class="clo-hero">
-      <img src="@/assets/catLogo.png" class="mx-auto my-4" width="100"/>
-      <span class="clo-hero-label">The Constructive Alignment Tool</span>
+      <div class="clo-hero-brand">
+        <img src="@/assets/catLogo.png" width="80"/>
+        <div class="clo-hero-brand-text">
+          <span class="clo-hero-brand-name">The CAT</span>
+          <span class="clo-hero-brand-tagline">The Constructive Alignment Tool</span>
+        </div>
+      </div>
       <h1 class="clo-page-title">Pathway A: Learning Outcomes → Assignments</h1>
     </div>
 
@@ -36,7 +41,21 @@
 
     <!-- Tab 0: CLO Weightings -->
     <section class="clo-section" v-show="currentTab === 0">
-      <div class="clo-instructions">
+      <div class="clo-section-header">
+        <div>
+          <h2 class="clo-section-heading">1. CLO Weightings</h2>
+          <div class="clo-section-divider"></div>
+        </div>
+        <button @click="addCLO" class="clo-btn clo-btn-primary">
+          Add CLO
+        </button>
+      </div>
+      <div class="clo-instructions-toggle-bar">
+        <button class="clo-btn-instructions-toggle" @click="showInstructions[0] = !showInstructions[0]">
+          {{ showInstructions[0] ? 'Hide instructions' : 'Show instructions' }}
+        </button>
+      </div>
+      <div v-show="showInstructions[0]" class="clo-instructions">
         <ol class="list-decimal ml-4">
           <li>Click <strong>Add CLO</strong> to add course learning outcomes.</li>
           <li>Toggle between <strong>Visual mode</strong> (sliders) and <strong>Numbers mode</strong> (direct input).</li>
@@ -45,18 +64,9 @@
           <li>Set equal weightings if CLOs are equally important — weightings should reflect actual assessment influence.</li>
         </ol>
         <p class="clo-instructions-links">
-          <a href="#" class="clo-placeholder-link"><!-- TODO: replace with final URL -->View overview</a> ·
-          <a href="#" class="clo-placeholder-link"><!-- TODO: replace with final URL -->Read the guide for this step</a>
+          <a href="https://paulgmoss.github.io/The-CAT/index.html" target="_blank" class="clo-placeholder-link">View overview</a> ·
+          <a href="https://paulgmoss.github.io/The-CAT/stream-a-guide.html" target="_blank" class="clo-placeholder-link">Read the guide for this step</a>
         </p>
-      </div>
-      <div class="clo-section-header">
-        <div>
-          <h2 class="clo-section-heading">1. CLO weightings</h2>
-          <div class="clo-section-divider"></div>
-        </div>
-        <button @click="addCLO" class="clo-btn clo-btn-primary">
-          Add CLO
-        </button>
       </div>
       <p class="clo-section-description">
         Estimate the relative importance of each CLO in your course, expressed as percentages totalling 100%.
@@ -136,18 +146,6 @@
     <!-- Tab 1: CLO Mapping -->
     <div v-show="currentTab === 1">
     <section class="clo-section">
-      <div class="clo-instructions">
-        <ol class="list-decimal ml-4">
-          <li>Click <strong>Add Assignment</strong> for each summative assignment.</li>
-          <li>Toggle between <strong>Visual mode</strong> (relative importance) and <strong>Numbers mode</strong> (progression).</li>
-          <li>Values represent a ratio of relative importance across assignments per CLO.</li>
-          <li>Use <strong>0</strong> to indicate unassessed CLOs for a given assignment.</li>
-        </ol>
-        <p class="clo-instructions-links">
-          <a href="#" class="clo-placeholder-link"><!-- TODO: replace with final URL -->View overview</a> ·
-          <a href="#" class="clo-placeholder-link"><!-- TODO: replace with final URL -->Read the guide for this step</a>
-        </p>
-      </div>
       <div class="clo-section-header">
         <div>
           <h2 class="clo-section-heading">2. CLO Mapping</h2>
@@ -156,6 +154,23 @@
         <button @click="addAssignment" class="clo-btn clo-btn-primary">
           Add Assignment
         </button>
+      </div>
+      <div class="clo-instructions-toggle-bar">
+        <button class="clo-btn-instructions-toggle" @click="showInstructions[1] = !showInstructions[1]">
+          {{ showInstructions[1] ? 'Hide instructions' : 'Show instructions' }}
+        </button>
+      </div>
+      <div v-show="showInstructions[1]" class="clo-instructions">
+        <ol class="list-decimal ml-4">
+          <li>Click <strong>Add Assignment</strong> for each summative assignment.</li>
+          <li>Toggle between <strong>Visual mode</strong> (relative importance) and <strong>Numbers mode</strong> (progression).</li>
+          <li>Values represent a ratio of relative importance across assignments per CLO.</li>
+          <li>Use <strong>0</strong> to indicate unassessed CLOs for a given assignment.</li>
+        </ol>
+        <p class="clo-instructions-links">
+          <a href="https://paulgmoss.github.io/The-CAT/index.html" target="_blank" class="clo-placeholder-link">View overview</a> ·
+          <a href="https://paulgmoss.github.io/The-CAT/stream-a-guide.html" target="_blank" class="clo-placeholder-link">Read the guide for this step</a>
+        </p>
       </div>
       <p class="clo-section-description">
         Map the relative importance of each CLO across your assignment tasks.
@@ -275,7 +290,18 @@
     </div>
     <!-- Tab 2: Assignment Weightings -->
     <section class="clo-section" v-show="currentTab === 2">
-      <div class="clo-instructions">
+      <div class="clo-section-header">
+        <div>
+          <h2 class="clo-section-heading">3. Assignment Weightings</h2>
+          <div class="clo-section-divider"></div>
+        </div>
+      </div>
+      <div class="clo-instructions-toggle-bar">
+        <button class="clo-btn-instructions-toggle" @click="showInstructions[2] = !showInstructions[2]">
+          {{ showInstructions[2] ? 'Hide instructions' : 'Show instructions' }}
+        </button>
+      </div>
+      <div v-show="showInstructions[2]" class="clo-instructions">
         <ol class="list-decimal ml-4">
           <li>Review estimated assignment weightings as course grade percentages.</li>
           <li>Round totals to the nearest 5% when reading results.</li>
@@ -283,15 +309,9 @@
           <li>Return to earlier tabs if you notice significant discrepancies.</li>
         </ol>
         <p class="clo-instructions-links">
-          <a href="#" class="clo-placeholder-link"><!-- TODO: replace with final URL -->View overview</a> ·
-          <a href="#" class="clo-placeholder-link"><!-- TODO: replace with final URL -->Read the guide for this step</a>
+          <a href="https://paulgmoss.github.io/The-CAT/index.html" target="_blank" class="clo-placeholder-link">View overview</a> ·
+          <a href="https://paulgmoss.github.io/The-CAT/stream-a-guide.html" target="_blank" class="clo-placeholder-link">Read the guide for this step</a>
         </p>
-      </div>
-      <div class="clo-section-header">
-        <div>
-          <h2 class="clo-section-heading">3. Assignment Weightings</h2>
-          <div class="clo-section-divider"></div>
-        </div>
       </div>
       <p class="clo-section-description">
         The estimated weighting of each assignment as a percentage of the overall course grade.
@@ -335,7 +355,18 @@
 
     <!-- Tab 3: Marking Guide / Rubric Composition -->
     <section class="clo-section" v-show="currentTab === 3">
-      <div class="clo-instructions">
+      <div class="clo-section-header">
+        <div>
+          <h2 class="clo-section-heading">4. Marking Guide / Rubric Composition</h2>
+          <div class="clo-section-divider"></div>
+        </div>
+      </div>
+      <div class="clo-instructions-toggle-bar">
+        <button class="clo-btn-instructions-toggle" @click="showInstructions[3] = !showInstructions[3]">
+          {{ showInstructions[3] ? 'Hide instructions' : 'Show instructions' }}
+        </button>
+      </div>
+      <div v-show="showInstructions[3]" class="clo-instructions">
         <ol class="list-decimal ml-4">
           <li>Read each column as an individual assignment breakdown.</li>
           <li>Highlighted cells show which CLO has the strongest influence in each assignment.</li>
@@ -343,15 +374,9 @@
           <li>Note that rubric changes may affect teaching sequence decisions.</li>
         </ol>
         <p class="clo-instructions-links">
-          <a href="#" class="clo-placeholder-link"><!-- TODO: replace with final URL -->View overview</a> ·
-          <a href="#" class="clo-placeholder-link"><!-- TODO: replace with final URL -->Read the guide for this step</a>
+          <a href="https://paulgmoss.github.io/The-CAT/index.html" target="_blank" class="clo-placeholder-link">View overview</a> ·
+          <a href="https://paulgmoss.github.io/The-CAT/stream-a-guide.html" target="_blank" class="clo-placeholder-link">Read the guide for this step</a>
         </p>
-      </div>
-      <div class="clo-section-header">
-        <div>
-          <h2 class="clo-section-heading">4. Marking Guide / Rubric Composition</h2>
-          <div class="clo-section-divider"></div>
-        </div>
       </div>
       <p class="clo-section-description">
         The percentage emphasis each CLO should have within each individual assignment.
@@ -401,7 +426,7 @@
         id="clo-notes-a"
         v-model="notes"
         class="clo-notes-textarea"
-        placeholder="Record your design decisions and rationale here — this will be included in your CSV export."
+        placeholder="Record your design decisions and rationale here. Please specify the table number - this will be included in your CSV export."
         rows="5"
       ></textarea>
     </div>
@@ -422,7 +447,8 @@ onMounted(() => {
 const showSection2A = ref(false)
 const visualMode = ref(false)
 const currentTab = ref(0)
-const tabLabels = ['CLO Weightings', 'CLO Mapping', 'Assignment Weightings', 'Marking Guide / Rubric Composition']
+const tabLabels = ['1. CLO Weightings', '2. CLO Mapping', '3. Assignment Weightings', '4. Marking Guide / Rubric Composition']
+const showInstructions = ref([false, false, false, false])
 const notes = ref('')
 const hasTrackedCompletion = ref(false)
 
@@ -735,8 +761,8 @@ const exportCSV = () => {
   --clo-ink-muted: #6b6790;
   
   /* Warm Backgrounds */
-  --clo-bg: #faf9ff;
-  --clo-bg-warm: #f4f2ff;
+  --clo-bg: #f5f2ec;
+  --clo-bg-warm: #ede9e0;
   --clo-surface: #ffffff;
   
   /* Purple Accents */
@@ -843,6 +869,57 @@ const exportCSV = () => {
   animation-fill-mode: both;
 }
 
+.clo-hero-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: var(--clo-space-sm);
+}
+
+.clo-hero-brand-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.clo-hero-brand-name {
+  font-family: var(--clo-font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--clo-ink);
+  line-height: 1.15;
+}
+
+.clo-hero-brand-tagline {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--clo-accent-b);
+}
+
+.clo-instructions-toggle-bar {
+  margin-bottom: 0.6rem;
+}
+
+.clo-btn-instructions-toggle {
+  font-family: var(--clo-font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--clo-accent-b);
+  background: none;
+  border: 1px solid var(--clo-border);
+  border-radius: var(--clo-radius-xs);
+  padding: 4px 14px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.clo-btn-instructions-toggle:hover {
+  background: var(--clo-bg-warm);
+  color: var(--clo-ink);
+}
+
 /* Main Container */
 .clo-container {
   max-width: var(--clo-w-max);
@@ -855,10 +932,10 @@ const exportCSV = () => {
 .clo-section {
   background: var(--clo-surface);
   border: 1px solid var(--clo-border);
+  border-top: 3px solid var(--clo-accent-b);
   border-radius: var(--clo-radius);
   padding: var(--clo-space-md);
   margin-bottom: var(--clo-space-md);
-  box-shadow: 0 2px 8px rgba(20,15,80,0.04);
 }
 
 .clo-section-collapsible {
@@ -1375,9 +1452,9 @@ select:focus-visible {
   margin-top: var(--clo-space-md);
   background: var(--clo-surface);
   border: 1px solid var(--clo-border);
+  border-top: 3px solid var(--clo-border);
   border-radius: var(--clo-radius);
   padding: var(--clo-space-md);
-  box-shadow: 0 2px 8px rgba(20,15,80,0.04);
 }
 
 .clo-notes-header {

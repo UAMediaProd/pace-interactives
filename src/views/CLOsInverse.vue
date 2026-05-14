@@ -1,8 +1,13 @@
 <template>
   <div class="clo-page">
     <div class="clo-hero">
-      <img src="@/assets/catLogo.png" class="mx-auto my-4" width="100"/>
-      <span class="clo-hero-label">The Constructive Alignment Tool</span>
+      <div class="clo-hero-brand">
+        <img src="@/assets/catLogo.png" width="80"/>
+        <div class="clo-hero-brand-text">
+          <span class="clo-hero-brand-name">The CAT</span>
+          <span class="clo-hero-brand-tagline">The Constructive Alignment Tool</span>
+        </div>
+      </div>
       <h1 class="clo-page-title">Pathway B: Assignments → Learning Outcomes</h1>
     </div>
 
@@ -27,19 +32,32 @@
 
     <template v-for="(assignment, assignmentIndex) in assignments" :key="assignment.id">
       <div v-show="currentTab === assignmentIndex">
-        <div class="clo-instructions">
+        <div class="clo-instructions-toggle-bar">
+          <button class="clo-btn-instructions-toggle" @click="showAssignmentInstructions = !showAssignmentInstructions">
+            {{ showAssignmentInstructions ? 'Hide instructions' : 'Show instructions' }}
+          </button>
+        </div>
+        <div v-show="showAssignmentInstructions" class="clo-instructions">
           <ol class="ml-4 list-decimal">
-            <li>Click <strong>Add Assignment</strong> to add each assignment.<br>OR<br>Click <strong>Remove Assignment</strong> to adjust the number of assignment tabs to match the total number of assignments in your course.</li>
+            <li>Click <strong>+ Add</strong> to add assignments.</li>
             <li>For each assignment:
               <ol class="ml-4 list-decimal">
                 <li>Provide the assignment name and its weighting as a percentage of the total course grade.</li>
                 <li>Add marking criteria.</li>
                 <li>For each criterion, provide the total marks value.</li>
-                <li>Map each criterion to one or more CLOs with a percentage allocation.<br><br>When a criterion is mapped to only one CLO, the allocation is 100%. Most criteria will likely be mapped to a single CLO. The multi-CLO scenario is available for criteria that genuinely assess more than one outcome. When this happens, you indicate the relative influence of each CLO on that criterion (e.g. Criteria 2 in Assignment 1 mapped to both CLO 1 (30%) and CLO 2 (70%)). The allocations for a single criterion must always total 100%.</li>
+                <li>Map each criterion to one or more CLOs with a percentage allocation.
+                  <ol class="ml-4 list-decimal">
+                    <li>When a criterion is mapped to only one CLO, the allocation is 100%. Most criteria will likely be mapped to a single CLO. The multi-CLO scenario is available for criteria that genuinely assess more than one outcome. When this happens, you indicate the relative influence of each CLO on that criterion (e.g. Criteria 2 in Assignment 1 mapped to both CLO 1 (30%) and CLO 2 (70%)). The allocations for a single criterion must always total 100%.</li>
+                  </ol>
+                </li>
               </ol>
             </li>
             <li>Repeat this process for each assignment.</li>
           </ol>
+          <p class="clo-instructions-links">
+            <a href="https://paulgmoss.github.io/The-CAT/index.html" target="_blank" class="clo-placeholder-link">View overview</a> ·
+            <a href="https://paulgmoss.github.io/The-CAT/stream-b-guide.html" target="_blank" class="clo-placeholder-link">Read the guide for this step</a>
+          </p>
         </div>
         <div class="clo-assignment-card">
           <div class="clo-assignment-tag">Assignment {{ assignmentIndex + 1 }}</div>
@@ -192,16 +210,6 @@
     </template>
 
     <div v-show="currentTab === assignments.length">
-        <div class="clo-callout">
-        <p class="clo-callout-text">
-          Total Assignment Weightings:
-          <span :class="Math.round(totalAssignmentWeighting) === 100 ? 'clo-status-success' : 'clo-status-warning'">
-            {{ totalAssignmentWeighting.toFixed(1) }}%
-          </span>
-          <span class="clo-callout-note">(Should equal 100%)</span>
-        </p>
-      </div>
-
       <section class="clo-section">
         <div class="clo-section-header">
           <div>
@@ -209,7 +217,12 @@
             <div class="clo-section-divider"></div>
           </div>
         </div>
-        <div class="clo-instructions">
+        <div class="clo-instructions-toggle-bar">
+          <button class="clo-btn-instructions-toggle" @click="showCLOInstructions = !showCLOInstructions">
+            {{ showCLOInstructions ? 'Hide instructions' : 'Show instructions' }}
+          </button>
+        </div>
+        <div v-show="showCLOInstructions" class="clo-instructions">
           <ol class="ml-4 list-decimal">
             <li>First, review the <strong>Overall</strong> column which provides the most important set of outputs — the estimated overall weighting of each CLO across the entire course.</li>
             <li>Ask yourself: do these CLO weightings and contributions match your intended emphasis? You can also evaluate them against the energy each CLO demands in your teaching sequence?</li>
@@ -218,6 +231,10 @@
             <li>Read each Assignment column. The assignment columns show how the overall total of each CLO is distributed across any assignment it is mapped to. If you wish to increase or decrease the overall weighting of a CLO, the assignment columns will show where you can either increase or decrease the CLO weighting.</li>
             <li>To adjust any discrepancies, go back to each assignment to adjust the marking criteria, total marks value, or CLO mappings and percentage allocations.</li>
           </ol>
+          <p class="clo-instructions-links">
+            <a href="https://paulgmoss.github.io/The-CAT/index.html" target="_blank" class="clo-placeholder-link">View overview</a> ·
+            <a href="https://paulgmoss.github.io/The-CAT/stream-b-guide.html" target="_blank" class="clo-placeholder-link">Read the guide for this step</a>
+          </p>
         </div>
 
         <div v-if="discoveredCLOs.length > 0" class="clo-table-wrapper">
@@ -282,7 +299,7 @@
         id="clo-notes-b"
         v-model="notes"
         class="clo-notes-textarea"
-        placeholder="Record your design decisions and rationale here — this will be included in your CSV export."
+        placeholder="Record your design decisions and rationale here. Please specify the table number - this will be included in your CSV export."
         rows="5"
       ></textarea>
     </div>
@@ -302,6 +319,8 @@ onMounted(() => {
 
 const currentTab = ref(0)
 const notes = ref('')
+const showAssignmentInstructions = ref(false)
+const showCLOInstructions = ref(false)
 const hasTrackedCompletion = ref(false)
 
 watch(currentTab, (tab) => {
@@ -567,8 +586,8 @@ const exportCSV = () => {
   --clo-ink-muted: #6b6790;
   
   /* Warm Backgrounds */
-  --clo-bg: #faf9ff;
-  --clo-bg-warm: #f4f2ff;
+  --clo-bg: #f5f2ec;
+  --clo-bg-warm: #ede9e0;
   --clo-surface: #ffffff;
   
   /* Purple Accents */
@@ -675,6 +694,57 @@ const exportCSV = () => {
   animation-fill-mode: both;
 }
 
+.clo-hero-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: var(--clo-space-sm);
+}
+
+.clo-hero-brand-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.clo-hero-brand-name {
+  font-family: var(--clo-font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--clo-ink);
+  line-height: 1.15;
+}
+
+.clo-hero-brand-tagline {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--clo-accent-b);
+}
+
+.clo-instructions-toggle-bar {
+  margin-bottom: 0.6rem;
+}
+
+.clo-btn-instructions-toggle {
+  font-family: var(--clo-font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--clo-accent-b);
+  background: none;
+  border: 1px solid var(--clo-border);
+  border-radius: var(--clo-radius-xs);
+  padding: 4px 14px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.clo-btn-instructions-toggle:hover {
+  background: var(--clo-bg-warm);
+  color: var(--clo-ink);
+}
+
 /* Main Container */
 .clo-container {
   max-width: var(--clo-w-max);
@@ -687,10 +757,10 @@ const exportCSV = () => {
 .clo-section {
   background: var(--clo-surface);
   border: 1px solid var(--clo-border);
+  border-top: 3px solid var(--clo-accent-b);
   border-radius: var(--clo-radius);
   padding: var(--clo-space-md);
   margin-bottom: var(--clo-space-md);
-  box-shadow: 0 2px 8px rgba(20,15,80,0.04);
 }
 
 .clo-section-header {
@@ -1286,9 +1356,9 @@ select:focus-visible {
   margin-top: var(--clo-space-md);
   background: var(--clo-surface);
   border: 1px solid var(--clo-border);
+  border-top: 3px solid var(--clo-border);
   border-radius: var(--clo-radius);
   padding: var(--clo-space-md);
-  box-shadow: 0 2px 8px rgba(20,15,80,0.04);
 }
 
 .clo-notes-header {
