@@ -45,18 +45,14 @@
                 <li>Provide the assignment name and its weighting as a percentage of the total course grade.</li>
                 <li>Add marking criteria.</li>
                 <li>For each criterion, provide the total marks value.</li>
-                <li>Map each criterion to one or more CLOs with a percentage allocation.
-                  <ol class="ml-4 list-decimal">
-                    <li>When a criterion is mapped to only one CLO, the allocation is 100%. Most criteria will likely be mapped to a single CLO. The multi-CLO scenario is available for criteria that genuinely assess more than one outcome. When this happens, you indicate the relative influence of each CLO on that criterion (e.g. Criteria 2 in Assignment 1 mapped to both CLO 1 (30%) and CLO 2 (70%)). The allocations for a single criterion must always total 100%.</li>
-                  </ol>
-                </li>
+                <li>Map each criterion to one or more CLOs with a percentage allocation. When a criterion is mapped to only one CLO, the allocation is 100%. Most criteria will likely be mapped to a single CLO. The multi-CLO scenario is available for criteria that genuinely assess more than one outcome. When this happens, you indicate the relative influence of each CLO on that criterion (e.g. Criteria 2 in Assignment 1 mapped to both CLO 1 (30%) and CLO 2 (70%)). The allocations for a single criterion must always total 100%.</li>
               </ol>
             </li>
             <li>Repeat this process for each assignment.</li>
           </ol>
           <p class="clo-instructions-links">
-            <a href="https://paulgmoss.github.io/The-CAT/index.html" target="_blank" class="clo-placeholder-link">View overview</a> ·
-            <a href="https://paulgmoss.github.io/The-CAT/stream-b-guide.html" target="_blank" class="clo-placeholder-link">Read the guide for this step</a>
+            <a href="https://paulgmoss.github.io/The-CAT/stream-b-guide.html#assignments" target="_blank" class="clo-placeholder-link">Detailed guidance: Assignment weights →</a> ·
+            <a href="https://paulgmoss.github.io/The-CAT/stream-b-guide.html#criteria" target="_blank" class="clo-placeholder-link">Detailed guidance: rubric criteria and CLO mapping →</a>
           </p>
         </div>
         <div class="clo-assignment-card">
@@ -232,8 +228,7 @@
             <li>To adjust any discrepancies, go back to each assignment to adjust the marking criteria, total marks value, or CLO mappings and percentage allocations.</li>
           </ol>
           <p class="clo-instructions-links">
-            <a href="https://paulgmoss.github.io/The-CAT/index.html" target="_blank" class="clo-placeholder-link">View overview</a> ·
-            <a href="https://paulgmoss.github.io/The-CAT/stream-b-guide.html" target="_blank" class="clo-placeholder-link">Read the guide for this step</a>
+            <a href="https://paulgmoss.github.io/The-CAT/stream-b-guide.html#review" target="_blank" class="clo-placeholder-link">Detailed guidance: CLO weightings and contributions →</a>
           </p>
         </div>
 

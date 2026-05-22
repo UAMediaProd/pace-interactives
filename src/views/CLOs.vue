@@ -57,15 +57,13 @@
       </div>
       <div v-show="showInstructions[0]" class="clo-instructions">
         <ol class="list-decimal ml-4">
-          <li>Click <strong>Add CLO</strong> to add course learning outcomes.</li>
-          <li>Toggle between <strong>Visual mode</strong> (sliders) and <strong>Numbers mode</strong> (direct input).</li>
-          <li>Estimate relative importance as percentages totalling 100%.</li>
-          <li>Consider outcome influence across assignments, not just teaching time.</li>
-          <li>Set equal weightings if CLOs are equally important — weightings should reflect actual assessment influence.</li>
+          <li>Click <strong>Add CLO</strong> to add each course learning outcome.</li>
+          <li>Select your <strong>input mode</strong> using the toggle (top right). <strong>Visual mode</strong> adds sliders alongside the numbers, which is useful for a sense check. <strong>Numbers mode</strong> lets you type values directly.</li>
+          <li>Estimate the <strong>relative importance</strong> of each CLO as percentages totalling 100%. Think about how much influence each outcome has across all of your assignments and their marking criteria, not just how much teaching time it receives.</li>
+          <li>If using Visual mode, once the sliders are in place, you can adjust the numbers in the boxes directly to round off or even out the figures. If all CLOs are equally important, set equal weightings (e.g., 25% each for four CLOs). If a CLO supports progression but is tested less in assignments, its weighting should reflect its actual influence on the assessment, not its importance in the abstract.</li>
         </ol>
         <p class="clo-instructions-links">
-          <a href="https://paulgmoss.github.io/The-CAT/index.html" target="_blank" class="clo-placeholder-link">View overview</a> ·
-          <a href="https://paulgmoss.github.io/The-CAT/stream-a-guide.html" target="_blank" class="clo-placeholder-link">Read the guide for this step</a>
+          <a href="https://paulgmoss.github.io/The-CAT/stream-a-guide.html#clo-weightings" target="_blank" class="clo-placeholder-link">Detailed guidance: CLO weightings →</a>
         </p>
       </div>
       <p class="clo-section-description">
@@ -162,14 +160,13 @@
       </div>
       <div v-show="showInstructions[1]" class="clo-instructions">
         <ol class="list-decimal ml-4">
-          <li>Click <strong>Add Assignment</strong> for each summative assignment.</li>
-          <li>Toggle between <strong>Visual mode</strong> (relative importance) and <strong>Numbers mode</strong> (progression).</li>
-          <li>Values represent a ratio of relative importance across assignments per CLO.</li>
-          <li>Use <strong>0</strong> to indicate unassessed CLOs for a given assignment.</li>
+          <li>Click <strong>Add Assignment</strong> to add each summative assignment in your course. If your course groups assignments (e.g., Assignments 1 and 2 share a combined weighting of 30%), add each assignment individually and map them as normal. When reading the outputs in Tab 3, check that the grouped assignments' totals combined match your intended group weighting.</li>
+          <li>Select your <strong>input mode</strong> using the toggle (top right). Visual mode adds sliders so you can drag to show whether one assignment is more, less, or equally important for a CLO. <strong>Numbers mode</strong> lets you type specific values, which is useful when you want to express a progression (e.g., 30% of the CLO is assessable in Assignment 1, 60% by Assignment 2, 100% by Assignment 3).</li>
+          <li><strong>Attempt one CLO at a time. Once you complete CLO 1, then click on CLO 2 to activate the row. </strong>For each CLO (each row), <strong>indicate</strong> how important each assignment is <strong>relative</strong> to the others <strong>for that CLO</strong>. For example, if CLO 1 is twice as important in Assignment 2 as in Assignment 1, you might enter 50 and 100, or 1 and 2. The actual numbers do not matter, only the ratio between them. If a CLO is not assessed in an assignment, enter <strong>0</strong>.</li>
+          <li>You can use different modes for different CLOs. Use sliders for CLOs where relative importance is intuitive, then switch to Numbers for a CLO that follows a progression. The values carry over when you switch.</li>
         </ol>
         <p class="clo-instructions-links">
-          <a href="https://paulgmoss.github.io/The-CAT/index.html" target="_blank" class="clo-placeholder-link">View overview</a> ·
-          <a href="https://paulgmoss.github.io/The-CAT/stream-a-guide.html" target="_blank" class="clo-placeholder-link">Read the guide for this step</a>
+          <a href="https://paulgmoss.github.io/The-CAT/stream-a-guide.html#clo-mapping" target="_blank" class="clo-placeholder-link">Detailed guidance: CLO mapping →</a>
         </p>
       </div>
       <p class="clo-section-description">
@@ -201,7 +198,13 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(clo, index) in clos" :key="clo.id">
+            <tr
+              v-for="(clo, index) in clos"
+              :key="clo.id"
+              class="clo-mapping-row"
+              :class="{ 'clo-mapping-row-active': activeCLOIndex === index, 'clo-mapping-row-dim': activeCLOIndex !== index }"
+              @click="activeCLOIndex = index"
+            >
               <td class="clo-td clo-td-bold clo-td-row-header">CLO {{ index + 1 }}</td>
               <td v-for="assignment in assignments" :key="assignment.id" class="clo-td">
                 <input
@@ -303,14 +306,13 @@
       </div>
       <div v-show="showInstructions[2]" class="clo-instructions">
         <ol class="list-decimal ml-4">
-          <li>Review estimated assignment weightings as course grade percentages.</li>
-          <li>Round totals to the nearest 5% when reading results.</li>
-          <li>Verify the distribution aligns with your intended course design.</li>
-          <li>Return to earlier tabs if you notice significant discrepancies.</li>
+          <li>Review the estimated weightings for each assignment, shown as a percentage of the overall course grade. Round to the nearest 5% when reading the totals.</li>
+          <li>Ask yourself: does this distribution match what you intended? You can use this to either inform the assignment weightings of a course you are designing, or to verify whether the weightings of an existing course align with your CLO distribution.</li>
+          <li>If there is a significant discrepancy, go back to CLO Weightings or CLO Mapping to adjust your inputs. The outputs will update instantly.</li>
         </ol>
         <p class="clo-instructions-links">
-          <a href="https://paulgmoss.github.io/The-CAT/index.html" target="_blank" class="clo-placeholder-link">View overview</a> ·
-          <a href="https://paulgmoss.github.io/The-CAT/stream-a-guide.html" target="_blank" class="clo-placeholder-link">Read the guide for this step</a>
+          <a href="https://paulgmoss.github.io/The-CAT/stream-a-guide.html#assignment-weightings" target="_blank" class="clo-placeholder-link">Detailed guidance: reading the outputs →</a> ·
+          <a href="https://paulgmoss.github.io/The-CAT/stream-a-guide.html#iterate" target="_blank" class="clo-placeholder-link">Detailed guidance: how to iterate →</a>
         </p>
       </div>
       <p class="clo-section-description">
@@ -368,14 +370,13 @@
       </div>
       <div v-show="showInstructions[3]" class="clo-instructions">
         <ol class="list-decimal ml-4">
-          <li>Read each column as an individual assignment breakdown.</li>
-          <li>Highlighted cells show which CLO has the strongest influence in each assignment.</li>
-          <li>Verify the composition aligns with your intended marking criteria design.</li>
-          <li>Note that rubric changes may affect teaching sequence decisions.</li>
+          <li>Read each column as one assignment's breakdown. For example, if CLO 1 shows 40% in Assignment 1, it means the criteria mapped to CLO 1 should account for approximately 40% of that assignment's marks (whether that is one criterion or several).</li>
+          <li>The highlighted cells show where each CLO has its strongest influence. Ask yourself: does this composition make sense for how you would design the marking criteria?</li>
+          <li>If a CLO appears in an assignment you did not expect, or if the emphasis feels wrong, go back to CLO Weightings or CLO Mapping to adjust.</li>
         </ol>
         <p class="clo-instructions-links">
-          <a href="https://paulgmoss.github.io/The-CAT/index.html" target="_blank" class="clo-placeholder-link">View overview</a> ·
-          <a href="https://paulgmoss.github.io/The-CAT/stream-a-guide.html" target="_blank" class="clo-placeholder-link">Read the guide for this step</a>
+          <a href="https://paulgmoss.github.io/The-CAT/stream-a-guide.html#rubric-composition" target="_blank" class="clo-placeholder-link">Detailed guidance: reading the outputs →</a> ·
+          <a href="https://paulgmoss.github.io/The-CAT/stream-a-guide.html#iterate" target="_blank" class="clo-placeholder-link">Detailed guidance: how to iterate →</a>
         </p>
       </div>
       <p class="clo-section-description">
@@ -449,6 +450,7 @@ const visualMode = ref(false)
 const currentTab = ref(0)
 const tabLabels = ['1. CLO Weightings', '2. CLO Mapping', '3. Assignment Weightings', '4. Marking Guide / Rubric Composition']
 const showInstructions = ref([false, false, false, false])
+const activeCLOIndex = ref(0)
 const notes = ref('')
 const hasTrackedCompletion = ref(false)
 
@@ -672,6 +674,9 @@ const removeCLO = (index) => {
       delete rawValues[key]
     })
     clos.value.splice(index, 1)
+    if (activeCLOIndex.value >= clos.value.length) {
+      activeCLOIndex.value = Math.max(0, clos.value.length - 1)
+    }
   }
 }
 
@@ -1534,7 +1539,6 @@ select:focus-visible {
 }
 
 .clo-instructions {
-  background: var(--clo-bg-warm);
   border: 1px solid var(--clo-border);
   border-radius: var(--clo-radius);
   padding: 1rem 1.25rem;
@@ -1575,5 +1579,18 @@ select:focus-visible {
   margin-top: var(--clo-space-md);
   padding-top: var(--clo-space-md);
   border-top: 1px solid var(--clo-border);
+}
+
+.clo-mapping-row {
+  cursor: pointer;
+  transition: opacity 0.25s ease;
+}
+
+.clo-mapping-row-dim {
+  opacity: 0.38;
+}
+
+.clo-mapping-row-active .clo-td:first-child {
+  border-left: 3px solid var(--clo-highlight);
 }
 </style>
