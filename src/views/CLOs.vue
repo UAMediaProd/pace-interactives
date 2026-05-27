@@ -194,7 +194,7 @@
                   </button>
                 </div>
               </th>
-              <th class="clo-th clo-th-center clo-th-highlight">Total</th>
+         
             </tr>
           </thead>
           <tbody>
@@ -235,9 +235,7 @@
                   />
                 </div>
               </td>
-              <td class="clo-td clo-td-right clo-td-bold clo-td-row-header">
-                {{ getCLOTotal(clo.id).toFixed(2) }}
-              </td>
+             
             </tr>
           </tbody>
         </table>
