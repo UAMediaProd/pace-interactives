@@ -162,7 +162,7 @@
         <ol class="list-decimal ml-4">
           <li>Click <strong>Add Assignment</strong> to add each summative assignment in your course. If your course groups assignments (e.g., Assignments 1 and 2 share a combined weighting of 30%), add each assignment individually and map them as normal. When reading the outputs in Tab 3, check that the grouped assignments' totals combined match your intended group weighting.</li>
           <li>Select your <strong>input mode</strong> using the toggle (top right). Visual mode adds sliders so you can drag to show whether one assignment is more, less, or equally important for a CLO. <strong>Numbers mode</strong> lets you type specific values, which is useful when you want to express a progression (e.g., 30% of the CLO is assessable in Assignment 1, 60% by Assignment 2, 100% by Assignment 3).</li>
-          <li><strong>Attempt one CLO at a time. Once you complete CLO 1, then click on CLO 2 to activate the row. </strong>For each CLO (each row), <strong>indicate</strong> how important each assignment is <strong>relative</strong> to the others <strong>for that CLO</strong>. For example, if CLO 1 is twice as important in Assignment 2 as in Assignment 1, you might enter 50 and 100, or 1 and 2. The actual numbers do not matter, only the ratio between them. If a CLO is not assessed in an assignment, enter <strong>0</strong>.</li>
+          <li>Work one CLO at a time. Click a CLO row to activate it, then indicate how its Tab 1 CLO weightings budget should be distributed across your assignments. There are two ways to approach this, with worked examples (see Sections A-D) in the step-by-step guide: <strong>Directly</strong> (Section A): enter the distribution as percentages. A CLO worth 30% is literally broken up and entered as 5 / 10 / 15, indicating the budget distributed as 5% / 10% / 15% across three assignments. <strong>Proportionally</strong> (Sections B, C and D): enter values that represent a relationship, either relative emphasis, progression, or how the outcome is partitioned, and the tool derives the distribution. For example, if you want to express relative emphasis, a CLO worth 30% entered as 1 / 1 / 2 means Assignment 3 carries twice the weight of either earlier assignment, distributing the 30% as 7.5% / 7.5% / 15%. If a CLO is not assessed in an assignment, enter <strong>0</strong>.</li>
           <li>You can use different modes for different CLOs. Use sliders for CLOs where relative importance is intuitive, then switch to Numbers for a CLO that follows a progression. The values carry over when you switch.</li>
         </ol>
         <p class="clo-instructions-links">
@@ -601,19 +601,20 @@ const getSliderStyle = (value, availableMax = 100) => {
   }
 }
 
-const startWeightDrag = (cloId, event) => {
+const clientXOf = (e) => e.touches ? e.touches[0].clientX : e.clientX
+
+const startDrag = (event, onPosition) => {
   event.preventDefault()
-  const track = event.currentTarget
-  const rect = track.getBoundingClientRect()
+  const rect = event.currentTarget.getBoundingClientRect()
 
   const applyPosition = (clientX) => {
-    const pct = Math.min(100, Math.max(0, (clientX - rect.left) / rect.width * 100))
-    setCLOWeighting(cloId, pct)
+    const pct = Math.round(Math.min(100, Math.max(0, (clientX - rect.left) / rect.width * 100)))
+    onPosition(pct)
   }
 
-  applyPosition(event.touches ? event.touches[0].clientX : event.clientX)
+  applyPosition(clientXOf(event))
 
-  const onMove = (e) => applyPosition(e.touches ? e.touches[0].clientX : e.clientX)
+  const onMove = (e) => applyPosition(clientXOf(e))
   const onUp = () => {
     window.removeEventListener('mousemove', onMove)
     window.removeEventListener('mouseup', onUp)
@@ -626,30 +627,9 @@ const startWeightDrag = (cloId, event) => {
   window.addEventListener('touchend', onUp)
 }
 
-const startMappingDrag = (cloId, assignmentId, event) => {
-  event.preventDefault()
-  const track = event.currentTarget
-  const rect = track.getBoundingClientRect()
+const startWeightDrag = (cloId, event) => startDrag(event, (pct) => setCLOWeighting(cloId, pct))
 
-  const applyPosition = (clientX) => {
-    const pct = Math.min(100, Math.max(0, (clientX - rect.left) / rect.width * 100))
-    setRawValue(cloId, assignmentId, pct)
-  }
-
-  applyPosition(event.touches ? event.touches[0].clientX : event.clientX)
-
-  const onMove = (e) => applyPosition(e.touches ? e.touches[0].clientX : e.clientX)
-  const onUp = () => {
-    window.removeEventListener('mousemove', onMove)
-    window.removeEventListener('mouseup', onUp)
-    window.removeEventListener('touchmove', onMove)
-    window.removeEventListener('touchend', onUp)
-  }
-  window.addEventListener('mousemove', onMove)
-  window.addEventListener('mouseup', onUp)
-  window.addEventListener('touchmove', onMove, { passive: false })
-  window.addEventListener('touchend', onUp)
-}
+const startMappingDrag = (cloId, assignmentId, event) => startDrag(event, (pct) => setRawValue(cloId, assignmentId, pct))
 
 const toggleSection2A = () => {
   showSection2A.value = !showSection2A.value
