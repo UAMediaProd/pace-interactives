@@ -1,0 +1,2 @@
+"use strict";(self["webpackChunkpace_interactives"]=self["webpackChunkpace_interactives"]||[]).push([[580],{1241:function(n,e){e.A=(n,e)=>{const t=n.__vccOpts||n;for(const[r,c]of e)t[r]=c;return t}},9580:function(n,e,t){t.r(e),t.d(e,{default:function(){return a}});var r=t(6768);function c(n,e){return(0,r.uX)(),(0,r.CE)("p",null,"Hello world")}var u=t(1241);const o={},s=(0,u.A)(o,[["render",c]]);var a=s}}]);
+//# sourceMappingURL=580.b8909113.js.map
