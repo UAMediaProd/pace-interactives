@@ -2,7 +2,7 @@
   <div class="clo-page">
     <div class="clo-hero">
       <div class="clo-hero-brand">
-        <img src="@/assets/catLogo.png" width="80"/>
+        <img src="@/assets/catLogo.png" width="80" class="clo-cat-logo" alt="The CAT"/>
         <div class="clo-hero-brand-text">
           <span class="clo-hero-brand-name">The CAT</span>
           <span class="clo-hero-brand-tagline">The Constructive Alignment Tool</span>
@@ -694,6 +694,10 @@ const exportCSV = () => {
   align-items: center;
   gap: 1rem;
   margin-bottom: var(--clo-space-sm);
+}
+
+.clo-cat-logo {
+  transform: scaleX(-1);
 }
 
 .clo-hero-brand-text {

@@ -2,7 +2,7 @@
   <div class="clo-page">
     <div class="clo-hero">
       <div class="clo-hero-brand">
-        <img src="@/assets/catLogo.png" width="80"/>
+        <img src="@/assets/catLogo.png" width="80" class="clo-cat-logo" alt="The CAT"/>
         <div class="clo-hero-brand-text">
           <span class="clo-hero-brand-name">The CAT</span>
           <span class="clo-hero-brand-tagline">The Constructive Alignment Tool</span>
@@ -162,8 +162,10 @@
         <ol class="list-decimal ml-4">
           <li>Click <strong>Add Assignment</strong> to add each summative assignment in your course. If your course groups assignments (e.g., Assignments 1 and 2 share a combined weighting of 30%), add each assignment individually and map them as normal. When reading the outputs in Tab 3, check that the grouped assignments' totals combined match your intended group weighting.</li>
           <li>Select your <strong>input mode</strong> using the toggle (top right). Visual mode adds sliders so you can drag to show whether one assignment is more, less, or equally important for a CLO. <strong>Numbers mode</strong> lets you type specific values, which is useful when you want to express a progression (e.g., 30% of the CLO is assessable in Assignment 1, 60% by Assignment 2, 100% by Assignment 3).</li>
-          <li><strong>Attempt one CLO at a time. Once you complete CLO 1, then click on CLO 2 to activate the row. </strong>For each CLO (each row), <strong>indicate</strong> how important each assignment is <strong>relative</strong> to the others <strong>for that CLO</strong>. For example, if CLO 1 is twice as important in Assignment 2 as in Assignment 1, you might enter 50 and 100, or 1 and 2. The actual numbers do not matter, only the ratio between them. If a CLO is not assessed in an assignment, enter <strong>0</strong>.</li>
-          <li>You can use different modes for different CLOs. Use sliders for CLOs where relative importance is intuitive, then switch to Numbers for a CLO that follows a progression. The values carry over when you switch.</li>
+          <li><strong>Attempt one CLO at a time. Once you complete CLO 1, then click on CLO 2 to activate the row.</strong> In the <strong>Demand</strong> row, indicate how important each assignment is <strong>relative</strong> to the others for that CLO. For example, if CLO 1 is twice as important in Assignment 2 as in Assignment 1, you might enter 50 and 100, or 1 and 2. The actual numbers do not matter, only the ratio between them. If a CLO is not assessed in an assignment, enter <strong>0</strong>.</li>
+          <li>Use the <strong>Readiness</strong> slider to show how much of the CLO has been taught and is available to assess by each assignment. Readiness carries forward: later assignments cannot be set lower than an earlier one.</li>
+          <li>The marker on each readiness bar shows the proportion of the CLO's assessment demand that has accumulated by that point. It is calculated from the cumulative demand divided by the CLO's course-weighting budget.</li>
+          <li>You can use different modes for different CLOs. Use sliders for demand where relative importance is intuitive, then switch to Numbers for a CLO that follows a progression. The values carry over when you switch.</li>
         </ol>
         <p class="clo-instructions-links">
           <a href="https://paulgmoss.github.io/The-CAT/stream-a-guide.html#clo-mapping" target="_blank" class="clo-placeholder-link">Detailed guidance: CLO mapping →</a>
@@ -177,6 +179,7 @@
           <thead>
             <tr>
               <th class="clo-th clo-th-left">CLO</th>
+              <th class="clo-th clo-th-left">Measure</th>
               <th v-for="assignment in assignments" :key="assignment.id" class="clo-th clo-th-center">
                 <div class="clo-assignment-header-cell">
                   <input 
@@ -198,14 +201,56 @@
             </tr>
           </thead>
           <tbody>
-            <tr
-              v-for="(clo, index) in clos"
-              :key="clo.id"
-              class="clo-mapping-row"
-              :class="{ 'clo-mapping-row-active': activeCLOIndex === index, 'clo-mapping-row-dim': activeCLOIndex !== index }"
-              @click="activeCLOIndex = index"
-            >
-              <td class="clo-td clo-td-bold clo-td-row-header">CLO {{ index + 1 }}</td>
+            <template v-for="(clo, index) in clos" :key="clo.id">
+              <tr
+                class="clo-mapping-row clo-readiness-row"
+                :class="{ 'clo-mapping-row-active': activeCLOIndex === index, 'clo-mapping-row-dim': activeCLOIndex !== index }"
+                @click="activeCLOIndex = index"
+              >
+                <td rowspan="2" class="clo-td clo-td-bold clo-td-row-header clo-clo-cell">CLO {{ index + 1 }}</td>
+                <td class="clo-td clo-mapping-measure">
+                  <span>Readiness</span>
+                  <small>available to assess</small>
+                </td>
+                <td v-for="(assignment, assignmentIndex) in assignments" :key="assignment.id" class="clo-td clo-readiness-cell">
+                  <div class="clo-readiness-control">
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      step="1"
+                      :min="getReadinessMinimum(clo.id, assignmentIndex)"
+                      :value="getReadiness(clo.id, assignment.id)"
+                      :style="{ '--readiness': getReadiness(clo.id, assignment.id) + '%' }"
+                      :aria-label="`Readiness for CLO ${index + 1} by ${assignment.name || 'assignment ' + (assignmentIndex + 1)}`"
+                      class="clo-readiness-slider"
+                      @input="setReadiness(clo.id, assignment.id, $event.target.value)"
+                    />
+                    <span
+                      class="clo-readiness-target"
+                      :style="{ left: getReadinessTarget(clo.id, assignment.id) + '%' }"
+                      :title="`Assessment demand by this point: ${getReadinessTarget(clo.id, assignment.id).toFixed(0)}%`"
+                      aria-hidden="true"
+                    ></span>
+                    <span class="clo-readiness-value" :class="{ 'clo-readiness-value-dark': getReadiness(clo.id, assignment.id) < 20 }">{{ getReadiness(clo.id, assignment.id) }}%</span>
+                  </div>
+                  <small v-if="assignmentIndex > 0 && getReadiness(clo.id, assignment.id) === getReadiness(clo.id, assignments[assignmentIndex - 1].id)" class="clo-readiness-carried">
+                    Carried forward · demand by here: {{ getReadinessTarget(clo.id, assignment.id).toFixed(0) }}%
+                  </small>
+                  <small v-else class="clo-readiness-needed">
+                    Demand by here: {{ getReadinessTarget(clo.id, assignment.id).toFixed(0) }}%
+                  </small>
+                </td>
+              </tr>
+              <tr
+                class="clo-mapping-row clo-demand-row"
+                :class="{ 'clo-mapping-row-active': activeCLOIndex === index, 'clo-mapping-row-dim': activeCLOIndex !== index }"
+                @click="activeCLOIndex = index"
+              >
+              <td class="clo-td clo-mapping-measure">
+                <span>Demand</span>
+                <small>relative assessment share</small>
+              </td>
               <td v-for="assignment in assignments" :key="assignment.id" class="clo-td">
                 <input
                   v-if="!visualMode"
@@ -235,8 +280,8 @@
                   />
                 </div>
               </td>
-             
-            </tr>
+              </tr>
+            </template>
           </tbody>
         </table>
       </div>
@@ -473,6 +518,7 @@ const assignments = ref([
 ])
 
 const rawValues = reactive({})
+const readinessValues = reactive({})
 
 let nextCLOId = 2
 let nextAssignmentId = 2
@@ -488,6 +534,30 @@ const getRawValue = (cloId, assignmentId) => {
 const setRawValue = (cloId, assignmentId, value) => {
   const key = `${cloId}-${assignmentId}`
   rawValues[key] = value
+}
+
+const getReadiness = (cloId, assignmentId) => {
+  return readinessValues[`${cloId}-${assignmentId}`] ?? 0
+}
+
+const getReadinessMinimum = (cloId, assignmentIndex) => {
+  if (assignmentIndex === 0) return 0
+  return getReadiness(cloId, assignments.value[assignmentIndex - 1].id)
+}
+
+const setReadiness = (cloId, assignmentId, value) => {
+  const assignmentIndex = assignments.value.findIndex(assignment => assignment.id === assignmentId)
+  if (assignmentIndex === -1) return
+
+  const minimum = getReadinessMinimum(cloId, assignmentIndex)
+  const readiness = Math.min(100, Math.max(minimum, Math.round(parseFloat(value) || 0)))
+  readinessValues[`${cloId}-${assignmentId}`] = readiness
+
+  // A later assessment cannot assume less readiness than an earlier one.
+  assignments.value.slice(assignmentIndex + 1).forEach(assignment => {
+    const key = `${cloId}-${assignment.id}`
+    if ((readinessValues[key] ?? 0) < readiness) readinessValues[key] = readiness
+  })
 }
 
 const totalCLOWeighting = computed(() => {
@@ -529,6 +599,18 @@ const getCourseContribution = (cloId, assignmentId) => {
   if (!clo) return 0
   const scaledPercentage = getScaledPercentage(cloId, assignmentId)
   return (scaledPercentage / 100) * (clo.weighting || 0)
+}
+
+const getReadinessTarget = (cloId, assignmentId) => {
+  const clo = clos.value.find(c => c.id === cloId)
+  const assignmentIndex = assignments.value.findIndex(assignment => assignment.id === assignmentId)
+  if (!clo || !clo.weighting || assignmentIndex === -1) return 0
+
+  const cumulativeDemand = assignments.value
+    .slice(0, assignmentIndex + 1)
+    .reduce((sum, assignment) => sum + getCourseContribution(cloId, assignment.id), 0)
+
+  return Math.min(100, (cumulativeDemand / clo.weighting) * 100)
 }
 
 const getAssignmentTotal = (assignmentId) => {
@@ -670,6 +752,7 @@ const removeCLO = (index) => {
     assignments.value.forEach(assignment => {
       const key = `${cloId}-${assignment.id}`
       delete rawValues[key]
+      delete readinessValues[key]
     })
     clos.value.splice(index, 1)
     if (activeCLOIndex.value >= clos.value.length) {
@@ -679,9 +762,16 @@ const removeCLO = (index) => {
 }
 
 const addAssignment = () => {
+  const id = nextAssignmentId++
   assignments.value.push({
-    id: nextAssignmentId++,
+    id,
     name: `Assignment ${assignments.value.length + 1}`
+  })
+  clos.value.forEach(clo => {
+    const precedingAssignment = assignments.value[assignments.value.length - 2]
+    readinessValues[`${clo.id}-${id}`] = precedingAssignment
+      ? getReadiness(clo.id, precedingAssignment.id)
+      : 0
   })
 }
 
@@ -691,6 +781,7 @@ const removeAssignment = (assignmentId) => {
     clos.value.forEach(clo => {
       const key = `${clo.id}-${assignmentId}`
       delete rawValues[key]
+      delete readinessValues[key]
     })
     assignments.value = assignments.value.filter(a => a.id !== assignmentId)
   }
@@ -716,10 +807,11 @@ const exportCSV = () => {
   lines.push('')
 
   const aNames = assignments.value.map(a => a.name || `Assignment ${a.id}`)
-  lines.push(row(['Section 2: CLO Mapping (Raw Values)']))
-  lines.push(row(['CLO', ...aNames, 'Total']))
+  lines.push(row(['Section 2: CLO Mapping (Readiness and Demand)']))
+  lines.push(row(['CLO', 'Measure', ...aNames, 'Total']))
   clos.value.forEach((clo, i) => {
-    lines.push(row([`CLO ${i + 1}`, ...assignments.value.map(a => getRawValue(clo.id, a.id)), getCLOTotal(clo.id).toFixed(2)]))
+    lines.push(row([`CLO ${i + 1}`, 'Readiness (%)', ...assignments.value.map(a => getReadiness(clo.id, a.id) + '%'), '']))
+    lines.push(row(['', 'Demand (raw)', ...assignments.value.map(a => getRawValue(clo.id, a.id)), getCLOTotal(clo.id).toFixed(2)]))
   })
   lines.push('')
 
@@ -877,6 +969,10 @@ const exportCSV = () => {
   align-items: center;
   gap: 1rem;
   margin-bottom: var(--clo-space-sm);
+}
+
+.clo-cat-logo {
+  transform: scaleX(-1);
 }
 
 .clo-hero-brand-text {
@@ -1412,6 +1508,124 @@ const exportCSV = () => {
   flex-shrink: 0;
 }
 
+.clo-mapping-measure {
+  min-width: 135px;
+  background: #fbfaff;
+  color: var(--clo-ink);
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+.clo-mapping-measure span,
+.clo-mapping-measure small {
+  display: block;
+}
+
+.clo-mapping-measure small,
+.clo-readiness-carried,
+.clo-readiness-needed {
+  margin-top: 3px;
+  color: var(--clo-ink-muted);
+  font-size: 0.72rem;
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+.clo-clo-cell {
+  vertical-align: middle;
+}
+
+.clo-readiness-cell {
+  min-width: 180px;
+  padding-bottom: 8px;
+}
+
+.clo-readiness-control {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 30px;
+}
+
+.clo-readiness-slider {
+  --readiness: 0%;
+  width: 100%;
+  height: 26px;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.clo-readiness-slider::-webkit-slider-runnable-track {
+  height: 20px;
+  border: 1px solid #cfc8ee;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--clo-accent-b) 0 var(--readiness), #f5f2ff var(--readiness) 100%);
+}
+
+.clo-readiness-slider::-moz-range-track {
+  height: 20px;
+  border: 1px solid #cfc8ee;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--clo-accent-b) 0 var(--readiness), #f5f2ff var(--readiness) 100%);
+}
+
+.clo-readiness-slider::-webkit-slider-thumb {
+  width: 10px;
+  height: 26px;
+  margin-top: -4px;
+  appearance: none;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+}
+
+.clo-readiness-slider::-moz-range-thumb {
+  width: 10px;
+  height: 26px;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+}
+
+.clo-readiness-slider:focus-visible {
+  outline: 3px solid rgba(131,107,255,0.42);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+.clo-readiness-target {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  transform: translateX(-1px);
+  border-radius: 2px;
+  background: var(--clo-ink);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.82);
+  pointer-events: none;
+}
+
+.clo-readiness-value {
+  position: absolute;
+  left: 9px;
+  z-index: 1;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.clo-readiness-value-dark {
+  color: var(--clo-ink);
+}
+
+.clo-readiness-carried {
+  color: var(--clo-accent-b);
+}
+
 @media (max-width: 860px) {
   .clo-hero {
     padding: var(--clo-space-md);
@@ -1585,10 +1799,15 @@ select:focus-visible {
 }
 
 .clo-mapping-row-dim {
-  opacity: 0.38;
+  opacity: 1;
 }
 
-.clo-mapping-row-active .clo-td:first-child {
+.clo-mapping-row-active .clo-clo-cell {
   border-left: 3px solid var(--clo-highlight);
+}
+
+.clo-mapping-row-active .clo-readiness-cell,
+.clo-mapping-row-active .clo-mapping-measure {
+  background-color: #fcfbff;
 }
 </style>
