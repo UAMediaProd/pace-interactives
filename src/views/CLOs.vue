@@ -174,45 +174,45 @@
       <p class="clo-section-description">
         Map the relative importance of each CLO across your assignment tasks.
       </p>
-      <div class="clo-table-wrapper">
-        <table class="clo-table">
-          <thead>
-            <tr>
-              <th class="clo-th clo-th-left">CLO</th>
-              <th class="clo-th clo-th-left">Measure</th>
-              <th v-for="assignment in assignments" :key="assignment.id" class="clo-th clo-th-center">
-                <div class="clo-assignment-header-cell">
-                  <input 
-                    v-model="assignment.name" 
-                    type="text" 
-                    class="clo-input clo-input-sm"
-                    placeholder="Assignment name"
-                  />
-                  <button 
-                    @click="removeAssignment(assignment.id)" 
-                    class="clo-btn clo-btn-danger clo-btn-xs"
-                    :disabled="assignments.length === 1"
-                  >
-                    Remove
-                  </button>
-                </div>
-              </th>
-         
-            </tr>
-          </thead>
-          <tbody>
-            <template v-for="(clo, index) in clos" :key="clo.id">
-              <tr
-                class="clo-mapping-row clo-readiness-row"
-                :class="{ 'clo-mapping-row-active': activeCLOIndex === index, 'clo-mapping-row-dim': activeCLOIndex !== index }"
-                @click="activeCLOIndex = index"
+      <div class="clo-mapping-layout-wrapper">
+        <div
+          class="clo-mapping-header"
+          :style="{ '--assignment-count': assignments.length }"
+        >
+          <div class="clo-mapping-header-cell">CLO</div>
+          <div class="clo-mapping-header-cell">Measure</div>
+          <div v-for="assignment in assignments" :key="assignment.id" class="clo-mapping-header-cell">
+            <div class="clo-assignment-header-cell">
+              <input 
+                v-model="assignment.name" 
+                type="text" 
+                class="clo-input clo-input-sm"
+                placeholder="Assignment name"
+              />
+              <button 
+                @click="removeAssignment(assignment.id)" 
+                class="clo-btn clo-btn-danger clo-btn-xs"
+                :disabled="assignments.length === 1"
               >
-                <td rowspan="2" class="clo-td clo-td-bold clo-td-row-header clo-clo-cell">CLO {{ index + 1 }}</td>
-                <td class="clo-td clo-mapping-measure">
-                  <span>Readiness</span>
-                  <small>available to assess</small>
-                </td>
-                <td v-for="(assignment, assignmentIndex) in assignments" :key="assignment.id" class="clo-td clo-readiness-cell">
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <section
+          v-for="(clo, index) in clos"
+          :key="clo.id"
+          class="clo-mapping-group"
+          :style="{ '--assignment-count': assignments.length }"
+          :aria-label="`CLO ${index + 1} mapping`"
+        >
+          <div class="clo-mapping-cell clo-mapping-clo-cell">CLO {{ index + 1 }}</div>
+          <div class="clo-mapping-cell clo-mapping-measure clo-mapping-readiness-measure">
+            <span>Readiness</span>
+            <small>available to assess</small>
+          </div>
+          <div v-for="(assignment, assignmentIndex) in assignments" :key="assignment.id" class="clo-mapping-cell clo-mapping-readiness-cell">
                   <div class="clo-readiness-control">
                     <input
                       type="range"
@@ -243,18 +243,12 @@
                   <small v-else class="clo-readiness-needed">
                     Demand by here: {{ getReadinessTarget(clo.id, assignment.id).toFixed(0) }}%
                   </small>
-                </td>
-              </tr>
-              <tr
-                class="clo-mapping-row clo-demand-row"
-                :class="{ 'clo-mapping-row-active': activeCLOIndex === index, 'clo-mapping-row-dim': activeCLOIndex !== index }"
-                @click="activeCLOIndex = index"
-              >
-              <td class="clo-td clo-mapping-measure">
-                <span>Demand</span>
-                <small>relative assessment share</small>
-              </td>
-              <td v-for="assignment in assignments" :key="assignment.id" class="clo-td">
+          </div>
+          <div class="clo-mapping-cell clo-mapping-measure">
+            <span>Demand</span>
+            <small>relative assessment share</small>
+          </div>
+          <div v-for="assignment in assignments" :key="assignment.id" class="clo-mapping-cell clo-mapping-demand-cell">
                 <input
                   v-if="!visualMode"
                   :value="getRawValue(clo.id, assignment.id)"
@@ -282,11 +276,8 @@
                     class="clo-input clo-input-sm clo-input-numeric clo-slider-number"
                   />
                 </div>
-              </td>
-              </tr>
-            </template>
-          </tbody>
-        </table>
+          </div>
+        </section>
       </div>
     </section>
 
@@ -496,7 +487,6 @@ const visualMode = ref(false)
 const currentTab = ref(0)
 const tabLabels = ['1. CLO Weightings', '2. CLO Mapping', '3. Assignment Weightings', '4. Marking Guide / Rubric Composition']
 const showInstructions = ref([false, false, false, false])
-const activeCLOIndex = ref(0)
 const notes = ref('')
 const hasTrackedCompletion = ref(false)
 
@@ -738,9 +728,6 @@ const removeCLO = (index) => {
       delete readinessValues[key]
     })
     clos.value.splice(index, 1)
-    if (activeCLOIndex.value >= clos.value.length) {
-      activeCLOIndex.value = Math.max(0, clos.value.length - 1)
-    }
   }
 }
 
@@ -859,7 +846,7 @@ const exportCSV = () => {
   --clo-danger: #cb2461;
   
   /* Layout Tokens */
-  --clo-w-max: 1120px;
+  --clo-w-max: 1280px;
   --clo-radius: 10px;
   --clo-radius-sm: 8px;
   --clo-radius-xs: 5px;
@@ -1491,17 +1478,83 @@ const exportCSV = () => {
   flex-shrink: 0;
 }
 
-.clo-mapping-measure {
-  min-width: 135px;
-  background: #fbfaff;
+.clo-mapping-layout-wrapper {
+  overflow-x: auto;
+  margin-top: var(--clo-space-sm);
+  padding-bottom: 2px;
+}
+
+.clo-mapping-header,
+.clo-mapping-group {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  grid-template-columns:
+    minmax(96px, 0.8fr)
+    minmax(140px, 1.2fr)
+    repeat(var(--assignment-count), minmax(100px, 1fr));
+}
+
+.clo-mapping-header {
+  overflow: hidden;
+  border: 1px solid var(--clo-border);
+  border-radius: var(--clo-radius);
+  background: var(--clo-bg-warm);
+}
+
+.clo-mapping-header-cell {
+  min-width: 0;
+  padding: 12px 14px;
+  border-right: 1px solid var(--clo-border);
+  color: var(--clo-ink);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.clo-mapping-header-cell:last-child {
+  border-right: none;
+}
+
+.clo-mapping-group {
+  overflow: hidden;
+  margin-top: 18px;
+  border: 1px solid var(--clo-border);
+  border-radius: var(--clo-radius);
+  background: #fff;
+}
+
+.clo-mapping-cell {
+  min-width: 0;
+  padding: 12px 14px;
+  background: #fff;
+}
+
+.clo-mapping-cell:not(.clo-mapping-clo-cell) {
+  border-left: 1px solid var(--clo-border);
+}
+
+.clo-mapping-clo-cell {
+  grid-row: span 2;
+  display: flex;
+  align-items: center;
+  background: var(--clo-bg-warm);
   color: var(--clo-ink);
   font-weight: 600;
-  vertical-align: middle;
+}
+
+.clo-mapping-measure {
+  color: var(--clo-ink);
+  font-weight: 600;
 }
 
 .clo-mapping-measure span,
 .clo-mapping-measure small {
   display: block;
+}
+
+.clo-mapping-readiness-measure,
+.clo-mapping-readiness-cell {
+  border-bottom: 1px solid var(--clo-border);
 }
 
 .clo-mapping-measure small,
@@ -1514,13 +1567,22 @@ const exportCSV = () => {
   line-height: 1.25;
 }
 
-.clo-clo-cell {
-  vertical-align: middle;
+.clo-mapping-readiness-cell {
+  padding-bottom: 8px;
 }
 
-.clo-readiness-cell {
-  min-width: 180px;
-  padding-bottom: 8px;
+.clo-mapping-demand-cell {
+  display: flex;
+  align-items: center;
+}
+
+.clo-mapping-demand-cell .clo-slider-cell {
+  min-width: 0;
+  gap: 6px;
+}
+
+.clo-mapping-demand-cell .clo-slider-number {
+  width: 52px;
 }
 
 .clo-readiness-control {
@@ -1784,21 +1846,4 @@ select:focus-visible {
   border-top: 1px solid var(--clo-border);
 }
 
-.clo-mapping-row {
-  cursor: pointer;
-  transition: opacity 0.25s ease;
-}
-
-.clo-mapping-row-dim {
-  opacity: 1;
-}
-
-.clo-mapping-row-active .clo-clo-cell {
-  border-left: 3px solid var(--clo-highlight);
-}
-
-.clo-mapping-row-active .clo-readiness-cell,
-.clo-mapping-row-active .clo-mapping-measure {
-  background-color: #fcfbff;
-}
 </style>
