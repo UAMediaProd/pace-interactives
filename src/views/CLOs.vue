@@ -221,7 +221,10 @@
                       step="1"
                       :min="getReadinessMinimum(clo.id, assignmentIndex)"
                       :value="getReadiness(clo.id, assignment.id)"
-                      :style="{ '--readiness': getReadiness(clo.id, assignment.id) + '%' }"
+                      :style="{
+                        '--readiness-start': getReadinessMinimum(clo.id, assignmentIndex) + '%',
+                        '--readiness': getReadiness(clo.id, assignment.id) + '%'
+                      }"
                       :aria-label="`Readiness for CLO ${index + 1} by ${assignment.name || 'assignment ' + (assignmentIndex + 1)}`"
                       class="clo-readiness-slider"
                       @input="setReadiness(clo.id, assignment.id, $event.target.value)"
@@ -1528,6 +1531,7 @@ const exportCSV = () => {
 }
 
 .clo-readiness-slider {
+  --readiness-start: 0%;
   --readiness: 0%;
   width: 100%;
   height: 26px;
@@ -1541,14 +1545,20 @@ const exportCSV = () => {
   height: 20px;
   border: 1px solid #cfc8ee;
   border-radius: 3px;
-  background: linear-gradient(to right, var(--clo-accent-b) 0 var(--readiness), #f5f2ff var(--readiness) 100%);
+  background: linear-gradient(to right,
+    #cfc5f4 0 var(--readiness-start),
+    var(--clo-accent-b) var(--readiness-start) var(--readiness),
+    #f5f2ff var(--readiness) 100%);
 }
 
 .clo-readiness-slider::-moz-range-track {
   height: 20px;
   border: 1px solid #cfc8ee;
   border-radius: 3px;
-  background: linear-gradient(to right, var(--clo-accent-b) 0 var(--readiness), #f5f2ff var(--readiness) 100%);
+  background: linear-gradient(to right,
+    #cfc5f4 0 var(--readiness-start),
+    var(--clo-accent-b) var(--readiness-start) var(--readiness),
+    #f5f2ff var(--readiness) 100%);
 }
 
 .clo-readiness-slider::-webkit-slider-thumb {
@@ -1603,7 +1613,8 @@ const exportCSV = () => {
 }
 
 .clo-readiness-carried {
-  color: var(--clo-accent-b);
+  color: #5b46c7;
+  font-weight: 600;
 }
 
 @media (max-width: 860px) {
