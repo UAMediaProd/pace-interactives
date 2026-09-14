@@ -2,7 +2,7 @@
   <div class="clo-page">
     <div class="clo-hero">
       <div class="clo-hero-brand">
-        <img src="@/assets/catLogo.png" width="80" class="clo-cat-logo" alt="The CAT"/>
+        <img src="@/assets/catLogo.png" width="54" class="clo-cat-logo" alt="The CAT"/>
         <div class="clo-hero-brand-text">
           <span class="clo-hero-brand-name">The CAT</span>
           <span class="clo-hero-brand-tagline">The Constructive Alignment Tool</span>
@@ -13,12 +13,13 @@
 
     <div class="clo-container">
 
-    <div class="clo-tab-bar">
+    <div class="clo-tab-bar" aria-label="Pathway B steps">
       <button
         v-for="(assignment, i) in assignments"
         :key="assignment.id"
         class="clo-tab"
         :class="{ 'clo-tab-active': currentTab === i }"
+        :aria-current="currentTab === i ? 'step' : undefined"
         @click="currentTab = i"
       >{{ assignment.name || `Assignment ${i + 1}` }}</button>
       <button class="clo-tab clo-tab-add" @click="addAssignment">+ Add</button>
@@ -26,18 +27,20 @@
       <button
         class="clo-tab"
         :class="{ 'clo-tab-active': currentTab === assignments.length }"
+        :aria-current="currentTab === assignments.length ? 'step' : undefined"
         @click="currentTab = assignments.length"
       >CLO Weightings and Contributions</button>
     </div>
+    <p class="clo-tab-scroll-cue">Scroll to view steps →</p>
 
     <template v-for="(assignment, assignmentIndex) in assignments" :key="assignment.id">
       <div v-show="currentTab === assignmentIndex">
         <div class="clo-instructions-toggle-bar">
-          <button class="clo-btn-instructions-toggle" @click="showAssignmentInstructions = !showAssignmentInstructions">
+          <button class="clo-btn-instructions-toggle" @click="showAssignmentInstructions = !showAssignmentInstructions" :aria-expanded="showAssignmentInstructions" aria-controls="assignment-instructions">
             {{ showAssignmentInstructions ? 'Hide instructions' : 'Show instructions' }}
           </button>
         </div>
-        <div v-show="showAssignmentInstructions" class="clo-instructions">
+        <div id="assignment-instructions" v-show="showAssignmentInstructions" class="clo-instructions">
           <ol class="ml-4 list-decimal">
             <li>Click <strong>+ Add</strong> to add assignments.</li>
             <li>For each assignment:
@@ -59,8 +62,9 @@
           <div class="clo-assignment-tag">Assignment {{ assignmentIndex + 1 }}</div>
           <div class="clo-assignment-header">
             <div class="clo-field-group">
-              <label class="clo-label">Assignment Name</label>
+              <label class="clo-label" :for="`assignment-name-${assignment.id}`">Assignment Name</label>
               <input
+                :id="`assignment-name-${assignment.id}`"
                 v-model="assignment.name"
                 type="text"
                 class="clo-input"
@@ -68,8 +72,9 @@
               />
             </div>
             <div class="clo-field-group clo-field-narrow">
-              <label class="clo-label">Weighting (%)</label>
+              <label class="clo-label" :for="`assignment-weighting-${assignment.id}`">Weighting (%)</label>
               <input
+                :id="`assignment-weighting-${assignment.id}`"
                 v-model.number="assignment.weighting"
                 type="number"
                 min="0"
@@ -575,36 +580,36 @@ const exportCSV = () => {
 
 <style scoped>
 :global(:root) {
-  /* Purple Brand Colors */
+  /* Shared CAT explainer tokens */
   --clo-ink: #140F50;
-  --clo-ink-light: #3b3768;
-  --clo-ink-muted: #6b6790;
+  --clo-ink-light: #3E3A6B;
+  --clo-ink-muted: #6B6790;
   
-  /* Warm Backgrounds */
-  --clo-bg: #f5f2ec;
-  --clo-bg-warm: #ede9e0;
+  /* Limestone working surfaces */
+  --clo-bg: #F8EFE0;
+  --clo-bg-warm: #EDEAE0;
   --clo-surface: #ffffff;
   
   /* Purple Accents */
   --clo-accent-a: #140F50;
-  --clo-accent-a-soft: rgba(131,107,255,0.14);
-  --clo-accent-b: #836BFF;
-  --clo-accent-b-soft: rgba(131,107,255,0.18);
+  --clo-accent-a-soft: rgba(91,61,245,0.08);
+  --clo-accent-b: #5B3DF5;
+  --clo-accent-b-soft: rgba(131,107,255,0.12);
   
   /* Borders & Focus */
-  --clo-border: #e2def7;
-  --clo-highlight: #836BFF;
+  --clo-border: #E5DFC9;
+  --clo-highlight: #5B3DF5;
   
   /* Status Colors */
-  --clo-success: #1b6b5a;
-  --clo-warning: #d4a853;
+  --clo-success: #087b05;
+  --clo-warning: #b55d00;
   --clo-danger: #cb2461;
   
   /* Layout Tokens */
   --clo-w-max: 1120px;
-  --clo-radius: 10px;
-  --clo-radius-sm: 8px;
-  --clo-radius-xs: 5px;
+  --clo-radius: 8px;
+  --clo-radius-sm: 4px;
+  --clo-radius-xs: 4px;
   
   /* Spacing System */
   --clo-space-xs: 0.5rem;
@@ -614,8 +619,8 @@ const exportCSV = () => {
   --clo-space-xl: 5rem;
   
   /* Typography */
-  --clo-font-display: 'Fraunces', Georgia, serif;
-  --clo-font-body: 'Source Sans 3', 'Segoe UI', sans-serif;
+  --clo-font-display: Georgia, 'Times New Roman', serif;
+  --clo-font-body: 'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .clo-page {
@@ -628,37 +633,25 @@ const exportCSV = () => {
   overflow: hidden;
 }
 
-/* Decorative background circles (Phase 3) */
+/* Keep the working area visually quiet. */
 .clo-page::before {
-  content: '';
-  position: absolute;
-  top: -80px;
-  right: -120px;
-  width: 480px;
-  height: 480px;
-  background: radial-gradient(circle, rgba(131,107,255,0.08) 0%, transparent 70%);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 0;
+  content: none;
 }
 
 .clo-page::after {
-  content: '';
-  position: absolute;
-  bottom: -60px;
-  left: -80px;
-  width: 360px;
-  height: 360px;
-  background: radial-gradient(circle, rgba(20,15,80,0.06) 0%, transparent 70%);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 0;
+  content: none;
 }
 
 /* Hero Section */
 .clo-hero {
-  padding: var(--clo-space-lg) var(--clo-space-md) var(--clo-space-md);
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--clo-space-md);
+  padding: 14px max(24px, calc((100vw - var(--clo-w-max)) / 2 + var(--clo-space-md)));
+  text-align: left;
+  background: rgba(248, 239, 224, 0.9);
+  border-bottom: 1px solid var(--clo-border);
   position: relative;
   z-index: 1;
 }
@@ -680,20 +673,18 @@ const exportCSV = () => {
 .clo-page-title {
   font-family: var(--clo-font-display);
   font-weight: 700;
-  font-size: clamp(2rem, 4.5vw, 2.8rem);
+  font-size: clamp(1.2rem, 2.2vw, 1.55rem);
   line-height: 1.18;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.01em;
   color: var(--clo-ink);
   margin-bottom: var(--clo-space-sm);
-  animation: fadeUp 0.6s ease forwards 0.1s;
-  animation-fill-mode: both;
 }
 
 .clo-hero-brand {
   display: inline-flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: var(--clo-space-sm);
+  gap: 0.65rem;
+  margin-bottom: 0;
 }
 
 .clo-cat-logo {
@@ -708,16 +699,16 @@ const exportCSV = () => {
 
 .clo-hero-brand-name {
   font-family: var(--clo-font-display);
-  font-size: 1.6rem;
-  font-weight: 700;
+  font-size: 1.25rem;
+  font-weight: 400;
   color: var(--clo-ink);
   line-height: 1.15;
 }
 
 .clo-hero-brand-tagline {
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.09em;
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--clo-accent-b);
 }
@@ -756,10 +747,11 @@ const exportCSV = () => {
 .clo-section {
   background: var(--clo-surface);
   border: 1px solid var(--clo-border);
-  border-top: 3px solid var(--clo-accent-b);
+  border-top: 2px solid var(--clo-accent-b);
   border-radius: var(--clo-radius);
   padding: var(--clo-space-md);
   margin-bottom: var(--clo-space-md);
+  box-shadow: 0 1px 2px rgba(8, 6, 32, 0.05);
 }
 
 .clo-section-header {
@@ -804,11 +796,11 @@ const exportCSV = () => {
   font-family: var(--clo-font-body);
   font-size: 1rem;
   font-weight: 600;
-  padding: 12px 24px;
-  border-radius: var(--clo-radius-sm);
+  padding: 9px 18px;
+  border-radius: 999px;
   border: none;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -832,21 +824,18 @@ const exportCSV = () => {
 
 .clo-btn-primary:hover:not(:disabled) {
   background: #0C0930;
-  box-shadow: 0 6px 24px rgba(20,15,80,0.25);
-  transform: translateY(-1px);
 }
 
 .clo-btn-secondary {
   background: transparent;
   color: var(--clo-accent-a);
-  border: 2px solid var(--clo-accent-a);
-  padding: 10px 22px;
+  border: 1px solid var(--clo-accent-a);
+  padding: 8px 17px;
 }
 
 .clo-btn-secondary:hover:not(:disabled) {
   background: var(--clo-accent-a);
   color: #fff;
-  transform: translateY(-1px);
 }
 
 .clo-btn-danger {
@@ -856,34 +845,30 @@ const exportCSV = () => {
 
 .clo-btn-danger:hover:not(:disabled) {
   background: #a01d4e;
-  box-shadow: 0 6px 24px rgba(203,36,97,0.25);
-  transform: translateY(-1px);
 }
 
 .clo-btn-sm {
   font-size: 0.88rem;
-  padding: 8px 16px;
+  padding: 6px 13px;
 }
 
 .clo-btn-add-clo {
   font-size: 0.82rem;
-  padding: 6px 12px;
+  padding: 5px 11px;
   background: var(--clo-accent-b);
   color: #fff;
 }
 
 .clo-btn-add-clo:hover:not(:disabled) {
   background: #6b54e6;
-  box-shadow: 0 4px 16px rgba(131,107,255,0.3);
-  transform: translateY(-1px);
 }
 
 .clo-btn-remove {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   font-size: 1.2rem;
   line-height: 1;
@@ -988,7 +973,7 @@ const exportCSV = () => {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.clo-input:focus {
+.clo-input:focus-visible {
   outline: none;
   border-color: var(--clo-highlight);
   box-shadow: 0 0 0 3px rgba(131,107,255,0.1);
@@ -1198,14 +1183,15 @@ const exportCSV = () => {
 }
 
 .clo-callout {
-  background: linear-gradient(135deg, var(--clo-accent-b-soft), var(--clo-bg-warm));
+  border-left: 3px solid var(--clo-accent-b);
+  background: var(--clo-accent-b-soft);
   border-radius: var(--clo-radius);
   padding: var(--clo-space-md);
   margin-top: var(--clo-space-md);
 }
 
 .clo-callout-highlight {
-  background: linear-gradient(135deg, var(--clo-accent-a-soft), var(--clo-bg-warm));
+  background: var(--clo-accent-a-soft);
   border-left-color: var(--clo-accent-a);
 }
 
@@ -1263,11 +1249,11 @@ const exportCSV = () => {
 
 @media (max-width: 860px) {
   .clo-hero {
-    padding: var(--clo-space-md);
+    padding: 12px var(--clo-space-sm);
   }
   
   .clo-page-title {
-    font-size: 2rem;
+    font-size: 1.25rem;
   }
   
   .clo-container {
@@ -1302,6 +1288,12 @@ const exportCSV = () => {
 }
 
 @media (max-width: 540px) {
+  .clo-hero {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
   .clo-page::before,
   .clo-page::after {
     display: none;
@@ -1391,7 +1383,7 @@ select:focus-visible {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.clo-notes-textarea:focus {
+.clo-notes-textarea:focus-visible {
   outline: none;
   border-color: var(--clo-highlight);
   box-shadow: 0 0 0 3px rgba(131,107,255,0.1);
@@ -1404,11 +1396,25 @@ select:focus-visible {
   border-bottom: 2px solid var(--clo-border);
   margin-bottom: var(--clo-space-md);
   overflow-x: auto;
-  scrollbar-width: none;
+  scrollbar-width: thin;
 }
 
 .clo-tab-bar::-webkit-scrollbar {
+  height: 5px;
+}
+
+.clo-tab-bar::-webkit-scrollbar-thumb { background: #cfc8ee; border-radius: 999px; }
+
+.clo-tab-scroll-cue {
   display: none;
+  margin: -0.55rem 0 var(--clo-space-md);
+  color: var(--clo-ink-muted);
+  font-size: 0.8rem;
+  text-align: right;
+}
+
+@media (max-width: 540px) {
+  .clo-tab-scroll-cue { display: block; }
 }
 
 .clo-tab {
