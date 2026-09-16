@@ -155,7 +155,6 @@
           <h2 class="clo-section-heading">2. Teaching readiness</h2>
           <div class="clo-section-divider"></div>
         </div>
-        <button v-if="readinessTemplateEnabled" @click="addTeachingWeek" class="clo-btn clo-btn-primary">Add week</button>
       </div>
       <p class="clo-section-description">
         Map what students have been taught, week by week. This is the preferred source for the readiness bars in CLO Mapping; CLO Mapping remains available as a lighter manual fallback.
@@ -164,14 +163,14 @@
       <div v-if="!readinessTemplateEnabled" class="clo-readiness-opt-in">
         <div>
           <h3>Use the teaching readiness template?</h3>
-          <p>It links teaching, assessment timing and CLO readiness. You can skip it and set the readiness bars directly in CLO Mapping.</p>
+          <p>Teaching readiness is a mapping exercise that links topics, relevant CLOs and assignment timing across the teaching weeks. It indicates how much of each CLO will be taught by the end of the week it is mapped to. Completing the teaching readiness template will auto populate the readiness indicators in the CLO mapping table and also generate a useful planning document that can guide the design and the decisions made in how resources might be allocated towards teaching and learning activities and the structure of the pages in the LMS. If you choose to skip this step, please go to the CLO mapping table (Tab 4), where you will be required to manually populate the readiness levels.</p>
         </div>
         <button @click="enableReadinessTemplate" class="clo-btn clo-btn-primary">Set up teaching readiness</button>
       </div>
 
       <div v-else>
         <div class="clo-readiness-template-note">
-          Readiness shows what has been taught by each assessment point.
+          Teaching readiness is a mapping exercise that links topics, relevant CLOs and assignment timing across the teaching weeks. It indicates how much of each CLO will be taught by the end of the week it is mapped to. Completing the teaching readiness template below will auto populate the readiness indicators in the CLO mapping table and also generate a useful planning document that can guide the design and the decisions made in how resources might be allocated towards teaching and learning activities and the structure of the pages in the LMS.
         </div>
 
         <article v-for="(week, weekIndex) in teachingWeeks" :key="week.id" class="clo-teaching-week">
@@ -181,7 +180,6 @@
               <label class="clo-compact-field clo-week-topic-field"><span>Topic</span><input v-model="week.topic" class="clo-input clo-week-topic" type="text" :placeholder="`Topic or teaching focus for Week ${weekIndex + 1}`" /></label>
             </div>
             <div class="clo-teaching-week-actions">
-              <button @click="addAssignment(weekIndex + 1)" class="clo-inline-add">+ Assessment</button>
               <button @click="removeTeachingWeek(weekIndex)" class="clo-inline-danger" :disabled="teachingWeeks.length === 1">Remove week</button>
             </div>
           </header>
@@ -190,29 +188,32 @@
             <label class="clo-compact-field"><span>CLO</span><select v-model.number="outcome.cloId" class="clo-input clo-teaching-clo-select" aria-label="CLO taught this week">
               <option v-for="(clo, cloIndex) in clos" :key="clo.id" :value="clo.id">CLO {{ cloIndex + 1 }} — {{ clo.name }}</option>
             </select></label>
-            <div class="clo-readiness-level-control"><span>Teaching level</span><div class="clo-readiness-levels">
+            <div class="clo-readiness-level-control"><span>Readiness level</span><div class="clo-readiness-levels">
               <button type="button" :class="[readinessPillClass(33), { 'clo-readiness-level-active': outcome.readiness === 33 }]" :aria-pressed="outcome.readiness === 33" @click="setTeachingReadiness(outcome, 33)"><ReadinessIcon :value="33" />Foundational</button>
               <button type="button" :class="[readinessPillClass(66), { 'clo-readiness-level-active': outcome.readiness >= 34 && outcome.readiness < 100 }]" :aria-pressed="outcome.readiness >= 34 && outcome.readiness < 100" @click="setTeachingReadiness(outcome, 66)"><ReadinessIcon :value="66" />Developing</button>
               <button type="button" :class="[readinessPillClass(100), { 'clo-readiness-level-active': outcome.readiness === 100 }]" :aria-pressed="outcome.readiness === 100" @click="setTeachingReadiness(outcome, 100)"><ReadinessIcon :value="100" />Complete</button>
             </div></div>
             <button @click="removeTeachingOutcome(week, outcomeIndex)" class="clo-icon-btn" :aria-label="`Remove CLO from Week ${weekIndex + 1}`">×</button>
           </div>
-          <button @click="addTeachingOutcome(week)" class="clo-inline-add">+ CLO</button>
+          <div class="clo-week-add-controls">
+            <button @click="addTeachingOutcome(week)" class="clo-inline-add">+ CLO</button>
+            <button @click="addAssignment(weekIndex + 1)" class="clo-inline-add">+ assignment</button>
+          </div>
           <section v-if="assignmentsForWeek(weekIndex + 1).length" class="clo-week-assessments">
             <header class="clo-week-assessments-header">
-              <h3>Assessments</h3>
+              <h3>Assignments</h3>
             </header>
             <article v-for="assignment in assignmentsForWeek(weekIndex + 1)" :key="assignment.id" class="clo-assessment-readiness-card">
               <div class="clo-assessment-info">
-                <label class="clo-compact-field"><span>Assessment</span><input v-model="assignment.name" class="clo-input clo-assessment-name" type="text" :placeholder="`Assessment ${assignment.id} name`" /></label>
+                <label class="clo-compact-field"><span>Assignment</span><input v-model="assignment.name" class="clo-input clo-assessment-name" type="text" :placeholder="`Assignment ${assignment.id} name`" /></label>
                 <label class="clo-assessment-week-field">Week
-                  <select :value="assignment.week" @change="setAssignmentWeek(assignment, $event.target.value)" class="clo-input" :aria-label="`Move ${assignment.name || 'assessment'} to week`">
+                  <select :value="assignment.week" @change="setAssignmentWeek(assignment, $event.target.value)" class="clo-input" :aria-label="`Move ${assignment.name || 'assignment'} to week`">
                     <option v-for="(_, destinationWeekIndex) in teachingWeeks" :key="destinationWeekIndex" :value="destinationWeekIndex + 1">Week {{ destinationWeekIndex + 1 }}</option>
                   </select>
                 </label>
               </div>
               <div class="clo-assessment-clo-list">
-                <p v-if="validCLOsForAssignment(assignment).length === 0" class="clo-validation-message clo-validation-warning">No CLO has been taught by this point. Add teaching readiness before mapping assessment CLOs.</p>
+                <p v-if="validCLOsForAssignment(assignment).length === 0" class="clo-validation-message clo-validation-warning">No CLO has been taught by this point. Add teaching readiness before mapping assignment CLOs.</p>
                 <div v-for="mapping in assessmentMappingsFor(assignment.id)" :key="mapping.id" class="clo-assessment-mapping">
                   <div class="clo-assessment-clo-details">
                     <label class="clo-compact-field"><span>CLO</span><select :value="mapping.cloId" @change="setAssessmentCLO(mapping, $event.target.value)" class="clo-input" aria-label="CLO assessed">
@@ -233,20 +234,68 @@
               </div>
               <div class="clo-assessment-controls">
                 <button v-if="validCLOsForAssignment(assignment).length" @click="addAssessmentMapping(assignment)" class="clo-inline-add">+ CLO</button>
-                <button @click="removeAssignment(assignment.id)" class="clo-inline-danger" :aria-label="`Remove ${assignment.name || 'assessment'}`">Remove</button>
+                <button @click="removeAssignment(assignment.id)" class="clo-inline-danger" :aria-label="`Remove ${assignment.name || 'assignment'}`">Remove</button>
               </div>
             </article>
           </section>
         </article>
+        <div class="clo-add-week-footer">
+          <button @click="addTeachingWeek" class="clo-btn clo-btn-primary">+ week</button>
+        </div>
       </div>
     </section>
 
-    <!-- Tab 2: CLO Mapping -->
-    <div v-show="currentTab === 2">
+    <!-- Tab 3: Readiness Summary -->
+    <section class="clo-section" v-show="currentTab === 2">
+      <div class="clo-section-header">
+        <div>
+          <h2 class="clo-section-heading">3. Readiness Summary</h2>
+          <div class="clo-section-divider"></div>
+        </div>
+      </div>
+      <p class="clo-section-description">
+        This is a course level view of the readiness of each CLO at each assessment point.
+      </p>
+      <div v-if="!readinessTemplateEnabled" class="clo-readiness-opt-in clo-summary-fallback">
+        <div>
+          <h3>Using manual readiness</h3>
+          <p>These values come from CLO Mapping because the teaching sequence has not been completed.</p>
+        </div>
+        <button @click="currentTab = 1" class="clo-btn clo-btn-secondary">Set up teaching readiness</button>
+      </div>
+      <div class="clo-table-wrapper">
+        <table class="clo-table clo-results-table">
+          <thead>
+            <tr>
+              <th class="clo-th clo-th-left">CLO</th>
+              <th v-for="assignment in assignments" :key="assignment.id" class="clo-th clo-th-center">
+                {{ assignment.name || `Assignment ${assignment.id}` }}<br><small>after Week {{ assignment.week }}</small>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(clo, cloIndex) in clos" :key="clo.id">
+              <td class="clo-td clo-td-bold clo-td-row-header">CLO {{ cloIndex + 1 }}</td>
+              <td v-for="assignment in assignments" :key="assignment.id" class="clo-td clo-summary-readiness-cell" :style="getReadinessSummaryStyle(getReadiness(clo.id, assignment.id))">
+                <strong>{{ getReadiness(clo.id, assignment.id) }}%</strong>
+                <small class="clo-summary-readiness-category" :class="readinessPillClass(getReadiness(clo.id, assignment.id))"><ReadinessIcon :value="getReadiness(clo.id, assignment.id)" />{{ readinessCategory(getReadiness(clo.id, assignment.id)) }}</small>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div v-if="assessmentIssues.length" class="clo-summary-issues">
+        <h3>Assessment checks to resolve</h3>
+        <p v-for="issue in assessmentIssues" :key="issue.id" class="clo-validation-message">{{ issue.message }}</p>
+      </div>
+    </section>
+
+    <!-- Tab 4: CLO Mapping -->
+    <div v-show="currentTab === 3">
     <section class="clo-section">
       <div class="clo-section-header">
         <div>
-          <h2 class="clo-section-heading">3. CLO Mapping</h2>
+          <h2 class="clo-section-heading">4. CLO Mapping</h2>
           <div class="clo-section-divider"></div>
         </div>
         <button @click="addAssignment" class="clo-btn clo-btn-primary">
@@ -254,18 +303,20 @@
         </button>
       </div>
       <div class="clo-instructions-toggle-bar">
-        <button class="clo-btn-instructions-toggle" @click="showInstructions[2] = !showInstructions[2]" :aria-expanded="showInstructions[2]" aria-controls="clo-mapping-instructions">
-          {{ showInstructions[2] ? 'Hide instructions' : 'Show instructions' }}
+        <button class="clo-btn-instructions-toggle" @click="showInstructions[3] = !showInstructions[3]" :aria-expanded="showInstructions[3]" aria-controls="clo-mapping-instructions">
+          {{ showInstructions[3] ? 'Hide instructions' : 'Show instructions' }}
         </button>
       </div>
-      <div id="clo-mapping-instructions" v-show="showInstructions[2]" class="clo-instructions">
+      <div id="clo-mapping-instructions" v-show="showInstructions[3]" class="clo-instructions">
         <ol class="list-decimal ml-4">
-          <li>Click <strong>Add Assignment</strong> to add each summative assignment in your course. If your course groups assignments (e.g., Assignments 1 and 2 share a combined weighting of 30%), add each assignment individually and map them as normal. When reading the CLO Mapping outputs, check that the grouped assignments' totals combined match your intended group weighting.</li>
-          <li>Select your <strong>input mode</strong> using the toggle (top right). Visual mode adds sliders so you can drag to show whether one assignment is more, less, or equally important for a CLO. <strong>Numbers mode</strong> lets you type specific values, which is useful when you want to express a progression (e.g., 30% of the CLO is assessable in Assignment 1, 60% by Assignment 2, 100% by Assignment 3).</li>
-          <li>Use the <strong>Demand</strong> row to distribute each CLO's weighting budget across assignments. You can enter it <strong>directly</strong> as percentages: a CLO worth 30% could be entered as 5 / 10 / 15. Or enter values <strong>proportionally</strong>: 1 / 1 / 2 distributes that same 30% as 7.5% / 7.5% / 15%. If a CLO is not assessed in an assignment, enter <strong>0</strong>.</li>
-          <li>Readiness shows how much of the CLO has been taught by the assessment point. If you have completed Teaching readiness, it is calculated from that sequence. Otherwise you can set it here and it carries forward.</li>
-          <li>The marker on each readiness bar shows the proportion of the CLO's assessment demand that has accumulated by that point. It is calculated from the cumulative demand divided by the CLO's course-weighting budget.</li>
-          <li>You can use different modes for different CLOs. Use sliders for demand where relative importance is intuitive, then switch to Numbers for a CLO that follows a progression. The values carry over when you switch.</li>
+          <li>Click <strong>Add Assignment</strong> to add each summative assignment in your course. If your course groups assignments (e.g., Assignments 1 and 2 share a combined weighting of 30%), add each assignment individually and map them as normal. When reading the CLO mapping table outputs, check that the grouped assignments' totals combined match your intended group weighting.</li>
+          <li>Select your <strong>input mode</strong> using the toggle (top right). Visual mode adds sliders so you can drag to show whether one assignment is more, less, or equally important for a CLO. Numbers mode lets you type specific values, which is useful when you want to express a progression (e.g., 30% of the CLO is assessable in Assignment 1, 60% by Assignment 2, 100% by Assignment 3).</li>
+          <li>If you have completed the teaching readiness template, the readiness levels will have been automatically populated in the table below.</li>
+          <li>If you haven’t completed the teaching readiness template, you will have to manually adjust the readiness levels now following Step 4.</li>
+          <li>Work one CLO at a time. Use the Readiness slider to show how much of the CLO has been taught and is available to assess by each assignment. Readiness carries forward: later assignments cannot be set lower than an earlier one.</li>
+          <li>Use the <strong>Demand</strong> row to indicate how each CLO's assessment weight is distributed across assignments. There are two approaches. You can enter values proportionally: 1 / 1 / 2 means Assignment 3 carries twice the demand of the other two, and the tool calculates the percentages for you. Or you can enter the percentages directly: a CLO worth 30% could be entered as 5 / 10 / 15. If a CLO is not assessed in an assignment, enter 0. The demand availability is visible next to the CLO itself.</li>
+          <li>The marker on each readiness bar shows the minimum readiness level required to satisfy the demand at that point. If your readiness slider is below this marker, you are assessing more than has been taught. Adjust the readiness slider or redistribute the demand.</li>
+          <li>Download your final decisions and save the document, as these values can be used to design the course, including the learning sequence, the tutorials, and the LMS resources.</li>
         </ol>
         <p class="clo-instructions-links">
           <a href="https://paulgmoss.github.io/The-CAT/stream-a-guide.html#clo-mapping" target="_blank" class="clo-placeholder-link">Detailed guidance: CLO mapping →</a>
@@ -448,20 +499,20 @@
       </transition>
     </section>
     </div>
-    <!-- Tab 3: Assignment Weightings -->
-    <section class="clo-section" v-show="currentTab === 3">
+    <!-- Tab 5: Assignment Weightings -->
+    <section class="clo-section" v-show="currentTab === 4">
       <div class="clo-section-header">
         <div>
-          <h2 class="clo-section-heading">4. Assignment Weightings</h2>
+          <h2 class="clo-section-heading">5. Assignment Weightings</h2>
           <div class="clo-section-divider"></div>
         </div>
       </div>
       <div class="clo-instructions-toggle-bar">
-        <button class="clo-btn-instructions-toggle" @click="showInstructions[3] = !showInstructions[3]" :aria-expanded="showInstructions[3]" aria-controls="assignment-weightings-instructions">
-          {{ showInstructions[3] ? 'Hide instructions' : 'Show instructions' }}
+        <button class="clo-btn-instructions-toggle" @click="showInstructions[4] = !showInstructions[4]" :aria-expanded="showInstructions[4]" aria-controls="assignment-weightings-instructions">
+          {{ showInstructions[4] ? 'Hide instructions' : 'Show instructions' }}
         </button>
       </div>
-      <div id="assignment-weightings-instructions" v-show="showInstructions[3]" class="clo-instructions">
+      <div id="assignment-weightings-instructions" v-show="showInstructions[4]" class="clo-instructions">
         <ol class="list-decimal ml-4">
           <li>Review the estimated weightings for each assignment, shown as a percentage of the overall course grade. Round to the nearest 5% when reading the totals.</li>
           <li>Ask yourself: does this distribution match what you intended? You can use this to either inform the assignment weightings of a course you are designing, or to verify whether the weightings of an existing course align with your CLO distribution.</li>
@@ -512,20 +563,20 @@
       </div>
     </section>
 
-    <!-- Tab 4: Marking Guide / Rubric Composition -->
-    <section class="clo-section" v-show="currentTab === 4">
+    <!-- Tab 6: Marking Guide / Rubric Composition -->
+    <section class="clo-section" v-show="currentTab === 5">
       <div class="clo-section-header">
         <div>
-          <h2 class="clo-section-heading">5. Marking Guide / Rubric Composition</h2>
+          <h2 class="clo-section-heading">6. Marking Guide / Rubric Composition</h2>
           <div class="clo-section-divider"></div>
         </div>
       </div>
       <div class="clo-instructions-toggle-bar">
-        <button class="clo-btn-instructions-toggle" @click="showInstructions[4] = !showInstructions[4]" :aria-expanded="showInstructions[4]" aria-controls="rubric-composition-instructions">
-          {{ showInstructions[4] ? 'Hide instructions' : 'Show instructions' }}
+        <button class="clo-btn-instructions-toggle" @click="showInstructions[5] = !showInstructions[5]" :aria-expanded="showInstructions[5]" aria-controls="rubric-composition-instructions">
+          {{ showInstructions[5] ? 'Hide instructions' : 'Show instructions' }}
         </button>
       </div>
-      <div id="rubric-composition-instructions" v-show="showInstructions[4]" class="clo-instructions">
+      <div id="rubric-composition-instructions" v-show="showInstructions[5]" class="clo-instructions">
         <ol class="list-decimal ml-4">
           <li>Read each column as one assignment's breakdown. For example, if CLO 1 shows 40% in Assignment 1, it means the criteria mapped to CLO 1 should account for approximately 40% of that assignment's marks (whether that is one criterion or several).</li>
           <li>The highlighted cells show where each CLO has its strongest influence. Ask yourself: does this composition make sense for how you would design the marking criteria?</li>
@@ -564,54 +615,6 @@
             </tr>
           </tbody>
         </table>
-      </div>
-    </section>
-
-    <!-- Tab 5: Readiness summary -->
-    <section class="clo-section" v-show="currentTab === 5">
-      <div class="clo-section-header">
-        <div>
-          <h2 class="clo-section-heading">6. Readiness summary</h2>
-          <div class="clo-section-divider"></div>
-        </div>
-      </div>
-      <p class="clo-section-description">
-        A course-level view of the learning taught by each assessment point. Demand of zero does not reset readiness: the learning remains available later in the course.
-      </p>
-      <div v-if="!readinessTemplateEnabled" class="clo-readiness-opt-in clo-summary-fallback">
-        <div>
-          <h3>Using manual readiness</h3>
-          <p>These values come from CLO Mapping because the teaching sequence has not been completed.</p>
-        </div>
-        <button @click="currentTab = 1" class="clo-btn clo-btn-secondary">Set up teaching readiness</button>
-      </div>
-      <div class="clo-table-wrapper">
-        <table class="clo-table clo-results-table">
-          <thead>
-            <tr>
-              <th class="clo-th clo-th-left">CLO</th>
-              <th v-for="assignment in assignments" :key="assignment.id" class="clo-th clo-th-center">
-                {{ assignment.name || `Assignment ${assignment.id}` }}<br><small>after Week {{ assignment.week }}</small>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(clo, cloIndex) in clos" :key="clo.id">
-              <td class="clo-td clo-td-bold clo-td-row-header">CLO {{ cloIndex + 1 }}</td>
-              <td v-for="assignment in assignments" :key="assignment.id" class="clo-td clo-summary-readiness-cell" :style="getReadinessSummaryStyle(getReadiness(clo.id, assignment.id))">
-                <strong>{{ getReadiness(clo.id, assignment.id) }}%</strong>
-                <small class="clo-summary-readiness-category" :class="readinessPillClass(getReadiness(clo.id, assignment.id))"><ReadinessIcon :value="getReadiness(clo.id, assignment.id)" />{{ readinessCategory(getReadiness(clo.id, assignment.id)) }}</small>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div v-if="assessmentIssues.length" class="clo-summary-issues">
-        <h3>Assessment checks to resolve</h3>
-        <p v-for="issue in assessmentIssues" :key="issue.id" class="clo-validation-message">{{ issue.message }}</p>
-      </div>
-      <div v-else-if="readinessTemplateEnabled" class="clo-summary-clear">
-        All mapped assessment levels are supported by the learning taught before their due weeks.
       </div>
     </section>
 
@@ -654,8 +657,8 @@ onMounted(() => {
 const showSection2A = ref(false)
 const visualMode = ref(false)
 const currentTab = ref(0)
-const tabLabels = ['1. CLO Weightings', '2. Teaching Readiness', '3. CLO Mapping', '4. Assignment Weightings', '5. Marking Guide / Rubric Composition', '6. Readiness Summary']
-const showInstructions = ref([false, false, false, false, false])
+const tabLabels = ['1. CLO Weightings', '2. Teaching Readiness', '3. Readiness Summary', '4. CLO Mapping', '5. Assignment Weightings', '6. Marking Guide / Rubric Composition']
+const showInstructions = ref([false, false, false, false, false, false])
 const notes = ref('')
 const hasTrackedCompletion = ref(false)
 
@@ -813,6 +816,7 @@ const setTeachingReadiness = (outcome, value) => {
 const setAssignmentWeek = (assignment, value) => {
   const max = readinessTemplateEnabled.value ? Math.max(1, teachingWeeks.value.length) : 52
   assignment.week = Math.min(max, Math.max(1, Math.round(parseFloat(value) || 1)))
+  sortAssignments()
   // A preview is tied to an assessment point; moving the assessment changes that point.
   clos.value.forEach(clo => {
     const key = proposalKey(clo.id, assignment.id)
@@ -909,6 +913,10 @@ const applyReadinessProposal = (proposal) => {
   delete readinessPreviews[proposalKey(proposal.cloId, proposal.assignmentId)]
   delete readinessProposals[proposalKey(proposal.cloId, proposal.assignmentId)]
 }
+
+// TODO(team): confirm whether applying a lower assessment category should also
+// persist the lower mapping-bar value, or whether the bar must continue to
+// represent taught readiness from the teaching sequence.
 
 const discardReadinessProposal = (proposal) => {
   delete readinessPreviews[proposalKey(proposal.cloId, proposal.assignmentId)]
@@ -1072,7 +1080,7 @@ const addAssignment = (weekNumber) => {
   const id = nextAssignmentId++
   assignments.value.push({
     id,
-    name: `Assignment ${assignments.value.length + 1}`,
+    name: `Assignment ${id}`,
     week: readinessTemplateEnabled.value
       ? Math.min(Math.max(1, Math.round(weekNumber || teachingWeeks.value.length)), Math.max(1, teachingWeeks.value.length))
       : assignments.value.length + 1
@@ -1083,6 +1091,11 @@ const addAssignment = (weekNumber) => {
       ? getReadiness(clo.id, precedingAssignment.id)
       : 0
   })
+  sortAssignments()
+}
+
+const sortAssignments = () => {
+  assignments.value.sort((a, b) => getWeekNumber(a) - getWeekNumber(b) || a.id - b.id)
 }
 
 const removeAssignment = (assignmentId) => {
@@ -1094,6 +1107,7 @@ const removeAssignment = (assignmentId) => {
   })
   assessmentMappings.value = assessmentMappings.value.filter(mapping => mapping.assignmentId !== assignmentId)
   assignments.value = assignments.value.filter(a => a.id !== assignmentId)
+  sortAssignments()
 }
 
 const exportCSV = () => {
@@ -1129,7 +1143,14 @@ const exportCSV = () => {
     lines.push('')
   }
 
-  lines.push(row(['Section 3: CLO Mapping (Readiness and Demand)']))
+  lines.push(row(['Section 3: Readiness Summary']))
+  lines.push(row(['CLO', ...aNames]))
+  clos.value.forEach((clo, i) => {
+    lines.push(row([`CLO ${i + 1}`, ...assignments.value.map(a => `${getReadiness(clo.id, a.id)}% — ${readinessCategory(getReadiness(clo.id, a.id))}`)]))
+  })
+  lines.push('')
+
+  lines.push(row(['Section 4: CLO Mapping (Readiness and Demand)']))
   lines.push(row(['CLO', 'Measure', ...aNames, 'Total']))
   clos.value.forEach((clo, i) => {
     lines.push(row([`CLO ${i + 1}`, 'Readiness (%)', ...assignments.value.map(a => getReadiness(clo.id, a.id) + '%'), '']))
@@ -1137,7 +1158,7 @@ const exportCSV = () => {
   })
   lines.push('')
 
-  lines.push(row(['Section 4: Assignment Weightings']))
+  lines.push(row(['Section 5: Assignment Weightings']))
   lines.push(row(['CLO', ...aNames]))
   clos.value.forEach((clo, i) => {
     lines.push(row([`CLO ${i + 1}`, ...assignments.value.map(a => getCourseContribution(clo.id, a.id).toFixed(2) + '%')]))
@@ -1146,7 +1167,7 @@ const exportCSV = () => {
   lines.push(row(['Grand Total', grandTotal.value.toFixed(2) + '%']))
   lines.push('')
 
-  lines.push(row(['Section 5: Marking Guide / Rubric Composition']))
+  lines.push(row(['Section 6: Marking Guide / Rubric Composition']))
   lines.push(row(['CLO', ...aNames]))
   clos.value.forEach((clo, i) => {
     lines.push(row([`CLO ${i + 1}`, ...assignments.value.map(a => getCLOEmphasis(clo.id, a.id).toFixed(1) + '%')]))
@@ -2196,6 +2217,19 @@ const exportCSV = () => {
   justify-content: flex-end;
 }
 
+.clo-week-add-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+
+.clo-add-week-footer {
+  display: flex;
+  justify-content: center;
+  padding-top: var(--clo-space-md);
+}
+
 .clo-teaching-week-topline > strong { flex: 0 0 auto; }
 .clo-week-topic-field { flex: 1 1 auto; }
 
@@ -2276,8 +2310,10 @@ const exportCSV = () => {
 .clo-readiness-levels button:last-child { border-right: 0; }
 .clo-readiness-levels button:hover { filter: brightness(0.97); }
 .clo-readiness-levels .clo-readiness-level-active {
-  box-shadow: inset 0 -2px currentColor;
+  box-shadow: inset 0 0 0 2px currentColor;
   font-weight: 700;
+  position: relative;
+  z-index: 1;
 }
 
 .clo-readiness-levels :deep(.readiness-icon) {
@@ -2490,7 +2526,11 @@ const exportCSV = () => {
 
 .clo-validation-warning { border-left-color: var(--clo-warning); background: #fffaf0; color: #735410; }
 .clo-summary-fallback { margin-bottom: var(--clo-space-md); }
-.clo-summary-readiness-cell { text-align: center; background: #faf9ff; }
+.clo-summary-readiness-cell {
+  border: 1px solid var(--clo-border);
+  text-align: center;
+  background: #faf9ff;
+}
 .clo-summary-readiness-cell strong,
 .clo-summary-readiness-cell small { display: block; }
 .clo-summary-readiness-cell small { margin-top: 3px; font-size: 0.72rem; }
