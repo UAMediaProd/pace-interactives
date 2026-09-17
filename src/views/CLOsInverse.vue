@@ -331,18 +331,18 @@ watch(currentTab, (tab) => {
 })
 
 const assignments = ref([
-  { 
-    id: 1, 
-    name: 'Assignment 1', 
-    weighting: 15 
+  {
+    id: 1,
+    name: 'Assignment 1',
+    weighting: 15
   }
 ])
 
 const criteria = ref({
   '1': [
-    { 
-      id: 1, 
-      name: 'Criteria 1', 
+    {
+      id: 1,
+      name: 'Criteria 1',
       totalMarks: 20,
       cloAllocations: [
         { cloNumber: 1, percentage: 100 }
@@ -388,12 +388,12 @@ const discoveredCLOs = computed(() => {
 const getCLOContribution = (cloNumber, assignmentId) => {
   const assignment = assignments.value.find(a => a.id === assignmentId)
   if (!assignment) return 0
-  
+
   const assignmentCriteria = getCriteria(assignmentId)
   const totalMarks = getAssignmentTotalMarks(assignmentId)
-  
+
   if (totalMarks === 0) return 0
-  
+
   // Sum marks for this CLO across all criteria
   let cloMarks = 0
   assignmentCriteria.forEach(c => {
@@ -404,7 +404,7 @@ const getCLOContribution = (cloNumber, assignmentId) => {
       }
     })
   })
-  
+
   return (cloMarks / totalMarks) * (assignment.weighting || 0)
 }
 
@@ -430,7 +430,7 @@ const getHeatmapStyle = (value) => {
   if (value === 0) {
     return { backgroundColor: '#faf9ff' }
   }
-  
+
   // Fixed breakpoints: 20%, 40%, 60%, 80%, 100%
   // Color palette (purple gradient)
   const breakpoints = [
@@ -441,7 +441,7 @@ const getHeatmapStyle = (value) => {
     { threshold: 80,  bg: '#7c3aed', text: '#ffffff' },  // 80%: Dark purple
     { threshold: 100, bg: '#140F50', text: '#ffffff' }   // 100%: Deep purple
   ]
-  
+
   // Find the appropriate color based on value
   let style = breakpoints[0]
   for (let i = 0; i < breakpoints.length; i++) {
@@ -451,7 +451,7 @@ const getHeatmapStyle = (value) => {
       break
     }
   }
-  
+
   return {
     backgroundColor: style.bg,
     color: style.text
@@ -584,40 +584,40 @@ const exportCSV = () => {
   --clo-ink: #140F50;
   --clo-ink-light: #3E3A6B;
   --clo-ink-muted: #6B6790;
-  
+
   /* Limestone working surfaces */
   --clo-bg: #F8EFE0;
   --clo-bg-warm: #EDEAE0;
   --clo-surface: #ffffff;
-  
+
   /* Purple Accents */
   --clo-accent-a: #140F50;
   --clo-accent-a-soft: rgba(91,61,245,0.08);
   --clo-accent-b: #5B3DF5;
   --clo-accent-b-soft: rgba(131,107,255,0.12);
-  
+
   /* Borders & Focus */
   --clo-border: #E5DFC9;
   --clo-highlight: #5B3DF5;
-  
+
   /* Status Colors */
   --clo-success: #087b05;
   --clo-warning: #b55d00;
   --clo-danger: #cb2461;
-  
+
   /* Layout Tokens */
   --clo-w-max: 1120px;
   --clo-radius: 8px;
   --clo-radius-sm: 4px;
   --clo-radius-xs: 4px;
-  
+
   /* Spacing System */
   --clo-space-xs: 0.5rem;
   --clo-space-sm: 1rem;
   --clo-space-md: 1.75rem;
   --clo-space-lg: 3rem;
   --clo-space-xl: 5rem;
-  
+
   /* Typography */
   --clo-font-display: Georgia, 'Times New Roman', serif;
   --clo-font-body: 'Mulish', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -1251,37 +1251,37 @@ const exportCSV = () => {
   .clo-hero {
     padding: 12px var(--clo-space-sm);
   }
-  
+
   .clo-page-title {
     font-size: 1.25rem;
   }
-  
+
   .clo-container {
     padding: 0 var(--clo-space-sm);
   }
-  
+
   .clo-section {
     padding: var(--clo-space-sm);
   }
-  
+
   .clo-section-header {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .clo-assignment-header {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .clo-field-narrow {
     flex: 1;
   }
-  
+
   .clo-field-actions {
     width: 100%;
   }
-  
+
   .clo-field-actions .clo-btn {
     width: 100%;
   }
@@ -1298,12 +1298,12 @@ const exportCSV = () => {
   .clo-page::after {
     display: none;
   }
-  
+
   .clo-allocation-row {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .clo-allocation-pill {
     width: 100%;
   }
@@ -1396,6 +1396,7 @@ select:focus-visible {
   border-bottom: 2px solid var(--clo-border);
   margin-bottom: var(--clo-space-md);
   overflow-x: auto;
+  overflow-y: hidden;
   scrollbar-width: thin;
 }
 
@@ -1473,3 +1474,12 @@ select:focus-visible {
   border-top: 1px solid var(--clo-border);
 }
 </style>
+
+
+<!--
+
+Future state for this: Update the tool to be as comprehensive as Pathway A, with the readiness values, etc.
+
+An Import from Pathway A? Is that even possible?
+
+-->

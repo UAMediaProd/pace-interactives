@@ -156,10 +156,6 @@
           <div class="clo-section-divider"></div>
         </div>
       </div>
-      <p class="clo-section-description">
-        Map what students have been taught, week by week. This is the preferred source for the readiness bars in CLO Mapping; CLO Mapping remains available as a lighter manual fallback.
-      </p>
-
       <div v-if="!readinessTemplateEnabled" class="clo-readiness-opt-in">
         <div>
           <h3>Use the teaching readiness template?</h3>
@@ -188,11 +184,30 @@
             <label class="clo-compact-field"><span>CLO</span><select v-model.number="outcome.cloId" class="clo-input clo-teaching-clo-select" aria-label="CLO taught this week">
               <option v-for="(clo, cloIndex) in clos" :key="clo.id" :value="clo.id">CLO {{ cloIndex + 1 }} — {{ clo.name }}</option>
             </select></label>
-            <div class="clo-readiness-level-control"><span>Readiness level</span><div class="clo-readiness-levels">
-              <button type="button" :class="[readinessPillClass(33), { 'clo-readiness-level-active': outcome.readiness === 33 }]" :aria-pressed="outcome.readiness === 33" @click="setTeachingReadiness(outcome, 33)"><ReadinessIcon :value="33" />Foundational</button>
-              <button type="button" :class="[readinessPillClass(66), { 'clo-readiness-level-active': outcome.readiness >= 34 && outcome.readiness < 100 }]" :aria-pressed="outcome.readiness >= 34 && outcome.readiness < 100" @click="setTeachingReadiness(outcome, 66)"><ReadinessIcon :value="66" />Developing</button>
-              <button type="button" :class="[readinessPillClass(100), { 'clo-readiness-level-active': outcome.readiness === 100 }]" :aria-pressed="outcome.readiness === 100" @click="setTeachingReadiness(outcome, 100)"><ReadinessIcon :value="100" />Complete</button>
-            </div></div>
+            <div class="clo-readiness-level-control">
+              <span>Readiness level</span>
+              <div class="clo-teaching-readiness-ruler" :class="readinessPillClass(outcome.readiness)">
+                <div class="clo-teaching-readiness-track" :style="{ '--teaching-readiness': `${outcome.readiness}%` }">
+                  <span class="clo-teaching-readiness-range-layer" aria-hidden="true">
+                    <span class="clo-teaching-readiness-range clo-teaching-readiness-range-foundational">Foundational</span>
+                    <span class="clo-teaching-readiness-range clo-teaching-readiness-range-developing">Developing</span>
+                  </span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    :value="outcome.readiness"
+                    :aria-label="`Teaching readiness for CLO ${clos.findIndex(clo => clo.id === outcome.cloId) + 1} in Week ${weekIndex + 1}`"
+                    :aria-valuetext="`${outcome.readiness}% — ${readinessCategory(outcome.readiness)}`"
+                    :title="`${outcome.readiness}% — ${readinessCategory(outcome.readiness)}`"
+                    class="clo-teaching-readiness-slider"
+                    @input="setTeachingReadiness(outcome, weekIndex, $event.target.value)"
+                  />
+                  <small class="clo-readiness-category clo-teaching-readiness-category" :class="readinessPillClass(outcome.readiness)" :style="{ left: readinessPillPosition(outcome.readiness) }"><ReadinessIcon :value="outcome.readiness" />{{ outcome.readiness }}% {{ readinessCategory(outcome.readiness) }}</small>
+                </div>
+              </div>
+            </div>
             <button @click="removeTeachingOutcome(week, outcomeIndex)" class="clo-icon-btn" :aria-label="`Remove CLO from Week ${weekIndex + 1}`">×</button>
           </div>
           <div class="clo-week-add-controls">
@@ -203,7 +218,7 @@
             <header class="clo-week-assessments-header">
               <h3>Assignments</h3>
             </header>
-            <article v-for="assignment in assignmentsForWeek(weekIndex + 1)" :key="assignment.id" class="clo-assessment-readiness-card">
+            <article v-for="assignment in assignmentsForWeek(weekIndex + 1)" :key="assignment.id" :id="teachingAssignmentId(assignment.id)" class="clo-assessment-readiness-card" :class="{ 'clo-focus-target': isTeachingFocusAssignment(assignment.id) }">
               <div class="clo-assessment-info">
                 <label class="clo-compact-field"><span>Assignment</span><input v-model="assignment.name" class="clo-input clo-assessment-name" type="text" :placeholder="`Assignment ${assignment.id} name`" /></label>
                 <label class="clo-assessment-week-field">Week
@@ -212,18 +227,24 @@
                   </select>
                 </label>
               </div>
+              <div v-if="assessmentChangeNoticesFor(assignment.id).length" class="clo-assessment-change-alert" role="status">
+                <div v-for="notice in assessmentChangeNoticesFor(assignment.id)" :key="`${notice.assignmentId}-${notice.cloId}`">
+                  <span>This assessment level has been changed. Reevaluate if the teaching readiness levels prior to this assignment are still relevant.</span>
+                  <button class="clo-inline-link" @click="goToMapping(notice.assignmentId, notice.cloId)">Review in CLO Mapping</button>
+                </div>
+              </div>
               <div class="clo-assessment-clo-list">
                 <p v-if="validCLOsForAssignment(assignment).length === 0" class="clo-validation-message clo-validation-warning">No CLO has been taught by this point. Add teaching readiness before mapping assignment CLOs.</p>
-                <div v-for="mapping in assessmentMappingsFor(assignment.id)" :key="mapping.id" class="clo-assessment-mapping">
+                <div v-for="mapping in assessmentMappingsFor(assignment.id)" :key="mapping.id" class="clo-assessment-mapping" :class="{ 'clo-focus-target': isTeachingFocusMapping(assignment.id, mapping.cloId) }">
                   <div class="clo-assessment-clo-details">
                     <label class="clo-compact-field"><span>CLO</span><select :value="mapping.cloId" @change="setAssessmentCLO(mapping, $event.target.value)" class="clo-input" aria-label="CLO assessed">
                       <option v-if="!isCLOValidForAssignment(mapping.cloId, assignment)" :value="mapping.cloId">CLO no longer taught by this point</option>
                       <option v-for="(clo, cloIndex) in validCLOsForAssignment(assignment)" :key="clo.id" :value="clo.id">CLO {{ cloIndex + 1 }} — {{ clo.name }}</option>
                     </select></label>
                     <label class="clo-compact-field clo-assessment-level-field"><span>Assessment level</span><span class="clo-readiness-select" :class="readinessPillClass(mapping.readiness)"><ReadinessIcon :value="mapping.readiness" /><select v-model.number="mapping.readiness" aria-label="Readiness level assessed">
-                      <option :value="33" :disabled="availableReadinessFor(assignment, mapping.cloId) < 33">Foundational</option>
-                      <option :value="66" :disabled="availableReadinessFor(assignment, mapping.cloId) < 66">Developing</option>
-                      <option :value="100" :disabled="availableReadinessFor(assignment, mapping.cloId) < 100">Complete</option>
+                      <option :value="33" :disabled="!canAssessAtReadiness(33, availableReadinessFor(assignment, mapping.cloId))">Foundational</option>
+                      <option :value="66" :disabled="!canAssessAtReadiness(66, availableReadinessFor(assignment, mapping.cloId))">Developing</option>
+                      <option :value="100" :disabled="!canAssessAtReadiness(100, availableReadinessFor(assignment, mapping.cloId))">Complete</option>
                     </select></span></label>
                     <p v-if="assessmentValidation(mapping, assignment)" class="clo-validation-message">{{ assessmentValidation(mapping, assignment) }}</p>
                   </div>
@@ -234,8 +255,10 @@
               </div>
               <div class="clo-assessment-controls">
                 <button v-if="validCLOsForAssignment(assignment).length" @click="addAssessmentMapping(assignment)" class="clo-inline-add">+ CLO</button>
-                <button @click="removeAssignment(assignment.id)" class="clo-inline-danger" :aria-label="`Remove ${assignment.name || 'assignment'}`">Remove</button>
               </div>
+              <footer class="clo-assignment-remove-action">
+                <button @click="removeAssignment(assignment.id)" class="clo-inline-danger" :aria-label="`Remove ${assignment.name || 'assignment'}`">Remove assignment</button>
+              </footer>
             </article>
           </section>
         </article>
@@ -373,7 +396,7 @@
             <span>Readiness</span>
             <small>taught by this point</small>
           </div>
-          <div v-for="(assignment, assignmentIndex) in assignments" :key="assignment.id" class="clo-mapping-cell clo-mapping-readiness-cell">
+          <div v-for="(assignment, assignmentIndex) in assignments" :key="assignment.id" :id="mappingCellId(clo.id, assignment.id)" class="clo-mapping-cell clo-mapping-readiness-cell" :class="{ 'clo-focus-target': mappingFocus?.assignmentId === assignment.id && mappingFocus?.cloId === clo.id }">
                   <div class="clo-readiness-control">
                     <input
                       type="range"
@@ -406,7 +429,10 @@
                     Minimum readiness: {{ getReadinessTarget(clo.id, assignment.id).toFixed(0) }}%
                   </small>
                   <div v-if="readinessProposals[proposalKey(clo.id, assignment.id)]" class="clo-readiness-proposal">
-                    <span v-if="readinessProposals[proposalKey(clo.id, assignment.id)].blocked">{{ readinessProposals[proposalKey(clo.id, assignment.id)].blocked }}</span>
+                    <template v-if="readinessProposals[proposalKey(clo.id, assignment.id)].blocked">
+                      <span>{{ readinessProposals[proposalKey(clo.id, assignment.id)].blocked }}</span>
+                      <button class="clo-inline-link" @click="goToTeachingReadiness(clo.id, assignment.id)">Review teaching readiness</button>
+                    </template>
                     <span v-else>Suggested assessment update: {{ readinessProposals[proposalKey(clo.id, assignment.id)].assessmentCategory || 'Not set' }} → {{ readinessProposals[proposalKey(clo.id, assignment.id)].proposedCategory }}.</span>
                     <button v-if="!readinessProposals[proposalKey(clo.id, assignment.id)].blocked" @click="applyReadinessProposal(readinessProposals[proposalKey(clo.id, assignment.id)])">Apply category</button>
                     <button @click="discardReadinessProposal(readinessProposals[proposalKey(clo.id, assignment.id)])">Dismiss</button>
@@ -643,7 +669,7 @@
     </div>  </div></template>
 
 <script setup>
-import { ref, computed, reactive, onMounted, watch } from 'vue'
+import { ref, computed, reactive, onMounted, watch, nextTick } from 'vue'
 import { useAnalytics } from '@/composables/useAnalytics'
 import ReadinessIcon from '@/components/ReadinessIcon.vue'
 
@@ -691,6 +717,9 @@ const readinessProposals = reactive({})
 // Mapping uses this ephemeral value so the bar responds immediately while a
 // teaching-category update is waiting for the user's explicit confirmation.
 const readinessPreviews = reactive({})
+const assessmentChangeNotices = ref([])
+const teachingFocus = ref(null)
+const mappingFocus = ref(null)
 
 let nextCLOId = 2
 let nextAssignmentId = 1
@@ -778,6 +807,11 @@ const readinessCategory = (value) => {
 
 const readinessPillClass = (value) => `clo-readiness-${readinessCategory(value).toLowerCase().replace(' ', '-')}`
 
+const readinessPillPosition = (value) => {
+  const readiness = Math.min(100, Math.max(0, Number(value) || 0))
+  return `${Math.min(86, Math.max(14, readiness))}%`
+}
+
 const readinessForCategory = (category) => ({
   'Not taught': 0,
   Foundational: 33,
@@ -785,14 +819,34 @@ const readinessForCategory = (category) => ({
   Complete: 100
 }[category] ?? 0)
 
+const readinessCategoryRank = (value) => ({
+  'Not taught': 0,
+  Foundational: 1,
+  Developing: 2,
+  Complete: 3
+}[readinessCategory(value)] ?? 0)
+
+// Assessment levels are category-based: any value in a taught category makes
+// that category available to assess. The stored 33/66/100 values are labels,
+// rather than thresholds students must reach.
+const canAssessAtReadiness = (assessmentReadiness, taughtReadiness) =>
+  readinessCategoryRank(assessmentReadiness) > 0 &&
+  readinessCategoryRank(assessmentReadiness) <= readinessCategoryRank(taughtReadiness)
+
 const enableReadinessTemplate = () => {
   readinessTemplateEnabled.value = true
-  if (!teachingWeeks.value.length) addTeachingWeek()
+  const latestAssignmentWeek = Math.max(1, ...assignments.value.map(assignment => getWeekNumber(assignment)))
+  ensureTeachingWeeksThrough(latestAssignmentWeek)
   assignments.value.forEach(assignment => setAssignmentWeek(assignment, assignment.week || 1))
 }
 
 const addTeachingWeek = () => {
   teachingWeeks.value.push({ id: nextTeachingWeekId++, topic: '', outcomes: [] })
+}
+
+const ensureTeachingWeeksThrough = (weekNumber) => {
+  const targetWeek = Math.max(1, Math.round(Number(weekNumber) || 1))
+  while (teachingWeeks.value.length < targetWeek) addTeachingWeek()
 }
 
 const removeTeachingWeek = (weekIndex) => {
@@ -809,11 +863,19 @@ const addTeachingOutcome = (week) => {
 
 const removeTeachingOutcome = (week, outcomeIndex) => week.outcomes.splice(outcomeIndex, 1)
 
-const setTeachingReadiness = (outcome, value) => {
+const setTeachingReadiness = (outcome, weekIndex, value) => {
   outcome.readiness = Math.min(100, Math.max(0, Math.round(parseFloat(value) || 0)))
+  assignments.value
+    .filter(assignment => getWeekNumber(assignment) >= weekIndex + 1)
+    .forEach(assignment => {
+      const key = proposalKey(outcome.cloId, assignment.id)
+      delete readinessPreviews[key]
+      delete readinessProposals[key]
+    })
 }
 
 const setAssignmentWeek = (assignment, value) => {
+  if (!readinessTemplateEnabled.value) ensureTeachingWeeksThrough(value)
   const max = readinessTemplateEnabled.value ? Math.max(1, teachingWeeks.value.length) : 52
   assignment.week = Math.min(max, Math.max(1, Math.round(parseFloat(value) || 1)))
   sortAssignments()
@@ -835,6 +897,29 @@ const assessmentMappingsFor = (assignmentId) => assessmentMappings.value.filter(
 
 const assessmentMappingForCLO = (assignmentId, cloId) => assessmentMappingsFor(assignmentId)
   .find(mapping => Number(mapping.cloId) === Number(cloId))
+
+const assessmentChangeNoticesFor = (assignmentId) =>
+  assessmentChangeNotices.value.filter(notice => notice.assignmentId === assignmentId)
+
+const teachingAssignmentId = (assignmentId) => `teaching-assignment-${assignmentId}`
+const mappingCellId = (cloId, assignmentId) => `mapping-cell-${cloId}-${assignmentId}`
+
+const isTeachingFocusAssignment = (assignmentId) => teachingFocus.value?.assignmentId === assignmentId
+
+const isTeachingFocusMapping = (assignmentId, cloId) =>
+  isTeachingFocusAssignment(assignmentId) && Number(teachingFocus.value?.cloId) === Number(cloId)
+
+const goToTeachingReadiness = (cloId, assignmentId) => {
+  teachingFocus.value = { cloId, assignmentId }
+  currentTab.value = 1
+  nextTick(() => document.getElementById(teachingAssignmentId(assignmentId))?.scrollIntoView({ block: 'center', inline: 'nearest' }))
+}
+
+const goToMapping = (assignmentId, cloId) => {
+  mappingFocus.value = { assignmentId, cloId }
+  currentTab.value = 3
+  nextTick(() => document.getElementById(mappingCellId(cloId, assignmentId))?.scrollIntoView({ block: 'center', inline: 'center' }))
+}
 
 const assignmentsForWeek = (weekNumber) => assignments.value.filter(assignment => getWeekNumber(assignment) === weekNumber)
 
@@ -858,7 +943,7 @@ const setAssessmentCLO = (mapping, value) => {
 const assessmentValidation = (mapping, assignment) => {
   const taught = availableReadinessFor(assignment, mapping.cloId)
   if (taught === 0) return 'This CLO has not been taught by this assessment point. Move the assessment, or add the relevant teaching earlier in the sequence.'
-  if (Number(mapping.readiness) > taught) return `This assessment tests ${readinessCategory(mapping.readiness)} (${mapping.readiness}%), but only ${taught}% has been taught. Lower the assessment level or update the teaching sequence.`
+  if (!canAssessAtReadiness(mapping.readiness, taught)) return `This assessment tests ${readinessCategory(mapping.readiness)} (${mapping.readiness}%), but only ${taught}% has been taught. Lower the assessment level or update the teaching sequence.`
   return ''
 }
 
@@ -894,7 +979,7 @@ const proposeReadinessChange = (cloId, assignmentId, value) => {
   readinessProposals[key] = {
     cloId, assignmentId, proposed, previousCategory, proposedCategory, assessmentCategory,
     assessmentReadiness: readinessForCategory(proposedCategory),
-    blocked: readinessForCategory(proposedCategory) > taught
+    blocked: !canAssessAtReadiness(readinessForCategory(proposedCategory), taught)
       ? `This assessment cannot be set to ${proposedCategory}: only ${previousCategory.toLowerCase()} learning has been taught by this point.`
       : ''
   }
@@ -910,13 +995,27 @@ const applyReadinessProposal = (proposal) => {
     cloId: proposal.cloId,
     readiness: proposal.assessmentReadiness
   })
-  delete readinessPreviews[proposalKey(proposal.cloId, proposal.assignmentId)]
+  // The adjustment applies to the assessment category. Keep the live mapping
+  // value visible until teaching readiness is deliberately updated to match.
+  readinessPreviews[proposalKey(proposal.cloId, proposal.assignmentId)] = proposal.proposed
   delete readinessProposals[proposalKey(proposal.cloId, proposal.assignmentId)]
+  if (!assessmentChangeNotices.value.some(notice => notice.assignmentId === proposal.assignmentId && notice.cloId === proposal.cloId)) {
+    assessmentChangeNotices.value.push({ assignmentId: proposal.assignmentId, cloId: proposal.cloId })
+  }
 }
 
-// TODO(team): confirm whether applying a lower assessment category should also
-// persist the lower mapping-bar value, or whether the bar must continue to
-// represent taught readiness from the teaching sequence.
+//
+//
+//
+//
+// Future State?
+//
+// - Rubric Composition
+// -- Now build your rubric
+// -- Look at Kangarubric tool that Tim C made
+// --- Export from the Rubric Composition table to a Canvas-ready rubric.
+//
+//
 
 const discardReadinessProposal = (proposal) => {
   delete readinessPreviews[proposalKey(proposal.cloId, proposal.assignmentId)]
@@ -1041,9 +1140,17 @@ const getHeatmapStyle = (value) => {
 
 const getReadinessSummaryStyle = (value) => {
   const readiness = Math.min(100, Math.max(0, Number(value) || 0))
+  const category = readinessCategory(readiness)
+  const categoryColours = {
+    'Not taught': { fill: '#f1f2f4', text: '#5d6470' },
+    Foundational: { fill: '#fff3e0', text: '#9a6700' },
+    Developing: { fill: '#e8f5e9', text: '#2e7d32' },
+    Complete: { fill: 'var(--clo-accent-b-soft)', text: '#140F50' }
+  }
+  const colours = categoryColours[category]
   return {
-    background: `linear-gradient(90deg, rgba(131,107,255,0.28) ${readiness}%, #faf9ff ${readiness}%)`,
-    color: readiness >= 70 ? '#140F50' : '#3b3768'
+    background: `linear-gradient(90deg, ${colours.fill} 0 ${readiness}%, #faf9ff ${readiness}% 100%)`,
+    color: colours.text
   }
 }
 
@@ -1078,12 +1185,14 @@ const removeCLO = (index) => {
 
 const addAssignment = (weekNumber) => {
   const id = nextAssignmentId++
+  const defaultWeek = readinessTemplateEnabled.value
+    ? Math.min(Math.max(1, Math.round(weekNumber || teachingWeeks.value.length)), Math.max(1, teachingWeeks.value.length))
+    : assignments.value.length + 1
+  ensureTeachingWeeksThrough(defaultWeek)
   assignments.value.push({
     id,
     name: `Assignment ${id}`,
-    week: readinessTemplateEnabled.value
-      ? Math.min(Math.max(1, Math.round(weekNumber || teachingWeeks.value.length)), Math.max(1, teachingWeeks.value.length))
-      : assignments.value.length + 1
+    week: defaultWeek
   })
   clos.value.forEach(clo => {
     const precedingAssignment = assignments.value[assignments.value.length - 2]
@@ -1107,6 +1216,9 @@ const removeAssignment = (assignmentId) => {
   })
   assessmentMappings.value = assessmentMappings.value.filter(mapping => mapping.assignmentId !== assignmentId)
   assignments.value = assignments.value.filter(a => a.id !== assignmentId)
+  assessmentChangeNotices.value = assessmentChangeNotices.value.filter(notice => notice.assignmentId !== assignmentId)
+  if (teachingFocus.value?.assignmentId === assignmentId) teachingFocus.value = null
+  if (mappingFocus.value?.assignmentId === assignmentId) mappingFocus.value = null
   sortAssignments()
 }
 
@@ -1135,9 +1247,15 @@ const exportCSV = () => {
     lines.push(row(['Week', 'Topic', 'CLO', 'Taught readiness (%)', 'Category']))
     teachingWeeks.value.forEach((week, weekIndex) => {
       if (!week.outcomes.length) lines.push(row([`Week ${weekIndex + 1}`, week.topic, '', '', '']))
-      week.outcomes.forEach(outcome => {
+      week.outcomes.forEach((outcome, outcomeIndex) => {
         const cloIndex = clos.value.findIndex(clo => clo.id === Number(outcome.cloId))
-        lines.push(row([`Week ${weekIndex + 1}`, week.topic, cloIndex === -1 ? '' : `CLO ${cloIndex + 1}`, outcome.readiness + '%', readinessCategory(outcome.readiness)]))
+        lines.push(row([
+          outcomeIndex === 0 ? `Week ${weekIndex + 1}` : '',
+          outcomeIndex === 0 ? week.topic : '',
+          cloIndex === -1 ? '' : `CLO ${cloIndex + 1}`,
+          outcome.readiness + '%',
+          readinessCategory(outcome.readiness)
+        ]))
       })
     })
     lines.push('')
@@ -2149,6 +2267,42 @@ const exportCSV = () => {
   border: 1px solid var(--clo-border);
 }
 
+.clo-inline-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #4F4099;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.clo-readiness-proposal .clo-inline-link {
+  background: transparent;
+  color: #4F4099;
+}
+
+.clo-assessment-change-alert {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: var(--clo-space-md);
+  padding: 0.75rem 0.9rem;
+  border-left: 3px solid var(--clo-accent-b);
+  background: var(--clo-accent-b-soft);
+  color: var(--clo-ink-light);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.clo-assessment-change-alert > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
 .clo-readiness-opt-in {
   display: flex;
   justify-content: space-between;
@@ -2261,12 +2415,9 @@ const exportCSV = () => {
   font-size: 0.86rem;
 }
 
-.clo-readiness-levels {
-  display: flex;
-  min-height: 40px;
-  overflow: hidden;
-  border: 1px solid var(--clo-border);
-  border-radius: var(--clo-radius-xs);
+.clo-teaching-clo-select {
+  height: 30px;
+  padding: 0 9px !important;
 }
 
 .clo-compact-field,
@@ -2290,34 +2441,135 @@ const exportCSV = () => {
 .clo-compact-field > span,
 .clo-readiness-level-control > span { line-height: 1.1; }
 
-.clo-readiness-levels button {
-  flex: 1;
+.clo-teaching-readiness-ruler {
+  --teaching-readiness-fill: #7a8290;
+  --teaching-readiness-fill-soft: #f1f2f4;
+  position: relative;
+  padding-top: 1.65rem;
+  transform: translateY(2px);
+  background: transparent;
+  color: var(--clo-ink-light);
+}
+
+.clo-teaching-readiness-ruler.clo-readiness-foundational {
+  --teaching-readiness-fill: #d99a32;
+  --teaching-readiness-fill-soft: #fff3e0;
+}
+
+.clo-teaching-readiness-ruler.clo-readiness-developing {
+  --teaching-readiness-fill: #4b9b57;
+  --teaching-readiness-fill-soft: #e8f5e9;
+}
+
+.clo-teaching-readiness-ruler.clo-readiness-complete {
+  --teaching-readiness-fill: #7561f7;
+  --teaching-readiness-fill-soft: var(--clo-accent-b-soft);
+}
+
+.clo-teaching-readiness-track { position: relative; }
+
+.clo-teaching-readiness-range-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  clip-path: inset(0 0 0 var(--teaching-readiness));
+  pointer-events: none;
+}
+
+.clo-teaching-readiness-range {
+  position: absolute;
+  top: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.25rem;
-  padding: 7px 8px;
-  border: 0;
-  border-right: 1px solid var(--clo-border);
-  background: #fff;
-  color: var(--clo-ink-light);
-  font-family: var(--clo-font-body);
-  font-size: 0.75rem;
-  line-height: 1.15;
+  height: 28px;
+  overflow: hidden;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  pointer-events: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.clo-teaching-readiness-range-foundational {
+  left: 1%;
+  width: 32%;
+  color: #9a6700;
+}
+
+.clo-teaching-readiness-range-developing {
+  left: 33%;
+  width: 66%;
+  color: #226a30;
+}
+
+.clo-teaching-readiness-slider {
+  width: 100%;
+  height: 34px;
+  margin: 0;
+  appearance: none;
+  background: transparent;
   cursor: pointer;
 }
 
-.clo-readiness-levels button:last-child { border-right: 0; }
-.clo-readiness-levels button:hover { filter: brightness(0.97); }
-.clo-readiness-levels .clo-readiness-level-active {
-  box-shadow: inset 0 0 0 2px currentColor;
-  font-weight: 700;
-  position: relative;
-  z-index: 1;
+.clo-teaching-readiness-slider::-webkit-slider-runnable-track {
+  height: 28px;
+  border: 1px solid color-mix(in srgb, var(--teaching-readiness-fill) 34%, var(--clo-border));
+  border-radius: 3px;
+  background:
+    linear-gradient(to right, var(--teaching-readiness-fill) 0 var(--teaching-readiness), transparent var(--teaching-readiness) 100%),
+    linear-gradient(to right, #f1f2f4 0 1%, #fff3e0 1% 33%, #e8f5e9 33% 99%, var(--clo-accent-b-soft) 99% 100%);
 }
 
-.clo-readiness-levels :deep(.readiness-icon) {
+.clo-teaching-readiness-slider::-moz-range-track {
+  height: 28px;
+  border: 1px solid color-mix(in srgb, var(--teaching-readiness-fill) 34%, var(--clo-border));
+  border-radius: 3px;
+  background:
+    linear-gradient(to right, var(--teaching-readiness-fill) 0 var(--teaching-readiness), transparent var(--teaching-readiness) 100%),
+    linear-gradient(to right, #f1f2f4 0 1%, #fff3e0 1% 33%, #e8f5e9 33% 99%, var(--clo-accent-b-soft) 99% 100%);
+}
+
+.clo-teaching-readiness-slider::-webkit-slider-thumb {
+  width: 10px;
+  height: 34px;
+  margin-top: -4px;
+  appearance: none;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+}
+
+.clo-teaching-readiness-slider::-moz-range-thumb {
+  width: 10px;
+  height: 34px;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+}
+
+.clo-teaching-readiness-slider:focus-visible {
+  outline: 3px solid rgba(131,107,255,0.42);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+.clo-teaching-readiness-category {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  z-index: 4;
   margin: 0;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+@media (min-width: 701px) {
+  .clo-teaching-outcome > .clo-compact-field {
+    align-self: end;
+    padding-bottom: 0.35rem;
+  }
 }
 
 .clo-readiness-category :deep(.readiness-icon),
@@ -2336,15 +2588,26 @@ const exportCSV = () => {
   white-space: nowrap;
 }
 
-.clo-readiness-not-taught { background: #f1f2f4; color: #5d6470; }
-.clo-readiness-foundational { background: #fff3e0; color: #9a6700; }
-.clo-readiness-developing { background: #e8f5e9; color: #2e7d32; }
-.clo-readiness-complete { background: var(--clo-accent-b-soft); color: var(--clo-ink); }
+.clo-readiness-category.clo-readiness-not-taught,
+.clo-summary-readiness-category.clo-readiness-not-taught,
+.clo-readiness-select.clo-readiness-not-taught { background: #e3e5e8; color: #535a66; }
 
-.clo-readiness-levels button.clo-readiness-not-taught { background: #f1f2f4; color: #5d6470; }
-.clo-readiness-levels button.clo-readiness-foundational { background: #fff3e0; color: #9a6700; }
-.clo-readiness-levels button.clo-readiness-developing { background: #e8f5e9; color: #2e7d32; }
-.clo-readiness-levels button.clo-readiness-complete { background: var(--clo-accent-b-soft); color: var(--clo-ink); }
+.clo-readiness-category.clo-readiness-foundational,
+.clo-summary-readiness-category.clo-readiness-foundational,
+.clo-readiness-select.clo-readiness-foundational { background: #f3d7bc; color: #815000; }
+
+.clo-readiness-category.clo-readiness-developing,
+.clo-summary-readiness-category.clo-readiness-developing,
+.clo-readiness-select.clo-readiness-developing { background: #ccebd0; color: #1d6a2c; }
+
+.clo-readiness-category.clo-readiness-complete,
+.clo-summary-readiness-category.clo-readiness-complete,
+.clo-readiness-select.clo-readiness-complete { background: #d9ccff; color: #3d2a92; }
+
+.clo-readiness-levels button.clo-readiness-not-taught { background: #e3e5e8; color: #535a66; }
+.clo-readiness-levels button.clo-readiness-foundational { background: #f3d7bc; color: #815000; }
+.clo-readiness-levels button.clo-readiness-developing { background: #ccebd0; color: #1d6a2c; }
+.clo-readiness-levels button.clo-readiness-complete { background: #d9ccff; color: #3d2a92; }
 
 .clo-readiness-alert {
   color: #9b5700 !important;
@@ -2430,6 +2693,12 @@ const exportCSV = () => {
   background: #fff8eb;
 }
 
+.clo-focus-target {
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 0 0 3px rgba(131,107,255,0.28);
+}
+
 .clo-assessment-info {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 100px;
@@ -2486,6 +2755,21 @@ const exportCSV = () => {
 .clo-assessment-clo-controls { display: flex; justify-content: flex-end; align-self: end; }
 
 .clo-assessment-controls { display: flex; align-self: end; align-items: center; gap: 0.6rem; min-height: 32px; }
+
+.clo-assessment-readiness-card > .clo-assessment-change-alert {
+  grid-column: 2 / -1;
+  grid-row: 2;
+  margin: 0;
+}
+
+.clo-assignment-remove-action {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.1rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--clo-border);
+}
 
 .clo-readiness-select {
   display: flex;
@@ -2747,11 +3031,13 @@ select:focus-visible {
   }
 
   .clo-teaching-clo-select,
-  .clo-readiness-levels,
+  .clo-readiness-level-control,
   .clo-assessment-clo-details .clo-validation-message { grid-column: 1 / -1; }
 
   .clo-assessment-readiness-card { grid-template-columns: 1fr; }
   .clo-assessment-controls { flex-direction: row; }
+  .clo-assessment-readiness-card > .clo-assessment-change-alert,
+  .clo-assignment-remove-action { grid-column: 1; grid-row: auto; }
   .clo-assessment-clo-details { grid-template-columns: 1fr auto; }
   .clo-assessment-level-field { grid-column: 1 / -1; }
 }
