@@ -181,7 +181,7 @@
           </header>
           <p v-if="week.outcomes.length === 0" class="clo-empty-hint">Add each CLO that students meaningfully work with this week.</p>
           <div v-for="(outcome, outcomeIndex) in week.outcomes" :key="outcome.id" class="clo-teaching-outcome">
-            <label class="clo-compact-field"><span>CLO</span><select v-model.number="outcome.cloId" class="clo-input clo-teaching-clo-select" aria-label="CLO taught this week">
+            <label class="clo-compact-field"><span>CLO</span><select :value="outcome.cloId" @change="setTeachingOutcomeCLO(outcome, week, $event.target.value)" class="clo-input clo-teaching-clo-select" aria-label="CLO taught this week">
               <option v-for="(clo, cloIndex) in clos" :key="clo.id" :value="clo.id">CLO {{ cloIndex + 1 }} — {{ clo.name }}</option>
             </select></label>
             <div class="clo-readiness-level-control">
@@ -855,10 +855,20 @@ const removeTeachingWeek = (weekIndex) => {
   assignments.value.forEach(assignment => setAssignmentWeek(assignment, assignment.week))
 }
 
+const initialTeachingReadiness = (cloId, week) => {
+  const previousWeekCount = teachingWeeks.value.indexOf(week)
+  return previousWeekCount > 0 ? taughtReadinessAt(cloId, previousWeekCount) : 0
+}
+
 const addTeachingOutcome = (week) => {
   const alreadyMapped = new Set(week.outcomes.map(outcome => Number(outcome.cloId)))
   const available = clos.value.find(clo => !alreadyMapped.has(clo.id)) || clos.value[0]
-  if (available) week.outcomes.push({ id: nextTeachingOutcomeId++, cloId: available.id, readiness: 33 })
+  if (available) week.outcomes.push({ id: nextTeachingOutcomeId++, cloId: available.id, readiness: initialTeachingReadiness(available.id, week) })
+}
+
+const setTeachingOutcomeCLO = (outcome, week, cloId) => {
+  outcome.cloId = Number(cloId)
+  outcome.readiness = initialTeachingReadiness(outcome.cloId, week)
 }
 
 const removeTeachingOutcome = (week, outcomeIndex) => week.outcomes.splice(outcomeIndex, 1)
